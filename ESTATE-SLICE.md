@@ -29,6 +29,28 @@ Evidence (3, or 4 on nightmare) is spread with at least one item up top and
 one at ground level, so the loop is: courtyard, up one stair, along the deck,
 down the other, bin store and undercroft, back up, lift.
 
+## Pass 2: the loop has a shape now
+
+- **The case is a route.** Only one piece of evidence exists at a time and
+  each points to the next: Pun's door-entry fob in the bin store, the intercom
+  tape inside a stairwell, the CCTV still on the walkway, and on nightmare the
+  watch by the lift door that should not be in the undercroft.
+- **The stairwell doors start locked.** Act one is the courtyard, undercroft and
+  bin store with Pun patrolling the walkway above you, calling down when he
+  sees you. The fob unlocks both doors (a shift spec on the wire, so every
+  client opens them together) and he can come down.
+- **Bagging takes 1.5 seconds** standing still on the item; moving resets it.
+- **Completing the case calls the lift**, which takes 35 / 50 / 65 seconds by
+  difficulty to arrive. The HUD counts it down, a light dies every few seconds,
+  Pun is relentless, and the doors only open when it is there. Calling early
+  shoves you back out.
+- Sodium ambient lifted, fog opened up outdoors, flat numbers larger, header
+  status line moved clear of the menu button.
+- Dressing: satellite dishes, fly-tipped mattress and fridge, cardboard, more
+  bins in the undercroft, a camera over each stair top landing.
+- Sound: distant sirens, a dog, a television through a wall on the walkway,
+  hollow deck footsteps and clattering stair footsteps for Pun, a lift ding.
+
 ## What the estate does
 
 All of this is either seeded, sent over the wire as an existing shift spec,
@@ -75,8 +97,8 @@ settings, the ending overlays and the service worker.
   shader does brick, plaster, wet concrete, glass, metal, terrazzo and water
   procedurally, with a `uWet` uniform for specular outdoors.
 - Fog colour and range, ambient and rain follow the player's zone.
-- `sw.js` VERSION is `missing-pun-preview-estate-1`; the menu shows
-  `estate slice 1`.
+- `sw.js` VERSION is `missing-pun-preview-estate-2`; the menu shows
+  `estate slice 2`.
 
 ## Testing performed (Playwright, headless Chromium, swiftshader)
 
@@ -102,8 +124,6 @@ Not tested here: real Supabase, WebRTC voice, iOS Safari on a device
   than digits; they are legible within about two bays.
 - The service yard is only ever seen from the walkway edge or through the
   chain-link; it is dressed lightly.
-- Pun spawns at the far end of the grid, which is the lift landing; he starts
-  by the exit as he did in the house.
 - No ceilings: the fixed camera never sees them, but the stairwell and lift
   landing read as open-topped from very high camera angles.
 - The tower blocks beyond the estate are silhouettes with lit windows; there
