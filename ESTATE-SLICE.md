@@ -73,6 +73,33 @@ down the other, bin store and undercroft, back up, lift.
   way, so there is no referee to disagree with. Live scores tick during play.
 - `sw.js` cache `estate-3`; the menu shows `estate slice 3`.
 
+## Pass 4: fixes from the three-phone test
+
+- **Voice chat rebuilt**: one connection per friend, the lower id always
+  offers, ICE gathered in full before a single reliable offer/answer message,
+  no re-dial while a handshake is in flight, a watchdog that re-dials anyone
+  stuck or dropped, playback through plain audio elements with a tap-to-unlock
+  fallback. Tested with three tabs and fake microphones: all linked in two
+  seconds, and a leave/rejoin relinks.
+- **Messaging hardened**: the Supabase client now allows 50 events a second
+  (the default 10 silently dropped messages while positions went out at 15 a
+  second); important events (evidence, shifts, deaths, results, signalling)
+  are sent twice with an id and deduplicated; the host repeats the world
+  state every four seconds and a peer that missed a pickup catches up,
+  minigame included.
+- **Pun stays in the block.** The courtyard and bin store are outside for
+  him: he paths to the nearest place inside and waits (undercroft, stair door),
+  cannot catch you outside, and says so once. He starts at a walkway end, not
+  by the lift.
+- **Hiding places fixed**: the meter cupboards and stair cupboards had their
+  wall normals reversed, so stepping out put you inside the wall; stepping out
+  now searches for a clear spot (the skip is deeper than a cupboard).
+- **Minigames teach themselves**: a three-line card with a countdown before
+  each game, WATCH / YOUR TURN / TAP / WAIT cues in the top band, keyboard
+  hints on desktop; input moved to captured pointer events on the whole card
+  so the floating stick cannot swallow a tap; canvas sized after layout.
+- `sw.js` cache `estate-4`; the menu shows `estate slice 4`.
+
 ## What the estate does
 
 All of this is either seeded, sent over the wire as an existing shift spec,

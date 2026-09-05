@@ -691,7 +691,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   .mg-result.win{ color:var(--win); } .mg-result.lose{ color:var(--blood-bright); }
   @media (max-width:700px){
     .mg-body{ grid-template-columns:1fr 84px; gap:6px; }
-    #mg-canvas{ height:150px; }
+    #mg-canvas{ height:170px; }
     .mg-scores{ font-size:.5rem; } .mg-title{ font-size:.85rem; } .mg-hint{ font-size:.48rem; }
   }
   .board{ width:min(420px, 92vw); font-family:'Space Mono', monospace; font-size:.6rem; letter-spacing:.06em; text-transform:uppercase; color:var(--bone-dim); }
@@ -785,7 +785,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         </div>
         </div>
       </div>
-      <p class="wall-note">one block &middot; four floors of it move &middot; real-time 3d &middot; he is already in the stairwell <span id="build-tag">&middot; estate slice 3</span></p>
+      <p class="wall-note">one block &middot; four floors of it move &middot; real-time 3d &middot; he is already in the stairwell <span id="build-tag">&middot; estate slice 4</span></p>
     </div>
   </div>
 
@@ -1180,8 +1180,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       if ((wc-W.c0)%4===2 && wc>W.c0+1 && wc<W.c1-1){
         // a meter cupboard instead of a door: the walkway's hiding place
         var mx=wp.x, mz=W.r*CELL+WALL_HALF+0.22;
-        addProp({ t:'meter', x:mx, z:mz, yaw:Math.PI, nx:0, nz:1 });
-        hideSpots.push({ x:mx, z:mz, yaw:Math.PI, nx:0, nz:1, kind:'meter' });
+        addProp({ t:'meter', x:mx, z:mz, yaw:Math.PI, nx:0, nz:-1 });
+        hideSpots.push({ x:mx, z:mz, yaw:Math.PI, nx:0, nz:-1, kind:'meter' });
       } else {
         var dr={ t:'flatdoor', x:doorX, z:W.r*CELL+WALL_HALF, yaw:Math.PI, nx:0, nz:1, num:flatNo, col:(wc%5===0)?1:0 };
         flatNo+=2; addProp(dr); EST.doors.push(dr);
@@ -1225,8 +1225,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       addProp({ t:'plate', x:wallX+inner*(wo+0.02), z:(st.botR1)*CELL+1.2, y:1.9, yaw:st.side==='W'?Math.PI/2:-Math.PI/2, nx:inner, nz:0, kind:'stairs' });
       // the cupboard under the stairs, at the bottom landing against the outer wall
       var cx=wallX+inner*(wo+0.31), cz=(st.botR1)*CELL+2.4;
-      addProp({ t:'cupboard', x:cx, z:cz, yaw:st.side==='W'?Math.PI/2:-Math.PI/2, nx:inner, nz:0 });
-      hideSpots.push({ x:cx, z:cz, yaw:st.side==='W'?Math.PI/2:-Math.PI/2, nx:inner, nz:0, kind:'cupboard' });
+      addProp({ t:'cupboard', x:cx, z:cz, yaw:st.side==='W'?Math.PI/2:-Math.PI/2, nx:-inner, nz:0 });
+      hideSpots.push({ x:cx, z:cz, yaw:st.side==='W'?Math.PI/2:-Math.PI/2, nx:-inner, nz:0, kind:'cupboard' });
       // the door entry panel on the undercroft side of the locked door, and a camera over each top landing
       var doorC = st.side==='W' ? st.c1+1 : st.c0;
       addProp({ t:'commdoor', x:doorC*CELL, z:(st.botR1)*CELL+CELL/2, yaw:0, side:st.side, bottom:true });
@@ -1512,7 +1512,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     keyChime(); updateEvidenceHud();
     revealEvidence(item,index,moved,opts.finder||'');
     var finderId = opts.finderId || myId();
-    statFor(finderId, opts.finder || (NET.on?NET.name:'you')).ev++;
+    if (finderId!=='late') statFor(finderId, opts.finder || (NET.on?NET.name:'you')).ev++;
     if (NET.isPun){ HZ.punHold=(MG_GAMES[mgKindFor(index)].dur+9); showToast('They are playing your game. Wait.', true); }
     else setTimeout(function(){ if (phase==='play') mgStart(index); }, 1700);
     var at=opts.at||{x:item.x,z:item.z};
@@ -1577,7 +1577,16 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return d;
   }
 
-  function bfsPath(start, goal){
+  function punZoneOK(r,c){ var zn=zoneAt(r,c); return zn!==Z.COURT && zn!==Z.BINS; }
+  // the nearest cell Pun may stand on to a point he may not reach
+  function punNearestAllowed(r,c){
+    if (punZoneOK(r,c) && isOpen(r,c)) return {r:r,c:c};
+    var best=null, bd=1e9;
+    for (var i=0;i<openCells.length;i++){ var o=openCells[i]; if (!punZoneOK(o.r,o.c)) continue; var dd=Math.abs(o.r-r)+Math.abs(o.c-c); if (dd<bd){ bd=dd; best=o; } }
+    return best || {r:r,c:c};
+  }
+  function bfsPath(start, goal, forPun){
+    if (forPun){ goal=punNearestAllowed(goal.r,goal.c); if (!punZoneOK(start.r,start.c)) forPun=false; }
     if (!isOpen(start.r,start.c) || !isOpen(goal.r,goal.c)) return [];
     var key=function(r,c){return r*COLS+c;};
     var seen=new Set([key(start.r,start.c)]), prev={}, q=[start], found=false;
@@ -1587,6 +1596,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var nbs=adjacency[cur.r][cur.c];
       for (var i=0;i<nbs.length;i++){
         var n=nbs[i], k=key(n.r,n.c);
+        if (forPun && !punZoneOK(n.r,n.c)) continue;
         if (!seen.has(k)){ seen.add(k); prev[k]=cur; q.push(n); }
       }
     }
@@ -3263,7 +3273,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     player={ x:st.x, z:st.z, yaw:0, animT:0, moving:false, sprinting:false, pose:null, fy:0 };
 
     // it starts as far away as the house allows
-    var spawn={ r:EST.walk.r, c:Math.min(EST.walk.c1, ((COLS/2)|0)+3+ri(0,3)) };
+    var spawn={ r:EST.walk.r, c: Math.random()<0.5 ? EST.walk.c0+1+ri(0,2) : EST.walk.c1-1-ri(0,2) };
     if (!isOpen(spawn.r,spawn.c)) spawn={ r:EST.walk.r, c:EST.walk.c0+2 };
     var cs=cellCenter(spawn.r,spawn.c);
     creature={ x:cs.x, z:cs.z, cell:{r:spawn.r,c:spawn.c}, animT:0, jx:0, jz:0, yaw:0, fy:floorAt(cs.x,cs.z) };
@@ -3419,6 +3429,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     stickEl.classList.add('live');
   }
   frame.addEventListener('pointerdown', function(e){
+    if (MG.active) return;
     if (!isTouch || e.pointerType==='mouse' || !document.body.classList.contains('playing')) return;
     if (e.target.closest('button') || e.target.closest('.act-btn')) return;
     var fr=frame.getBoundingClientRect();
@@ -3444,7 +3455,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     e.preventDefault(); if (phase==='dead'){ cycleSpectate(); return; } actPressed=true; struggle();
   });
   // tapping the view also counts as struggling, for phones
-  frame.addEventListener('pointerdown', function(){ struggle(); });
+  frame.addEventListener('pointerdown', function(){ if (!MG.active) struggle(); });
 
   // ===================== PLAYER =====================
   function nearestHideSpot(){
@@ -3508,8 +3519,15 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       promptEl.innerHTML=actionHint+' Step out';
       if (actPressed){
         if (hideSpot){
-          player.x = hideSpot.x - hideSpot.nx*0.95;
-          player.z = hideSpot.z - hideSpot.nz*0.95;
+          // step out to the first clear spot in front of the hiding place (a skip is deeper than a cupboard)
+          var ox=player.x, oz=player.z, tries=[[-0.95,0],[-1.35,0],[-1.75,0],[0.95,0],[1.45,0],[-1.2,0.9],[-1.2,-0.9]], okOut=false;
+          for (var ti=0; ti<tries.length && !okOut; ti++){
+            var along=tries[ti][0], side=tries[ti][1];
+            var tx=hideSpot.x + hideSpot.nx*along + (-hideSpot.nz)*side, tz=hideSpot.z + hideSpot.nz*along + (hideSpot.nx)*side;
+            if (!collides(tx,tz,PLAYER_R)){ ox=tx; oz=tz; okOut=true; }
+          }
+          if (!okOut){ var oc=cellOf(hideSpot.x,hideSpot.z), occ=cellCenter(oc.r,oc.c); ox=occ.x; oz=occ.z; }
+          player.x=ox; player.z=oz;
         }
         hidden=false; hideSpot=null;
         promptEl.classList.add('hidden');
@@ -3851,8 +3869,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function stepToward(tx,tz,speed,dt){
     var dx=tx-creature.x, dz=tz-creature.z, d=Math.sqrt(dx*dx+dz*dz);
     if (d<0.04) return;
-    creature.x += (dx/d)*speed*dt;
-    creature.z += (dz/d)*speed*dt;
+    var nx=creature.x+(dx/d)*speed*dt, nz=creature.z+(dz/d)*speed*dt;
+    if (!NET.isPun && phase!=='scare'){ var cc=cellOf(nx,nz); if (!punZoneOK(cc.r,cc.c)) return; }   // he stops at the block's edge
+    creature.x=nx; creature.z=nz;
   }
   function followPath(speed,dt){
     if (!creaturePath.length) return;
@@ -3863,7 +3882,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       creaturePath.shift();
     }
   }
-  function randomOpenCell(){ return openCells[(Math.random()*openCells.length)|0]; }
+  function randomOpenCell(){ for (var t=0;t<12;t++){ var o=openCells[(Math.random()*openCells.length)|0]; if (punZoneOK(o.r,o.c)) return o; } return openCells[(Math.random()*openCells.length)|0]; }
 
   // who it is after: alone, you; together, whichever survivor is nearest and not hidden
   function nearestSurvivor(){
@@ -3920,8 +3939,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         while (tries<12 && dist(cellCenter(far.r,far.c).x, cellCenter(far.r,far.c).z, T.x, T.z) < 22){
           far=randomOpenCell(); tries++;
         }
-        creaturePath=bfsPath(creature.cell, far);
-        if (!creaturePath.length){ for (var rt2=0; rt2<8 && !creaturePath.length; rt2++) creaturePath=bfsPath(creature.cell, randomOpenCell()); }
+        creaturePath=bfsPath(creature.cell, far, true);
+        if (!creaturePath.length){ for (var rt2=0; rt2<8 && !creaturePath.length; rt2++) creaturePath=bfsPath(creature.cell, randomOpenCell(), true); }
       }
       followPath(D.stalk*0.8, dt);
       creature.yaw += dt*0.6;
@@ -3957,7 +3976,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var goalPt = senses ? {x:T.x,z:T.z} : (lastKnown||{x:T.x,z:T.z});
       if (now-lastPath>380){
         lastPath=now;
-        creaturePath=bfsPath(creature.cell, cellOf(goalPt.x,goalPt.z));
+        creaturePath=bfsPath(creature.cell, cellOf(goalPt.x,goalPt.z), true);
       }
       if (creaturePath.length) followPath(speed,dt);
       else if (senses) stepToward(T.x,T.z,speed,dt);
@@ -3965,7 +3984,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         // arrived at your last position and you are not there — search nearby
         if (now-lastPath>900){
           lastPath=now;
-          var nb=adjacency[creature.cell.r][creature.cell.c];
+          var nb=adjacency[creature.cell.r][creature.cell.c].filter(function(q){ return punZoneOK(q.r,q.c); });
           if (nb.length){ var pk=nb[(Math.random()*nb.length)|0]; creaturePath=[pk]; }
         }
       }
@@ -3976,8 +3995,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         var goal;
         if (hiddenT) goal=randomOpenCell();
         else goal = Math.random()<0.9 ? cellOf(T.x,T.z) : randomOpenCell();
-        creaturePath=bfsPath(creature.cell, goal);
-        if (!creaturePath.length){ for (var rt=0; rt<8 && !creaturePath.length; rt++) creaturePath=bfsPath(creature.cell, randomOpenCell()); }
+        creaturePath=bfsPath(creature.cell, goal, true);
+        if (!creaturePath.length){ for (var rt=0; rt<8 && !creaturePath.length; rt++) creaturePath=bfsPath(creature.cell, randomOpenCell(), true); }
       }
       followPath(D.stalk,dt);
     }
@@ -4709,6 +4728,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (!NET.isPun){ updateStretch(dt); updateStairLoop(dt); updateLift(dt); }
     updateCctv(dt);
     if (HZ.marked>0){ HZ.marked-=dt; if (HZ.marked<=0) showToast('He has lost you.'); }
+    if (huntMode && !EST.locked && !HZ.edgeToast && creature && !NET.isPun){
+      var pc0=cellOf(player.x,player.z), cc0=cellOf(creature.x,creature.z);
+      if (!punZoneOK(pc0.r,pc0.c) && punZoneOK(cc0.r,cc0.c) && dist(player.x,player.z,creature.x,creature.z)<9){ HZ.edgeToast=true; showToast('He does not leave the block. You have to go back in.', true); }
+    }
     if (EST.locked && creature && !hidden && !NET.isPun && graceLeft<=0){
       HZ.taunt-=dt;
       var dTop=dist(player.x,player.z,creature.x,creature.z);
@@ -4856,8 +4879,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   var mgEl=$('mg'), mgTitle=$('mg-title'), mgHint=$('mg-hint'), mgTimer=$('mg-timer'), mgScores=$('mg-scores'), mgCanvas=$('mg-canvas'), mgResult=$('mg-result');
   var mgCtx=mgCanvas.getContext('2d');
   var MG_GAMES={
-    intercom:{ title:'INTERCOM', hint:'Watch the buttons. Press them back in order.', par:{easy:3,normal:4,nightmare:5}, dur:22 },
-    tube:{ title:'DEAD TUBE', hint:'Tap only while the tube is lit. Keep it alive.', par:{easy:9,normal:12,nightmare:15}, dur:20 }
+    intercom:{ title:'INTERCOM', hint:'He presses buttons. You press the same ones back, in order.', teach:['HE PRESSES', 'YOU PRESS THEM BACK', 'IN THE SAME ORDER'], par:{easy:3,normal:4,nightmare:5}, dur:22 },
+    tube:{ title:'DEAD TUBE', hint:'Tap the panel each time the tube lights. Never while it is dark.', teach:['TAP THE PANEL', 'ONLY WHEN THE TUBE IS LIT', 'DARK TAPS COUNT AGAINST YOU'], par:{easy:9,normal:12,nightmare:15}, dur:20 }
   };
   var MG_ORDER=['intercom','tube'];
   var STATS={};
@@ -4877,13 +4900,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     MG.scores[myId()]=0;
     if (kind==='intercom') mgIntercomInit(); else mgTubeInit();
     mgTitle.textContent="PUN'S GAME · "+G.title;
-    mgHint.textContent=G.hint;
+    mgHint.textContent=G.hint+(isTouch ? '' : (kind==='intercom' ? ' Keys 1 to 8.' : ' Space bar.'));
     mgResult.textContent=''; mgResult.className='mg-result';
     mgEl.classList.remove('hidden'); mgEl.classList.remove('over');
     promptEl.classList.add('hidden');
     player.moving=false; player.sprinting=false; stickReset();
     if (A.ready){ awakenStinger(); setTimeout(function(){ voice(pick('cheeky1','cheeky2'),{vol:0.9,cool:0,minGap:0}); }, 250); }
-    sizeMgCanvas();
+    sizeMgCanvas(); setTimeout(sizeMgCanvas, 120);
     mgRenderScores();
   }
   function sizeMgCanvas(){
@@ -4908,7 +4931,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     MG.t+=dt;
     if (MG.phase==='intro'){
       mgTimer.style.width='100%';
-      if (MG.t>2.4){ MG.phase='play'; MG.t=0; MG.lastSend=0; if (MG.kind==='intercom') mgIntercomBegin(); }
+      if (MG.t>3.6){ MG.phase='play'; MG.t=0; MG.lastSend=0; if (MG.kind==='intercom') mgIntercomBegin(); }
     } else if (MG.phase==='play'){
       var left=Math.max(0, MG.dur-MG.t);
       mgTimer.style.width=(left/MG.dur*100)+'%';
@@ -5045,16 +5068,22 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   // ---- input: taps on the panel, number keys, space
   function mgPointer(ev){
     if (!MG.active) return;
-    ev.preventDefault();
+    if (!MG.w) sizeMgCanvas();
     var r=mgCanvas.getBoundingClientRect(), p=ev.touches?ev.touches[0]:ev;
-    var x=p.clientX-r.left, y=p.clientY-r.top;
+    var x=(p.clientX-r.left)*(MG.w/Math.max(1,r.width)), y=(p.clientY-r.top)*(MG.h/Math.max(1,r.height));
     if (MG.kind==='intercom'){
       var b=mgIntercomHit(x,y); if (b>=0) mgIntercomPress(b);
     } else mgTubeTap();
   }
-  mgCanvas.addEventListener('touchstart', mgPointer, {passive:false});
-  mgCanvas.addEventListener('mousedown', mgPointer);
-  mgEl.addEventListener('touchstart', function(ev){ if (MG.active && MG.kind==='tube' && ev.target!==mgCanvas){ ev.preventDefault(); mgTubeTap(); } }, {passive:false});
+  mgEl.addEventListener('pointerdown', function(ev){
+    if (!MG.active) return;
+    ev.preventDefault(); ev.stopPropagation();
+    MG.taps=(MG.taps||0)+1;
+    if (ev.target===mgCanvas || mgCanvas.contains(ev.target)) mgPointer(ev);
+    else if (MG.kind==='tube') mgTubeTap();
+  }, {passive:false});
+  mgEl.addEventListener('touchstart', function(ev){ if (MG.active) ev.preventDefault(); }, {passive:false});
+  mgEl.addEventListener('touchmove', function(ev){ if (MG.active) ev.preventDefault(); }, {passive:false});
   window.addEventListener('keydown', function(e){
     if (!MG.active) return;
     var k=e.key;
@@ -5071,6 +5100,27 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var bw=(w-pad*(cols+1))/cols, bh=(h*0.72-pad*(rows+1))/rows, out=[];
     for (var i=0;i<8;i++){ var c=i%4, r=(i/4)|0; out.push({ x:pad+c*(bw+pad), y:h*0.2+pad+r*(bh+pad), w:bw, h:bh }); }
     return out;
+  }
+  function mgTeach(c,w,h,now){
+    // the intro card: three short lines and a countdown, over the panel
+    c.fillStyle='rgba(6,5,8,0.82)'; c.fillRect(0,0,w,h);
+    c.textAlign='center'; c.textBaseline='middle';
+    var lines=MG.G.teach, y0=h*0.30;
+    for (var i=0;i<lines.length;i++){
+      c.fillStyle = i===0 ? '#e0b354' : '#e9dcc0';
+      c.font=(i===0?'bold ':'')+Math.round(h*(i===0?0.13:0.085))+'px "Space Mono", monospace';
+      c.fillText(lines[i], w/2, y0+i*h*0.17);
+    }
+    var left=Math.max(0, 3.6-MG.t);
+    c.fillStyle='#e0b354'; c.font='bold '+Math.round(h*0.16)+'px "Anton", Impact, sans-serif';
+    c.fillText(String(Math.ceil(left)), w/2, h*0.86);
+  }
+  function mgBanner(c,w,h,text,col,now){
+    // the cue sits in the top band so it never covers a button or the tube
+    var a=0.75+0.25*Math.sin(now/120);
+    c.fillStyle='rgba(6,5,8,0.78)'; c.fillRect(0,0,w,h*0.18);
+    c.fillStyle=col; c.globalAlpha=a; c.font='bold '+Math.round(h*0.11)+'px "Space Mono", monospace'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(text, w/2, h*0.09); c.globalAlpha=1;
   }
   function mgDraw(now){
     var c=mgCtx, w=MG.w, h=MG.h; if (!w) return;
@@ -5090,8 +5140,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         c.fillText(String(i+1), b.x+b.w/2, b.y+b.h*0.62);
       }
       c.fillStyle='#c9c4b0'; c.font=Math.round(h*0.07)+'px "Space Mono", monospace'; c.textAlign='left';
-      c.fillText(MG.phase==='intro' ? 'HE IS ABOUT TO PRESS' : (MG.showing ? 'WATCH' : 'YOUR TURN · '+(MG.pos)+'/'+MG.seq.length), w*0.04, h*0.955);
+      c.fillText(MG.phase==='intro' ? 'HE IS ABOUT TO PRESS' : (MG.showing ? 'WATCH HIM' : 'YOUR TURN · '+(MG.pos)+'/'+MG.seq.length), w*0.04, h*0.955);
       c.textAlign='right'; c.fillText('ROUND '+(MG.score+1), w*0.96, h*0.955);
+      if (MG.phase==='play' && MG.showing) mgBanner(c,w,h,'WATCH','#e9dcc0',now);
+      if (MG.phase==='play' && !MG.showing && MG.pos===0 && MG.seq.length<=2) mgBanner(c,w,h,'YOUR TURN · PRESS THEM BACK','#e0b354',now);
+      if (MG.phase==='intro') mgTeach(c,w,h,now);
     } else {
       // the tube: a long fitting across the panel, its glow spilling
       c.fillStyle='#1a1b17'; c.fillRect(0,0,w,h);
@@ -5105,6 +5158,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       c.fillStyle='#c9c4b0'; c.font=Math.round(h*0.07)+'px "Space Mono", monospace'; c.textAlign='left'; c.textBaseline='middle';
       c.fillText(MG.phase==='intro' ? 'IT IS ABOUT TO GO' : 'TAP WHILE LIT', w*0.04, h*0.9);
       c.textAlign='right'; c.fillText('HITS '+MG.hits+' · MISSES '+MG.miss, w*0.96, h*0.9);
+      if (MG.phase==='play' && MG.t<8){ if (MG.on) mgBanner(c,w,h,'TAP!','#e0b354',now); else mgBanner(c,w,h,'WAIT','#8a8478',now); }
+      if (MG.phase==='intro') mgTeach(c,w,h,now);
     }
   }
 
@@ -5220,7 +5275,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       }
 
       // caught
-      if (!hidden && graceLeft<=0 && d<CATCH_DIST && !NET.isPun){
+      var outside = !punZoneOK(cellOf(player.x,player.z).r, cellOf(player.x,player.z).c) && !(NET.mode==='vs' && NET.remoteCreature);
+      if (!hidden && graceLeft<=0 && d<CATCH_DIST && !NET.isPun && !outside){
         phase='scare'; scareT=0;
         jumpStinger(); voice('gotyou',{vol:1.15,minGap:0,cool:0});
         flashEl.classList.add('fire');
@@ -5303,10 +5359,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   function uid(){ return Math.random().toString(36).slice(2,8); }
   function roomCode(){ var a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', c=''; for (var i=0;i<4;i++) c+=a[(Math.random()*a.length)|0]; return c; }
+  var NET_RELIABLE={ evidence:1, 'house-shift':1, start:1, dead:1, out:1, round:1, mgres:1, marked:1, trap:1, lobby:1, voice:1, rtc:1 };
   function netSend(ev, payload){
     if (!NET.on || !NET.chan) return;
     payload=payload||{}; payload.from=NET.me;
+    if (NET_RELIABLE[ev] && !payload.id) payload.id=uid()+uid();
     try{ NET.chan.send({ type:'broadcast', event:ev, payload:payload }); }catch(e){}
+    if (NET_RELIABLE[ev]){ var copy=payload; setTimeout(function(){ if (NET.on && NET.chan){ try{ NET.chan.send({ type:'broadcast', event:ev, payload:copy }); }catch(e){} } }, 450); }
   }
   function isHost(){ return NET.role==='host'; }
   function myRole(){ return NET.isPun ? 'pun' : 'survivor'; }
@@ -5316,12 +5375,18 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     NET.name=(lbName.value||'someone').trim().slice(0,12);
     try{ localStorage.setItem('eth-name',NET.name); }catch(e){}
     NET.me=uid(); NET.code=code; NET.role=asHost?'host':'peer'; NET.peers={}; NET.on=true; NET.hostSeen=false;
-    NET.sb=NET.sb||window.supabase.createClient(SB_URL,SB_KEY);
+    NET.sb=NET.sb||window.supabase.createClient(SB_URL,SB_KEY,{ realtime:{ params:{ eventsPerSecond:50 } } });
+    NET.seen={};
     lbJoin.classList.add('hidden'); lbRoom.classList.remove('hidden'); startBtn.style.display='none';
     lbRoomcode.textContent=code; lbStatus.textContent='connecting…';
     lbHostbox.classList.toggle('hidden', !asHost);
     var ch=NET.sb.channel('house-'+code, { config:{ presence:{ key:NET.me }, broadcast:{ self:false } } });
     NET.chan=ch;
+    var chOn=ch.on.bind(ch);
+    ch.on=function(type, spec, fn){
+      if (type!=='broadcast') return chOn(type, spec, fn);
+      return chOn(type, spec, function(m){ var p=m&&m.payload; if (p && p.id){ if (NET.seen[p.id]) return; NET.seen[p.id]=1; } fn(m); });
+    };
     ch.on('presence',{event:'sync'},function(){
       var st=ch.presenceState(), seen={};
       for (var k in st){ var m=st[k][0]; if (!m || k===NET.me) continue; seen[k]=1;
@@ -5359,6 +5424,15 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     ch.on('broadcast',{event:'evidence'},function(m){
       var who=NET.peers[m.payload.from];
       collectEvidence(m.payload.i,{ shift:m.payload.shift||null, at:m.payload.at, finder:who?who.name:'someone', finderId:m.payload.from });
+    });
+    ch.on('broadcast',{event:'world'},function(m){
+      if (isHost() || !NET.started || phase!=='play') return;
+      var w=m.payload; if (!w) return;
+      var ss=w.s||[];
+      for (var si=houseShifts.length; si<ss.length; si++) applyHouseShift(ss[si], true, true);
+      var missed=(w.v||[]).filter(function(i){ return evidenceItems[i] && !evidenceItems[i].taken; }).sort(function(a,b){return a-b;});
+      for (var mi=0; mi<missed.length; mi++) collectEvidence(missed[mi],{ shift:null, finder:'someone', finderId:'late' });
+      (w.t||[]).forEach(function(j){ if (traps[j]) traps[j].sprung=true; });
     });
     ch.on('broadcast',{event:'house-shift'},function(m){
       if (applyHouseShift(m.payload.shift)) showToast('Pun rewrote an unseen passage.', true);
@@ -5473,8 +5547,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       q.x+=(q.tx-q.x)*kk; q.z+=(q.tz-q.z)*kk;
       var dy=q.tyaw-q.yaw; while(dy>Math.PI)dy-=Math.PI*2; while(dy<-Math.PI)dy+=Math.PI*2; q.yaw+=dy*kk;
       q.animT += (q.moving?(q.sprinting?12.5:8.0):0)*0.016; }
-    if (now-NET.lastSend<66) return;
+    if (now-NET.lastSend<100) return;
     NET.lastSend=now;
+    if (isHost() && NET.started && (now-(NET.lastWorld||0))>4000){ NET.lastWorld=now; netSend('world', worldState()); }
     var pl={ x:+player.x.toFixed(2), z:+player.z.toFixed(2), yaw:+player.yaw.toFixed(2), m:player.moving, s:player.sprinting, h:hidden, r:myRole(), mk:HZ.marked>0?1:0 };
     if (VOICE.stream) VOICE.stream.getAudioTracks().forEach(function(t){ t.enabled=!voiceMuted && !NET.isPun; });
     if (NET.isPun){ pl.a=+creature.animT.toFixed(2); pl.hu=huntMode; }
@@ -5574,15 +5649,21 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   // Microphones go peer to peer over WebRTC; the room channel only carries the
   // handshake. Each friend's voice is placed in the house: you hear them by how
   // close they are, and from which side.
-  var VOICE={ on:false, stream:null, pcs:{}, nodes:{} };
-  // STUN finds a direct path; the relay is the fallback for phone networks that
-  // won't allow one (the free Open Relay tier — swap for your own TURN if it fills up)
+  // ===================== VOICE =====================
+  // Rebuilt to be boring and reliable: one peer connection per friend, the
+  // lower id always makes the offer, ICE is gathered in full before a single
+  // offer or answer is sent (one reliable message each way instead of a
+  // trickle that can be dropped), and a watchdog re-dials anyone who is not
+  // connected. Playback is a plain <audio> element per friend, which is the
+  // one route iPhones will actually play a remote voice through.
+  var VOICE={ on:false, stream:null, pcs:{}, nodes:{}, since:{}, tries:{}, log:[] };
   var RTC_CFG={ iceServers:[
     { urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302','stun:stun.relay.metered.ca:80'] },
     { urls:['turn:global.relay.metered.ca:80','turn:global.relay.metered.ca:80?transport=tcp','turn:global.relay.metered.ca:443','turns:global.relay.metered.ca:443?transport=tcp'], username:'openrelayproject', credential:'openrelayproject' }
-  ] };
+  ], iceCandidatePoolSize:2 };
   var lbMic=$('lb-mic'), lbMicNote=$('lb-mic-note');
   var voiceMuted=false;
+  function vlog(s){ VOICE.log.push(s); if (VOICE.log.length>40) VOICE.log.shift(); }
   function setMuted(m){
     voiceMuted=m;
     if (VOICE.stream) VOICE.stream.getAudioTracks().forEach(function(t){ t.enabled=!m && !(NET.isPun && document.body.classList.contains('playing')); });
@@ -5598,90 +5679,122 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (window.MISSING_PUN_NATIVE_APP || window.ESCAPE_NATIVE_APP){ lbMicNote.textContent='voice chat is unavailable in this app version'; return; }
     if (VOICE.on) return;
     if (!navigator.mediaDevices || !window.RTCPeerConnection){ lbMicNote.textContent='this browser cannot do voice'; return; }
+    if (location.protocol==='http:' && location.hostname!=='localhost'){ lbMicNote.textContent='voice needs https'; return; }
+    lbMicNote.textContent='asking for the microphone…';
     navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true }, video:false }).then(function(st){
-      VOICE.stream=st; VOICE.on=true; setMuted(false); voiceStatus();
+      VOICE.stream=st; VOICE.on=true; setMuted(false); vlog('mic ok');
       for (var k in VOICE.pcs) voiceDrop(k);
       for (var k2 in NET.peers) voiceConnect(k2);
-    }).catch(function(){ lbMicNote.textContent='microphone permission was refused — tap the mic button to try again'; });
+      voiceStatus();
+    }).catch(function(err){ vlog('mic refused '+(err&&err.name)); lbMicNote.textContent='microphone permission was refused — tap the mic button to try again'; });
   }
   lbMic.addEventListener('click', function(){ if (!VOICE.on) voiceStart(); else setMuted(!voiceMuted); });
   function voiceOff(){
-    VOICE.on=false; voiceMuted=false; lbMic.textContent='voice: off'; lbMic.classList.remove('on'); muteBtn.classList.remove('muted'); lbMicNote.textContent='voice starts when you join · co-op hears everyone, playing Pun whispers when close';
+    VOICE.on=false; voiceMuted=false; lbMic.textContent='voice: off'; lbMic.classList.remove('on'); muteBtn.classList.remove('muted');
+    lbMicNote.textContent='voice starts when you join · co-op hears everyone, playing Pun whispers when close';
     if (VOICE.stream){ VOICE.stream.getTracks().forEach(function(t){ t.stop(); }); VOICE.stream=null; }
     for (var k in VOICE.pcs) voiceDrop(k);
   }
   function voiceDrop(k){
-    if (VOICE.pcs[k]){ try{ VOICE.pcs[k].close(); }catch(e){} delete VOICE.pcs[k]; }
+    if (VOICE.pcs[k]){ try{ VOICE.pcs[k].onconnectionstatechange=null; VOICE.pcs[k].close(); }catch(e){} delete VOICE.pcs[k]; }
     if (VOICE.nodes[k]){ try{ VOICE.nodes[k].el.srcObject=null; VOICE.nodes[k].el.remove(); }catch(e){} delete VOICE.nodes[k]; }
+    delete VOICE.since[k];
   }
   function voicePC(k){
-    if (VOICE.pcs[k]) return VOICE.pcs[k];
-    var pc=new RTCPeerConnection(RTC_CFG); VOICE.pcs[k]=pc;
+    var pc=new RTCPeerConnection(RTC_CFG); VOICE.pcs[k]=pc; VOICE.since[k]=performance.now();
     if (VOICE.stream) VOICE.stream.getTracks().forEach(function(t){ pc.addTrack(t, VOICE.stream); });
     else { try{ pc.addTransceiver('audio',{direction:'recvonly'}); }catch(e){} }
-    pc.onicecandidate=function(e){ if (e.candidate) netSend('rtc',{ to:k, kind:'ice', c:JSON.parse(JSON.stringify(e.candidate)) }); };
-    pc.ontrack=function(e){ voiceAttach(k, e.streams[0]); };
-    pc.onconnectionstatechange=function(){ voiceStatus(); if (pc.connectionState==='failed' || pc.connectionState==='closed'){ voiceDrop(k); if (VOICE.on) setTimeout(function(){ if (NET.peers[k] && VOICE.on) voiceConnect(k); }, 2500); } };
+    pc.ontrack=function(e){ voiceAttach(k, e.streams && e.streams[0] ? e.streams[0] : new MediaStream([e.track])); };
+    pc.onconnectionstatechange=function(){
+      vlog(k+' '+pc.connectionState); voiceStatus();
+      if (pc.connectionState==='connected'){ VOICE.tries[k]=0; }
+      if (pc.connectionState==='failed'){ voiceDrop(k); if (VOICE.on && NET.peers[k]) setTimeout(function(){ if (VOICE.on && NET.peers[k] && !VOICE.pcs[k]) voiceConnect(k); }, 1200); }
+    };
     return pc;
   }
+  // wait for every candidate, then ship the whole description in one go
+  function gathered(pc){
+    return new Promise(function(res){
+      if (pc.iceGatheringState==='complete') return res();
+      var done=false, fin=function(){ if (!done){ done=true; res(); } };
+      pc.onicegatheringstatechange=function(){ if (pc.iceGatheringState==='complete') fin(); };
+      setTimeout(fin, 2500);
+    });
+  }
   function voiceConnect(k){
-    // the lower id makes the offer, so both sides never offer at once; if the
-    // other side has the lower id, ask them to
-    if (!(NET.me<k)){ netSend('rtc',{ to:k, kind:'call' }); return; }
+    if (!VOICE.on || !NET.peers[k]) return;
+    if (NET.peers[k].role==='pun' && NET.started) return;
+    if (!(NET.me<k)){ var nowc=performance.now(); if (!VOICE.called) VOICE.called={}; if (nowc-(VOICE.called[k]||0)>8000){ VOICE.called[k]=nowc; netSend('rtc',{ to:k, kind:'call' }); } return; }
     voiceDrop(k);
+    VOICE.tries[k]=(VOICE.tries[k]||0)+1;
     var pc=voicePC(k);
-    pc.createOffer().then(function(o){ return pc.setLocalDescription(o); }).then(function(){ netSend('rtc',{ to:k, kind:'offer', sdp:{type:pc.localDescription.type, sdp:pc.localDescription.sdp} }); }).catch(function(){});
+    vlog('dial '+k);
+    pc.createOffer({ offerToReceiveAudio:true }).then(function(o){ vlog('offer made'); return pc.setLocalDescription(o); }).then(function(){ vlog('gathering'); return gathered(pc); })
+      .then(function(){ vlog('offer sent'); if (VOICE.pcs[k]===pc) netSend('rtc',{ to:k, kind:'offer', sdp:{type:pc.localDescription.type, sdp:pc.localDescription.sdp} }); })
+      .catch(function(e){ vlog('offer fail '+e); });
   }
   function voiceSignal(m){
     if (m.to!==NET.me) return;
-    var k=m.from;
-    if (m.kind==='call'){ if (NET.me<k) voiceConnect(k); }
+    var k=m.from; vlog('rtc '+m.kind+' from '+k);
+    if (m.kind==='call'){ if (NET.me<k && VOICE.on && !VOICE.pcs[k]) voiceConnect(k); }
     else if (m.kind==='offer'){
       voiceDrop(k);
       var pc=voicePC(k);
-      pc.setRemoteDescription(new RTCSessionDescription(m.sdp)).then(function(){ return pc.createAnswer(); }).then(function(a){ return pc.setLocalDescription(a); })
-        .then(function(){ netSend('rtc',{ to:k, kind:'answer', sdp:{type:pc.localDescription.type, sdp:pc.localDescription.sdp} }); }).catch(function(){});
+      pc.setRemoteDescription(new RTCSessionDescription(m.sdp)).then(function(){ return pc.createAnswer(); }).then(function(a){ return pc.setLocalDescription(a); }).then(function(){ return gathered(pc); })
+        .then(function(){ if (VOICE.pcs[k]===pc) netSend('rtc',{ to:k, kind:'answer', sdp:{type:pc.localDescription.type, sdp:pc.localDescription.sdp} }); })
+        .catch(function(e){ vlog('answer fail '+e); });
     } else if (m.kind==='answer'){
-      var pc2=VOICE.pcs[k]; if (pc2) pc2.setRemoteDescription(new RTCSessionDescription(m.sdp)).catch(function(){});
-    } else if (m.kind==='ice'){
-      var pc3=VOICE.pcs[k]; if (pc3) pc3.addIceCandidate(new RTCIceCandidate(m.c)).catch(function(){});
+      var pc2=VOICE.pcs[k];
+      if (pc2 && pc2.signalingState==='have-local-offer') pc2.setRemoteDescription(new RTCSessionDescription(m.sdp)).catch(function(e){ vlog('sra fail '+e); });
     }
   }
   function voiceAttach(k, stream){
-    // plain <audio> playback: it is the only route iPhones reliably play a
-    // remote voice through. Loudness is the element volume; where a phone
-    // ignores that (iOS), the track is switched off instead when out of range.
-    if (VOICE.nodes[k]) { try{ VOICE.nodes[k].el.srcObject=null; }catch(e){} }
-    var el=document.createElement('audio'); el.autoplay=true; el.playsInline=true; el.setAttribute('playsinline',''); el.srcObject=stream; el.volume=1;
+    if (VOICE.nodes[k]) { try{ VOICE.nodes[k].el.srcObject=null; VOICE.nodes[k].el.remove(); }catch(e){} }
+    var el=document.createElement('audio'); el.autoplay=true; el.playsInline=true; el.setAttribute('playsinline',''); el.setAttribute('autoplay',''); el.srcObject=stream; el.volume=1;
     el.style.display='none'; document.body.appendChild(el);
-    var tryPlay=function(){ el.play().catch(function(){ setTimeout(tryPlay, 800); }); }; tryPlay();
     VOICE.nodes[k]={ el:el, stream:stream, vol:1 };
+    var tryPlay=function(){ el.play().then(function(){ vlog(k+' playing'); }).catch(function(){ VOICE.needTap=true; setTimeout(tryPlay, 900); }); }; tryPlay();
     voiceStatus();
   }
+  // a tap anywhere unlocks playback on browsers that insist on a gesture
+  document.addEventListener('touchend', function(){ if (!VOICE.needTap) return; VOICE.needTap=false; for (var k in VOICE.nodes){ VOICE.nodes[k].el.play().catch(function(){}); } }, {passive:true});
+  document.addEventListener('click', function(){ for (var k in VOICE.nodes){ if (VOICE.nodes[k].el.paused) VOICE.nodes[k].el.play().catch(function(){}); } });
   function voiceStatus(){
     if (!VOICE.on) return;
     var n=0, c=0; for (var k in VOICE.pcs){ n++; if (VOICE.pcs[k].connectionState==='connected') c++; }
     var heard=Object.keys(VOICE.nodes).length;
     lbMicNote.textContent = n ? ('mic on — linked to '+c+' of '+n+(heard<c?' (waiting for their sound)':'')) : 'mic on — waiting for others';
+    muteBtn.textContent = voiceMuted ? 'MUTED' : ('MIC'+(n?' '+c+'/'+n:''));
   }
+  // the watchdog: anyone in the room without a live link gets re-dialled
+  setInterval(function(){
+    if (!VOICE.on || !NET.on) return;
+    var now=performance.now();
+    for (var k in NET.peers){
+      var q=NET.peers[k], pc=VOICE.pcs[k];
+      if (q.role==='pun' && NET.started) continue;
+      if (!pc){ voiceConnect(k); continue; }
+      var st=pc.connectionState, age=now-(VOICE.since[k]||now);
+      if ((st==='new' || st==='connecting') && age>12000){ vlog(k+' stuck, redial'); voiceDrop(k); voiceConnect(k); }
+      else if (st==='disconnected' && age>6000){ vlog(k+' disconnected, redial'); voiceDrop(k); voiceConnect(k); }
+    }
+    for (var k2 in VOICE.pcs) if (!NET.peers[k2]) voiceDrop(k2);
+    voiceStatus();
+  }, 3000);
   function voiceUpdate(){
     for (var k in VOICE.nodes){
       var n=VOICE.nodes[k], q=NET.peers[k];
       var vol=0, pan=0, cut=8000;
       if (q && document.body.classList.contains('playing') && player && NET.mode==='vs'){
-        // one of you is Pun: the rest whisper to whoever is near
         var dd=dist(player.x,player.z,q.x,q.z);
         vol = Math.max(0, Math.min(1, 1-(dd-2.5)/11));
-        // through a wardrobe door, or from under a bed, a voice is a whisper
         if (q.hidden) { vol*=0.45; cut=2200; }
         if (hidden)   { vol*=0.6;  cut=Math.min(cut,3000); }
-        // the dead hear everyone, faintly, from everywhere; the living can't hear the dead
         if (NET.dead) vol=Math.max(vol, 0.5);
         if (q.dead && !NET.dead) vol=0;
-        // the monster is not on the call: Pun hears nobody, and nobody hears Pun
         if (NET.isPun || q.role==='pun') vol=0;
         pan=Math.max(-1,Math.min(1,(q.x-player.x)/6));
-      } else vol=1;   // on the poster, and all through a co-op round, it is a normal call
+      } else vol=1;
       vol*=SET.voice;
       if (Math.abs(vol-n.vol)>0.02){ n.vol=vol; try{ n.el.volume=Math.max(0,Math.min(1,vol)); }catch(e){} n.stream.getAudioTracks().forEach(function(t){ t.enabled = vol>0.05; }); }
       if (n.el.paused) n.el.play().catch(function(){});
