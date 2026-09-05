@@ -1,6 +1,6 @@
 // MISSING: PUN — offline cache. Bump VERSION whenever index.html changes.
 var CACHE_PREFIX='missing-pun-preview-';
-var VERSION=CACHE_PREFIX+'v9';
+var VERSION=CACHE_PREFIX+'estate-1';
 var FILES=['./','./index.html','./manifest.webmanifest','./assets/icon-missing-pun-192.png','./assets/icon-missing-pun-512.png','./assets/apple-touch-icon-missing-pun.png'];
 self.addEventListener('install', function(e){
   e.waitUntil(caches.open(VERSION).then(function(c){ return c.addAll(FILES); }).then(function(){ return self.skipWaiting(); }));

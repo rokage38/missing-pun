@@ -389,13 +389,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     background:rgba(2,1,2,.9); padding:20px;
   }
   .end-overlay.win{ background:rgba(4,8,10,.92); }
-  .end-title{ font-family:'Pirata One', serif; font-size:clamp(1.8rem,6vw,2.8rem); margin:0; }
+  .end-title{ font-family:'Pirata One', serif; font-size:clamp(1.8rem,6vw,2.8rem); margin:0; line-height:1.2; }
   .end-title.lose{ color:var(--blood-bright); text-shadow:0 0 30px rgba(179,32,47,.7); animation:strobe .25s steps(1) 6; }
   .end-title.win{ color:var(--win); text-shadow:0 0 30px rgba(188,215,214,.5); }
   @keyframes strobe{ 0%,100%{opacity:1;} 50%{opacity:.15;} }
   .end-sub{
     color:var(--bone-dim); font-family:'Space Mono', monospace;
-    font-size:.8rem; letter-spacing:.04em; text-transform:uppercase; margin:0;
+    font-size:.8rem; letter-spacing:.04em; text-transform:uppercase; margin:0; line-height:1.5; max-width:520px;
   }
 
   @keyframes shake{
@@ -669,8 +669,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   .case-card.show{ opacity:1; transform:translate(-50%,0) rotate(-1deg); }
   .case-card::after{ content:""; position:absolute; inset:5px; border:1px dashed rgba(70,45,28,.34); pointer-events:none; }
   .case-card .case-number{ display:block; color:#7a1420; font-size:.54rem; letter-spacing:.18em; text-transform:uppercase; }
-  .case-card strong{ display:block; margin:3px 0 2px; font-family:'Anton',Impact,sans-serif; font-weight:400; font-size:1.05rem; letter-spacing:.07em; text-transform:uppercase; }
+  .case-card strong{ display:block; margin:3px 0 4px; font-family:'Anton',Impact,sans-serif; font-weight:400; font-size:1.05rem; line-height:1.15; letter-spacing:.07em; text-transform:uppercase; }
   .case-card p{ margin:0; font-size:.68rem; line-height:1.3; }
+  .case-card .case-number{ line-height:1.4; }
   .case-card .case-effect{ margin-top:5px; color:#7a1420; font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
   .house-shift-wash{ position:absolute; inset:0; z-index:9; pointer-events:none; opacity:0; box-shadow:inset 0 0 0 rgba(104,11,23,0); }
   .house-shifting .house-shift-wash{ animation:houseRewrite 1.45s ease-out; }
@@ -713,9 +714,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           </figure>
           <dl class="p-facts">
             <div><dt>Name</dt><dd>PUN</dd></div>
-            <div><dt>Last seen</dt><dd>Going into the house at the end of the lane. Did not come out.</dd></div>
+            <div><dt>Last seen</dt><dd>Going into the block behind the shops, first-floor walkway. The lift came down empty.</dd></div>
             <div><dt>Build</dt><dd>Big.</dd></div>
-            <div class="warn"><dt>Warning</dt><dd>If found, DO NOT APPROACH. He is not himself.</dd></div>
+            <div class="warn"><dt>Warning</dt><dd>If found, DO NOT APPROACH. He is not himself. Do not use the lift.</dd></div>
           </dl>
         </div>
         </div>
@@ -743,13 +744,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
             <ul class="lb-roster" id="lb-roster"></ul>
             <div class="lb-host hidden" id="lb-hostbox">
               <div class="lb-mode">
-                <label><input type="radio" name="lbmode" value="coop" checked> everyone hides, Pun is the house</label>
+                <label><input type="radio" name="lbmode" value="coop" checked> everyone hides, Pun is the block</label>
                 <label><input type="radio" name="lbmode" value="vs"> one of us plays Pun: <select id="lb-pun"></select></label>
               </div>
               <button id="lb-start" class="cta stamp small"><span>GO IN</span></button>
             </div>
             <button id="lb-ready" class="lb-btn">I'm ready</button>
-            <div class="lb-wait" id="lb-wait">waiting for the host to open the door&hellip;</div>
+            <div class="lb-wait" id="lb-wait">waiting for the host to buzz us in&hellip;</div>
             <div class="lb-voice"><button id="lb-mic" class="lb-btn">voice: off</button><span id="lb-mic-note">voice starts when you join &middot; co-op hears everyone, playing Pun whispers when close</span></div>
             <button id="lb-leave" class="lb-btn ghost">leave</button>
           </div>
@@ -757,7 +758,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         </div>
         </div>
       </div>
-      <p class="wall-note">a house of rooms &middot; procedural &middot; real-time 3d &middot; he is already inside</p>
+      <p class="wall-note">one block &middot; four floors of it move &middot; real-time 3d &middot; he is already in the stairwell <span id="build-tag">&middot; estate slice 1</span></p>
     </div>
   </div>
 
@@ -773,7 +774,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         <span class="case-number" id="case-number">CASE FILE / EVIDENCE</span>
         <strong id="case-title">Recovered evidence</strong>
         <p id="case-copy"></p>
-        <p class="case-effect" id="case-effect">This room is pinned. Elsewhere, the house moved.</p>
+        <p class="case-effect" id="case-effect">Pinned. Somewhere else, the block moved.</p>
       </aside>
       <div class="hud">
         <div class="net-list" id="net-list"></div>
@@ -801,7 +802,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           <p class="settings-title" id="settings-title">Settings</p>
           <label>Game volume <input type="range" id="set-master" min="0" max="100" value="100"></label>
           <label>Friends' voices <input type="range" id="set-voice" min="0" max="100" value="100"></label>
-          <label>Lantern brightness <input type="range" id="set-brightness" min="75" max="160" value="112"></label>
+          <label>Torch brightness <input type="range" id="set-brightness" min="75" max="160" value="112"></label>
           <label class="row"><input type="checkbox" id="set-shake" checked> Screen shake</label>
           <label class="row"><input type="checkbox" id="set-flash" checked> Flashes <span class="hint">(off is kinder on the eyes)</span></label>
           <label class="row"><input type="checkbox" id="set-lowq"> Low quality <span class="hint">(smoother on weak phones)</span></label>
@@ -816,7 +817,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
       <div class="end-overlay hidden" id="lose-overlay">
         <p class="end-title lose">HE HAS YOU</p>
-        <p class="end-sub" id="lose-sub">You never found the door.</p>
+        <p class="end-sub" id="lose-sub">You never got to the lift.</p>
         <div class="end-actions">
           <button class="cta" id="retry-btn-lose">Try Again</button>
           <button class="cta ghost" id="menu-btn-lose">Change difficulty</button>
@@ -855,19 +856,19 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   // ===================== DIFFICULTY =====================
   var DIFFS = {
-    easy:      { cols:23, rows:17, slotsX:3, slotsY:3, evidence:3, traps:5,  grace:45, stalk:2.35, chase:2.95, rage:4.7,  aware:6.5, lose:12, staminaDrain:26, staminaGain:22 },
-    normal:    { cols:26, rows:17, slotsX:4, slotsY:3, evidence:3, traps:9,  grace:30, stalk:2.95, chase:3.45, rage:5.5,  aware:8.5, lose:15, staminaDrain:31, staminaGain:18 },
-    nightmare: { cols:32, rows:20, slotsX:5, slotsY:3, evidence:4, traps:14, grace:12, stalk:3.45, chase:3.95, rage:6.15, aware:11,  lose:19, staminaDrain:36, staminaGain:15 }
+    easy:      { cols:26, rows:20, evidence:3, traps:3,  grace:45, stalk:2.35, chase:2.95, rage:4.7,  aware:6.5, lose:12, staminaDrain:26, staminaGain:22 },
+    normal:    { cols:30, rows:22, evidence:3, traps:5,  grace:30, stalk:2.95, chase:3.45, rage:5.5,  aware:8.5, lose:15, staminaDrain:31, staminaGain:18 },
+    nightmare: { cols:34, rows:24, evidence:4, traps:8,  grace:12, stalk:3.45, chase:3.95, rage:6.15, aware:11,  lose:19, staminaDrain:36, staminaGain:15 }
   };
   var diffName='normal', D=DIFFS.normal;
 
   // Every object answers one part of the case and teaches the player the
   // house's rule. Nightmare adds the watch as a fourth, more ominous clue.
   var EVIDENCE_CATALOG=[
-    { id:'photo', title:'The impossible photograph', copy:'Pun is visible through the hall window. The photograph is dated the day before he entered.' },
-    { id:'tape', title:'Answerphone cassette', copy:'His voice, barely audible: “The rooms only move when nobody is looking.”' },
-    { id:'plan', title:'Crossed-out floor plan', copy:'A room marked NOT HERE is one you have already walked through.' },
-    { id:'watch', title:'Pun\'s wristwatch', copy:'Stopped at 03:38. The metal is still warm.' }
+    { id:'photo', title:'CCTV still, 03:38', copy:'Pun on the first-floor walkway, looking straight at the camera. That camera has been dead since the spring.' },
+    { id:'tape', title:'Door-entry recording', copy:'His voice through the intercom, barely there: “The numbers keep changing. Don\'t trust the lift.”' },
+    { id:'plan', title:'Estate map, one block crossed out', copy:'A block marked NOT HERE. It is the one you are standing in.' },
+    { id:'watch', title:'Pun\'s wristwatch', copy:'Found on the stairs. Stopped at 03:38. Still warm.' }
   ];
 
   var diffBox=$('diff');
@@ -879,17 +880,24 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     });
   });
 
-  // ===================== HOUSE GENERATION =====================
-  // Rooms joined by corridors, with extra loops cut in so there is always
-  // more than one way out of anywhere. That is what makes it survivable.
+  // ===================== ESTATE GENERATION =====================
+  // One fictional deck-access block on the same cell grid the house used.
+  // South is the courtyard at ground level; two concrete stairwells climb to a
+  // first-floor walkway with the flats along one side and railings on the
+  // other; the lift landing sits half way along and the lift is the way out.
   var CELL=4, WALL_H=2.5, WALL_HALF=0.18;
+  var DECK_H=4.2;                                  // one storey, in world units
   var COLS, ROWS;
   var grid, rooms, wallSegs, adjacency, openCells;
-  var props, propBoxes, hideSpots, evidenceItems, fires, traps, exitCell, exitDir, startCell;
-  var bathroom, gruesome, bodies, anchoredRooms, houseShifts;
+  var props, propBoxes, hideSpots, evidenceItems, lamps, traps, exitCell, exitDir, startCell;
+  var bathroom=null, gruesome={}, bodies=[], anchoredRooms, houseShifts;
+  var zone, fences, EST;
+  var Z={ SOLID:0, COURT:1, UNDER:2, STAIR:3, WALK:4, LIFT:5, BINS:6, YARD:7, FLAT:8 };
+  var ZONE_NAME=['','courtyard','undercroft','stairwell','walkway','lift landing','bin store','yard','flats'];
 
   function inb(r,c){ return r>=0 && r<ROWS && c>=0 && c<COLS; }
   function isOpen(r,c){ return inb(r,c) && grid[r][c]===1; }
+  function zoneAt(r,c){ return inb(r,c) ? zone[r][c] : Z.SOLID; }
   function cellCenter(r,c){ return { x:c*CELL+CELL/2, z:r*CELL+CELL/2 }; }
   function cellOf(x,z){
     return { r: Math.max(0,Math.min(ROWS-1, Math.floor(z/CELL))),
@@ -897,347 +905,359 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
   function shuffle(a){ for(var i=a.length-1;i>0;i--){var j=(Math.random()*(i+1))|0,t=a[i];a[i]=a[j];a[j]=t;} return a; }
   function ri(lo,hi){ return lo + ((Math.random()*(hi-lo+1))|0); }
-
   function carve(r,c){ if(inb(r,c)) grid[r][c]=1; }
 
-  // A lattice of rooms, every neighbour joined. Random placement and BSP both
-  // under-filled the plan; this gives a predictable room count and, more
-  // importantly, a fully looped floorplan so there are always two ways out.
-  function generateHouse(){
-    COLS=D.cols; ROWS=D.rows;
-    exitCell=null; exitDir=null;
-    grid=[]; for(var r=0;r<ROWS;r++){ var row=[]; for(var c=0;c<COLS;c++) row.push(0); grid.push(row); }
-    rooms=[];
+  // which stair core a column belongs to, if any
+  function stairAt(c){
+    if (!EST) return null;
+    for (var i=0;i<EST.stairs.length;i++){ var s=EST.stairs[i]; if (c>=s.c0 && c<=s.c1) return s; }
+    return null;
+  }
+  // floor height under a world point: deck level up top, ground below, a ramp on the stairs
+  function floorAt(x,z){
+    if (!zone) return 0;
+    var cc=cellOf(x,z), zn=zone[cc.r][cc.c];
+    if (zn===Z.WALK || zn===Z.LIFT || zn===Z.FLAT) return DECK_H;
+    if (zn===Z.STAIR){
+      var st=stairAt(cc.c); if (!st) return 0;
+      var zTop=st.rampR0*CELL, zBot=(st.rampR1+1)*CELL;
+      if (z<=zTop) return DECK_H;
+      if (z>=zBot) return 0;
+      return DECK_H*(1-(z-zTop)/(zBot-zTop));
+    }
+    return 0;
+  }
+  function cellFloorBase(r,c){ var p=cellCenter(r,c); return Math.min(floorAt(p.x,p.z-CELL*0.49), floorAt(p.x,p.z+CELL*0.49)); }
+  function isOutdoors(zn){ return zn===Z.COURT || zn===Z.UNDER || zn===Z.WALK || zn===Z.YARD || zn===Z.BINS; }
+  function playerZone(){ if (!player||!zone) return Z.COURT; var cc=cellOf(player.x,player.z); return zone[cc.r][cc.c]; }
 
-    var SX=D.slotsX, SY=D.slotsY;
-    var slotW=Math.floor((COLS-2)/SX), slotH=Math.floor((ROWS-2)/SY);
-    var lattice=[];
-    for (var sy=0; sy<SY; sy++){
-      var lrow=[];
-      for (var sx=0; sx<SX; sx++){
-        var baseC=1+sx*slotW, baseR=1+sy*slotH;
-        var maxW=slotW-1, maxH=slotH-1;              // leave a gap to the next slot
-        var w=ri(3, Math.max(3, Math.min(6,maxW)));
-        var h=ri(3, Math.max(3, Math.min(5,maxH)));
-        var c0=baseC+ri(0, Math.max(0,maxW-w));
-        var r0=baseR+ri(0, Math.max(0,maxH-h));
-        var c1=c0+w-1, r1=r0+h-1;
-        if (c1>COLS-2){ c1=COLS-2; c0=Math.max(1,c1-w+1); }
-        if (r1>ROWS-2){ r1=ROWS-2; r0=Math.max(1,r1-h+1); }
-        var room={r0:r0,c0:c0,r1:r1,c1:c1, cr:(r0+r1)>>1, cc:(c0+c1)>>1};
-        for (var rr=r0;rr<=r1;rr++) for (var cc=c0;cc<=c1;cc++) grid[rr][cc]=1;
-        // a third of the rooms grow an ell — a bay off one corner, so the plan stops being all boxes
-        if (Math.random()<0.34 && w>=4 && h>=3){
-          var ew=ri(2,Math.max(2,w-2)), eh=ri(1,2), side=Math.random()<0.5;
-          var er0=side ? r1+1 : r0-eh, ec0=c0+ri(0,w-ew);
-          for (var rr2=er0; rr2<er0+eh; rr2++) for (var cc2=ec0; cc2<ec0+ew; cc2++) if (rr2>=1 && rr2<=ROWS-2) carve(rr2,cc2);
-        }
-        rooms.push(room); lrow.push(room);
-      }
-      lattice.push(lrow);
+  // the zone a freshly opened cell inherits from whatever it now touches
+  function zoneForOpened(r,c){
+    var best=Z.COURT, pri=-1;
+    var nb=[[r-1,c],[r+1,c],[r,c-1],[r,c+1]];
+    for (var i=0;i<4;i++){
+      var zr=nb[i][0], zc=nb[i][1];
+      if (!isOpen(zr,zc)) continue;
+      var zn=zone[zr][zc], p = (zn===Z.STAIR)?0:(zn===Z.WALK?3:(zn===Z.UNDER?2:1));
+      if (p>pri){ pri=p; best=zn; }
     }
-
-    function walk(r,c,tr,tc,wide){
-      // an L between two points; 'wide' carves a second cell alongside for a hall
-      var horizFirst=Math.random()<0.5;
-      function step(){ carve(r,c); if (wide) carve(r+(horizFirst?1:0), c+(horizFirst?0:1)); }
-      if (horizFirst){ while (c!==tc){ step(); c += (tc>c)?1:-1; } while (r!==tr){ step(); r += (tr>r)?1:-1; } }
-      else { while (r!==tr){ step(); r += (tr>r)?1:-1; } while (c!==tc){ step(); c += (tc>c)?1:-1; } }
-      carve(tr,tc);
-    }
-    function corridor(a,b){
-      var wide=Math.random()<0.25;
-      if (Math.random()<0.4){
-        // dogleg: through a point off the straight line, so halls bend
-        var mr=Math.min(a.cr,b.cr)+ri(0,Math.abs(a.cr-b.cr)), mc=Math.min(a.cc,b.cc)+ri(0,Math.abs(a.cc-b.cc));
-        mr=Math.max(1,Math.min(ROWS-2,mr+ri(-1,1))); mc=Math.max(1,Math.min(COLS-2,mc+ri(-1,1)));
-        walk(a.cr,a.cc,mr,mc,wide); walk(mr,mc,b.cr,b.cc,wide);
-      } else walk(a.cr,a.cc,b.cr,b.cc,wide);
-    }
-    // every neighbouring pair is a possible corridor; a spanning tree keeps the
-    // house connected and about half the rest come back as loops. Fewer than
-    // before, so some rooms are dead ends and some are crossroads.
-    var edges=[];
-    for (var y=0;y<SY;y++) for (var x=0;x<SX;x++){
-      if (x+1<SX) edges.push([y*SX+x, y*SX+x+1]);
-      if (y+1<SY) edges.push([y*SX+x, (y+1)*SX+x]);
-    }
-    shuffle(edges);
-    var parent=[]; for (var pi=0; pi<SX*SY; pi++) parent[pi]=pi;
-    function find(i){ while (parent[i]!==i){ parent[i]=parent[parent[i]]; i=parent[i]; } return i; }
-    for (var ei=0; ei<edges.length; ei++){
-      var e=edges[ei], ra=find(e[0]), rb=find(e[1]);
-      var A=lattice[(e[0]/SX)|0][e[0]%SX], B=lattice[(e[1]/SX)|0][e[1]%SX];
-      if (ra!==rb){ parent[ra]=rb; corridor(A,B); }
-      else if (Math.random()<0.55) corridor(A,B);
-    }
-    // a few closets: dead-end cells off corridors, somewhere to be cornered
-    for (var ck=0; ck<3+SX; ck++){
-      var cr=ri(2,ROWS-3), cc=ri(2,COLS-3);
-      if (grid[cr][cc]) continue;
-      var nbs=[[cr-1,cc],[cr+1,cc],[cr,cc-1],[cr,cc+1]], open=0;
-      for (var nb=0; nb<4; nb++) if (grid[nbs[nb][0]][nbs[nb][1]]) open++;
-      if (open===1) carve(cr,cc);
-    }
-
-    shuffle(rooms);   // so the start and the exit move around between runs
-    buildTopology();
-    if (!rooms.length){ return; }
-
-    // --- start in room 0, exit from the room furthest from it by corridor steps
-    startCell = { r:rooms[0].cr, c:rooms[0].cc };
-    var dist = bfsDistances(startCell);
-    var far=rooms[0], best=-1;
-    for (var m=0;m<rooms.length;m++){
-      var dd=dist[rooms[m].cr*COLS+rooms[m].cc];
-      if (dd>best){ best=dd; far=rooms[m]; }
-    }
-
-    // --- run a short hall from that room to the nearest outside wall
-    var gaps=[
-      {dir:'N', d:far.r0,           },
-      {dir:'S', d:ROWS-1-far.r1     },
-      {dir:'W', d:far.c0            },
-      {dir:'E', d:COLS-1-far.c1     }
-    ].sort(function(a,b){ return a.d-b.d; });
-    exitDir = gaps[0].dir;
-    if (exitDir==='N'){ for(var rN=far.r0-1;rN>=0;rN--) carve(rN, far.cc); exitCell={r:0,c:far.cc}; }
-    if (exitDir==='S'){ for(var rS=far.r1+1;rS<ROWS;rS++) carve(rS, far.cc); exitCell={r:ROWS-1,c:far.cc}; }
-    if (exitDir==='W'){ for(var cW=far.c0-1;cW>=0;cW--) carve(far.cr, cW); exitCell={r:far.cr,c:0}; }
-    if (exitDir==='E'){ for(var cE=far.c1+1;cE<COLS;cE++) carve(far.cr, cE); exitCell={r:far.cr,c:COLS-1}; }
-
-    buildTopology();
-    placeContents(far);
+    return best;
   }
 
-  // an outer-edge opening is punched only where the exit door stands
+  function generateEstate(){
+    COLS=D.cols; ROWS=D.rows;
+    exitCell=null; exitDir='N';
+    grid=[]; zone=[];
+    for(var r=0;r<ROWS;r++){ var row=[], zrow=[]; for(var c=0;c<COLS;c++){ row.push(0); zrow.push(Z.SOLID); } grid.push(row); zone.push(zrow); }
+    rooms=[]; fences=[]; EST={};
+    var mid=(COLS/2)|0;
+    function fill(r0,r1,c0,c1,zn){ for (var rr=r0;rr<=r1;rr++) for (var cc=c0;cc<=c1;cc++) if (inb(rr,cc)){ grid[rr][cc]=1; zone[rr][cc]=zn; } }
+    function tag(r0,r1,c0,c1,zn){ for (var rr=r0;rr<=r1;rr++) for (var cc=c0;cc<=c1;cc++) if (inb(rr,cc) && grid[rr][cc]===0) zone[rr][cc]=zn; }
+    function room(r0,r1,c0,c1,name,up){ var rm={r0:r0,c0:c0,r1:r1,c1:c1, cr:(r0+r1)>>1, cc:(c0+c1)>>1, name:name, up:!!up}; rooms.push(rm); return rm; }
+
+    // ---- first floor: flats band, walkway, lift landing
+    tag(1,1,1,COLS-2,Z.FLAT);
+    EST.lift={ r0:0, r1:1, c0:mid-1, c1:mid+1 };
+    fill(0,1,mid-1,mid+1,Z.LIFT);
+    exitCell={ r:0, c:mid }; exitDir='N';
+    EST.walk={ r:2, c0:3, c1:COLS-4 };
+    fill(2,2,3,COLS-4,Z.WALK);
+
+    // ---- the two stair cores, top landing at deck level, ramp, bottom landing
+    EST.stairs=[
+      { side:'W', c0:1, c1:2, r0:2, r1:10, topR0:2, topR1:3, rampR0:4, rampR1:8, botR0:9, botR1:10 },
+      { side:'E', c0:COLS-3, c1:COLS-2, r0:2, r1:10, topR0:2, topR1:3, rampR0:4, rampR1:8, botR0:9, botR1:10 }
+    ];
+    for (var si=0; si<EST.stairs.length; si++){ var st=EST.stairs[si]; fill(st.r0,st.r1,st.c0,st.c1,Z.STAIR); }
+
+    // ---- the service yard under the walkway: seen, never walked
+    EST.yard={ r0:3, r1:9, c0:3, c1:COLS-4 };
+    tag(3,9,3,COLS-4,Z.YARD);
+
+    // ---- ground floor: undercroft passage, courtyard, bin store
+    EST.under={ r:10, c0:3, c1:COLS-4 };
+    fill(10,10,3,COLS-4,Z.UNDER);
+    EST.court={ r0:11, r1:ROWS-2, c0:1, c1:COLS-2 };
+    fill(11,ROWS-2,1,COLS-2,Z.COURT);
+
+    var binsWest = Math.random()<0.5;
+    var bc0 = binsWest?1:COLS-4, bc1 = binsWest?3:COLS-2, ringC = binsWest?4:COLS-5;
+    EST.bins={ r0:ROWS-4, r1:ROWS-2, c0:bc0, c1:bc1, west:binsWest };
+    for (var bcx=Math.min(bc0,ringC); bcx<=Math.max(bc1,ringC); bcx++){ grid[ROWS-5][bcx]=0; zone[ROWS-5][bcx]=Z.SOLID; }
+    for (var brr=ROWS-5; brr<=ROWS-2; brr++){ if (brr===ROWS-3) continue; grid[brr][ringC]=0; zone[brr][ringC]=Z.SOLID; }
+    for (var br2=ROWS-4; br2<=ROWS-2; br2++) for (var bc2=bc0; bc2<=bc1; bc2++) zone[br2][bc2]=Z.BINS;
+    EST.binsGate={ r:ROWS-3, c:ringC };
+
+    // ---- the football cage: fence edges around a rectangle, open on the south
+    var cgR0=13, cgR1=Math.min(16, ROWS-7), cgC0=mid-3, cgC1=mid+2;
+    if (cgR1>=cgR0+2){
+      EST.cage={ r0:cgR0, r1:cgR1, c0:cgC0, c1:cgC1 };
+      for (var fc=cgC0; fc<=cgC1; fc++){ fences.push({r:cgR0,c:fc,dir:'N'}); if (fc<cgC0+1 || fc>cgC1-1) fences.push({r:cgR1,c:fc,dir:'S'}); }
+      for (var fr=cgR0; fr<=cgR1; fr++){ fences.push({r:fr,c:cgC0,dir:'W'}); fences.push({r:fr,c:cgC1,dir:'E'}); }
+    }
+
+    // ---- rooms: the pinned places evidence can sit in. Court is the start,
+    // the lift landing is the exit, the rest are the pool.
+    EST.roomBins  = room(ROWS-4,ROWS-2,bc0,bc1,'bin store');
+    for (var sj=0; sj<EST.stairs.length; sj++){
+      var s2=EST.stairs[sj];
+      s2.roomBot = room(s2.botR0,s2.botR1,s2.c0,s2.c1,'stairwell '+s2.side+' ground');
+      s2.roomTop = room(s2.topR0,s2.topR1,s2.c0,s2.c1,'stairwell '+s2.side+' top', true);
+    }
+    EST.roomWalkW = room(2,2,3,mid-3,'walkway west', true);
+    EST.roomWalkE = room(2,2,mid+3,COLS-4,'walkway east', true);
+    EST.roomLift  = room(0,1,mid-1,mid+1,'lift landing', true);
+    EST.roomCourt = room(11,ROWS-2,1,COLS-2,'courtyard');
+
+    startCell={ r:ROWS-3, c:mid };
+    buildTopology();
+    placeEstateContents();
+  }
+
+  // an outer-edge opening is punched only where the lift stands
   function isExitOpening(r,c,dir){
     return exitCell && r===exitCell.r && c===exitCell.c && dir===exitDir;
   }
+  function fenceKey(r,c,dir){ return r+','+c+','+dir; }
+  var fenceSet={};
+  function fenceBlocked(r,c,dir){
+    if (fenceSet[fenceKey(r,c,dir)]) return true;
+    var opp={N:'S',S:'N',W:'E',E:'W'}[dir], nr=r+(dir==='N'?-1:dir==='S'?1:0), nc=c+(dir==='W'?-1:dir==='E'?1:0);
+    return !!fenceSet[fenceKey(nr,nc,opp)];
+  }
 
   function buildTopology(){
-    wallSegs=[]; adjacency=[]; openCells=[];
+    wallSegs=[]; adjacency=[]; openCells=[]; fenceSet={};
+    for (var f=0; f<(fences||[]).length; f++) fenceSet[fenceKey(fences[f].r,fences[f].c,fences[f].dir)]=1;
     for (var r=0;r<ROWS;r++){
       var arow=[];
       for (var c=0;c<COLS;c++){
         if (grid[r][c]!==1){ arow.push([]); continue; }
         openCells.push({r:r,c:c});
-        // a wall sits on every edge where floor meets solid or the outside
-        if (!isOpen(r-1,c) && !isExitOpening(r,c,'N')) wallSegs.push({x1:c*CELL,z1:r*CELL,x2:(c+1)*CELL,z2:r*CELL, nx:0,nz:1, r:r,c:c});
-        if (!isOpen(r+1,c) && !isExitOpening(r,c,'S')) wallSegs.push({x1:c*CELL,z1:(r+1)*CELL,x2:(c+1)*CELL,z2:(r+1)*CELL, nx:0,nz:-1, r:r,c:c});
-        if (!isOpen(r,c-1) && !isExitOpening(r,c,'W')) wallSegs.push({x1:c*CELL,z1:r*CELL,x2:c*CELL,z2:(r+1)*CELL, nx:1,nz:0, r:r,c:c});
-        if (!isOpen(r,c+1) && !isExitOpening(r,c,'E')) wallSegs.push({x1:(c+1)*CELL,z1:r*CELL,x2:(c+1)*CELL,z2:(r+1)*CELL, nx:-1,nz:0, r:r,c:c});
+        // a wall sits on every edge where floor meets solid or the outside;
+        // a fence sits on an edge two open cells are not allowed to share
+        var fN=fenceBlocked(r,c,'N'), fS=fenceBlocked(r,c,'S'), fW=fenceBlocked(r,c,'W'), fE=fenceBlocked(r,c,'E');
+        if ((!isOpen(r-1,c) && !isExitOpening(r,c,'N')) || fN) wallSegs.push({x1:c*CELL,z1:r*CELL,x2:(c+1)*CELL,z2:r*CELL, nx:0,nz:1, r:r,c:c, nr:r-1,nc:c, fence:fN});
+        if ((!isOpen(r+1,c) && !isExitOpening(r,c,'S')) || fS) wallSegs.push({x1:c*CELL,z1:(r+1)*CELL,x2:(c+1)*CELL,z2:(r+1)*CELL, nx:0,nz:-1, r:r,c:c, nr:r+1,nc:c, fence:fS});
+        if ((!isOpen(r,c-1) && !isExitOpening(r,c,'W')) || fW) wallSegs.push({x1:c*CELL,z1:r*CELL,x2:c*CELL,z2:(r+1)*CELL, nx:1,nz:0, r:r,c:c, nr:r,nc:c-1, fence:fW});
+        if ((!isOpen(r,c+1) && !isExitOpening(r,c,'E')) || fE) wallSegs.push({x1:(c+1)*CELL,z1:r*CELL,x2:(c+1)*CELL,z2:(r+1)*CELL, nx:-1,nz:0, r:r,c:c, nr:r,nc:c+1, fence:fE});
 
         var nb=[];
-        if (isOpen(r-1,c)) nb.push({r:r-1,c:c});
-        if (isOpen(r+1,c)) nb.push({r:r+1,c:c});
-        if (isOpen(r,c-1)) nb.push({r:r,c:c-1});
-        if (isOpen(r,c+1)) nb.push({r:r,c:c+1});
+        if (isOpen(r-1,c) && !fN) nb.push({r:r-1,c:c});
+        if (isOpen(r+1,c) && !fS) nb.push({r:r+1,c:c});
+        if (isOpen(r,c-1) && !fW) nb.push({r:r,c:c-1});
+        if (isOpen(r,c+1) && !fE) nb.push({r:r,c:c+1});
         arow.push(nb);
       }
       adjacency.push(arow);
     }
   }
 
-  // ---- room furnishing, evidence and wardrobes
+  // ---- props, lamps, hiding places, evidence
   var PROP_SOLID = {
-    wardrobe:[0.56,0.32], shelf:[0.60,0.20], bed:[0.94,0.56],
-    table:[0.72,0.44], chair:[0.22,0.22], crate:[0.31,0.31],
-    bookshelf:[0.62,0.22], fireplace:[0.85,0.30], clock:[0.28,0.24],
-    tub:[0.92,0.48], sink:[0.36,0.24], toilet:[0.28,0.30]
+    binbank:[0.80,0.50], bin:[0.30,0.30], skip:[1.10,0.62], bench:[0.80,0.24],
+    meter:[0.52,0.22], cupboard:[0.60,0.30], column:[0.24,0.24], pallet:[0.55,0.45],
+    lamppost:[0.12,0.12], trolley:[0.34,0.42], tyres:[0.36,0.36]
   };
   function addProp(p){
     props.push(p);
     var sz=PROP_SOLID[p.t];
     if (sz) propBoxes.push({ x:p.x, z:p.z, yaw:p.yaw||0, hx:sz[0], hz:sz[1] });
   }
+  function addLamp(x,z,y,kind,zn){ var l={ x:x, z:z, y:y, kind:kind, zone:zn, health:1, dead:0, buzz:0, id:lamps.length }; lamps.push(l); return l; }
 
-  // Tub, sink, toilet, cracked mirror. The room is tiled and the tiles are
-  // where most of the blood ends up.
-  function furnishBathroom(room){
-    var an=[];
+  // wall anchors: room edge cells whose outward neighbour is solid (never a fence)
+  function anchors(room){
+    var out=[];
     for (var c=room.c0;c<=room.c1;c++){
-      if (!isOpen(room.r0-1,c)) an.push({r:room.r0,c:c, nx:0,nz:-1, yaw:Math.PI});
-      if (!isOpen(room.r1+1,c)) an.push({r:room.r1,c:c, nx:0,nz:1,  yaw:0});
+      if (!isOpen(room.r0-1,c)) out.push({r:room.r0,c:c, nx:0,nz:-1, yaw:Math.PI});
+      if (!isOpen(room.r1+1,c)) out.push({r:room.r1,c:c, nx:0,nz:1,  yaw:0});
     }
     for (var r=room.r0;r<=room.r1;r++){
-      if (!isOpen(r,room.c0-1)) an.push({r:r,c:room.c0, nx:-1,nz:0, yaw:Math.PI/2});
-      if (!isOpen(r,room.c1+1)) an.push({r:r,c:room.c1, nx:1,nz:0,  yaw:-Math.PI/2});
+      if (!isOpen(r,room.c0-1)) out.push({r:r,c:room.c0, nx:-1,nz:0, yaw:Math.PI/2});
+      if (!isOpen(r,room.c1+1)) out.push({r:r,c:room.c1, nx:1,nz:0,  yaw:-Math.PI/2});
     }
-    shuffle(an);
-    var u=0;
-    if (an.length){
-      var a=an[u++], ac=cellCenter(a.r,a.c);
-      addProp({ t:'tub', x:ac.x+a.nx*(CELL/2-0.55), z:ac.z+a.nz*(CELL/2-0.55), yaw:a.yaw });
-    }
-    if (u<an.length){
-      var b=an[u++], bc=cellCenter(b.r,b.c);
-      addProp({ t:'sink', x:bc.x+b.nx*(CELL/2-0.26), z:bc.z+b.nz*(CELL/2-0.26), yaw:b.yaw });
-      addProp({ t:'mirror', x:bc.x+b.nx*(CELL/2-0.16), z:bc.z+b.nz*(CELL/2-0.16), yaw:b.yaw, nx:b.nx, nz:b.nz });
-    }
-    if (u<an.length){
-      var c2=an[u++], cc3=cellCenter(c2.r,c2.c);
-      addProp({ t:'toilet', x:cc3.x+c2.nx*(CELL/2-0.34), z:cc3.z+c2.nz*(CELL/2-0.34), yaw:c2.yaw });
-    }
-    // a wardrobe still, so the room is not a dead end for hiding
-    if (u<an.length){
-      var d2=an[u++], dc=cellCenter(d2.r,d2.c);
-      var wx=dc.x+d2.nx*(CELL/2-0.42), wz=dc.z+d2.nz*(CELL/2-0.42);
-      hideSpots.push({ x:wx, z:wz, yaw:d2.yaw, nx:d2.nx, nz:d2.nz });
-      addProp({ t:'wardrobe', x:wx, z:wz, yaw:d2.yaw });
-    }
+    return shuffle(out);
   }
 
-  function placeContents(exitRoom){
-    props=[]; hideSpots=[]; evidenceItems=[]; propBoxes=[]; fires=[]; traps=[];
+  function placeEstateContents(){
+    props=[]; hideSpots=[]; evidenceItems=[]; propBoxes=[]; lamps=[]; traps=[];
     bathroom=null; gruesome={}; bodies=[]; anchoredRooms={}; houseShifts=[];
-    var startRoom = rooms[0];
+    var startRoom=EST.roomCourt, exitRoom=EST.roomLift, mid=(COLS/2)|0;
+    var W=EST.walk, U=EST.under, Cy=EST.court, B=EST.bins;
 
-    // wall anchors: room edge cells whose outward neighbour is solid
-    function anchors(room){
-      var out=[];
-      for (var c=room.c0;c<=room.c1;c++){
-        if (!isOpen(room.r0-1,c)) out.push({r:room.r0,c:c, nx:0,nz:-1, yaw:Math.PI});
-        if (!isOpen(room.r1+1,c)) out.push({r:room.r1,c:c, nx:0,nz:1,  yaw:0});
-      }
-      for (var r=room.r0;r<=room.r1;r++){
-        if (!isOpen(r,room.c0-1)) out.push({r:r,c:room.c0, nx:-1,nz:0, yaw:Math.PI/2});
-        if (!isOpen(r,room.c1+1)) out.push({r:r,c:room.c1, nx:1,nz:0,  yaw:-Math.PI/2});
-      }
-      return shuffle(out);
-    }
-
-    // one room becomes the bathroom, and a couple more are simply bad rooms
-    var pool0=[];
-    for (var b0=0;b0<rooms.length;b0++) if (rooms[b0]!==startRoom && rooms[b0]!==exitRoom) pool0.push(rooms[b0]);
-    shuffle(pool0);
-    if (pool0.length) bathroom = pool0[0];
-    for (var g0=1; g0<Math.min(4, pool0.length); g0++) gruesome[rooms.indexOf(pool0[g0])]=true;
-
-    for (var i=0;i<rooms.length;i++){
-      var room=rooms[i];
-      if (room===bathroom){ furnishBathroom(room); continue; }
-      var an=anchors(room);
-      var used=0;
-
-      // one wardrobe per room (not the start room) — these are the hiding places
-      if (room!==startRoom && an.length){
-        var a=an[used++];
-        var ctr=cellCenter(a.r,a.c);
-        var wx=ctr.x + a.nx*(CELL/2-0.42), wz=ctr.z + a.nz*(CELL/2-0.42);
-        hideSpots.push({ x:wx, z:wz, yaw:a.yaw, nx:a.nx, nz:a.nz, kind:'wardrobe' });
-        addProp({ t:'wardrobe', x:wx, z:wz, yaw:a.yaw });
-        // big rooms get a second one on another wall
-        var area=(room.r1-room.r0+1)*(room.c1-room.c0+1);
-        if (area>=15 && used<an.length && Math.random()<0.7){
-          var a2=an[used++], c2=cellCenter(a2.r,a2.c);
-          var wx2=c2.x + a2.nx*(CELL/2-0.42), wz2=c2.z + a2.nz*(CELL/2-0.42);
-          if (dist(wx2,wz2,wx,wz)>2.5){ hideSpots.push({ x:wx2, z:wz2, yaw:a2.yaw, nx:a2.nx, nz:a2.nz, kind:'wardrobe' }); addProp({ t:'wardrobe', x:wx2, z:wz2, yaw:a2.yaw }); }
-          else used--;
-        }
-      }
-      // one room in three gets a hearth - the only other light in the house
-      if (room!==startRoom && used<an.length && Math.random()<0.34){
-        var fa=an[used++], fc=cellCenter(fa.r,fa.c);
-        var fx=fc.x+fa.nx*(CELL/2-0.30), fz=fc.z+fa.nz*(CELL/2-0.30);
-        addProp({ t:'fireplace', x:fx, z:fz, yaw:fa.yaw, nx:fa.nx, nz:fa.nz });
-        fires.push({ x:fx-fa.nx*0.35, z:fz-fa.nz*0.35, y:0.55, kind:'fire' });
-      }
-
-      // shelves, bookshelves, paintings and a clock against the other walls
-      for (var s=0; s<2 && used<an.length; s++){
-        var b=an[used++], bc=cellCenter(b.r,b.c);
-        var roll2=Math.random();
-        if (roll2<0.28){
-          addProp({ t:'bookshelf', x:bc.x+b.nx*(CELL/2-0.32), z:bc.z+b.nz*(CELL/2-0.32), yaw:b.yaw });
-        } else if (roll2<0.5){
-          addProp({ t:'shelf', x:bc.x+b.nx*(CELL/2-0.30), z:bc.z+b.nz*(CELL/2-0.30), yaw:b.yaw });
-        } else if (roll2<0.62){
-          addProp({ t:'clock', x:bc.x+b.nx*(CELL/2-0.34), z:bc.z+b.nz*(CELL/2-0.34), yaw:b.yaw });
-        } else {
-          addProp({ t:'painting', x:bc.x+b.nx*(CELL/2-0.17), z:bc.z+b.nz*(CELL/2-0.17), yaw:b.yaw, nx:b.nx, nz:b.nz });
-        }
-      }
-
-      // interior furniture
-      var w=room.c1-room.c0+1, h=room.r1-room.r0+1;
-      var ic=cellCenter(room.cr, room.cc);
-      var roll=Math.random();
-      if (room===startRoom){
-        addProp({ t:'rug', x:ic.x, z:ic.z, yaw:0 });
-      } else if (w>=4 && h>=3 && roll<0.45){
-        var byaw = Math.random()<0.5?0:Math.PI/2;
-        addProp({ t:'bed', x:ic.x, z:ic.z, yaw: byaw });
-        // you can get under it. The way in is from the long side.
-        var bn = byaw===0 ? [0, Math.random()<0.5?1:-1] : [Math.random()<0.5?1:-1, 0];
-        hideSpots.push({ x:ic.x, z:ic.z, yaw:byaw, nx:-bn[0], nz:-bn[1], kind:'bed' });
-      } else if (roll<0.8){
-        var tyaw = Math.random()<0.5?0:Math.PI/2;
-        addProp({ t:'table', x:ic.x, z:ic.z, yaw:tyaw });
-        if (Math.random()<0.55){
-          addProp({ t:'candle', x:ic.x+0.25, z:ic.z-0.12, yaw:0 });
-          fires.push({ x:ic.x+0.25, z:ic.z-0.12, y:1.02, kind:'candle' });
-        }
-        addProp({ t:'chair', x:ic.x+1.15, z:ic.z, yaw:tyaw-Math.PI/2 });
-        if (Math.random()<0.6) addProp({ t:'chair', x:ic.x-1.15, z:ic.z, yaw:tyaw+Math.PI/2 });
+    // ---- walkway: a flat door on every cell of the flats band, a tube every third,
+    // meter cupboards to hide in, a wall camera at each end
+    var flatNo = 100 + ri(1,3)*100 + ri(0,3)*2;       // 101.. style numbering, fictional
+    EST.flatBase=flatNo; EST.doors=[];
+    for (var wc=W.c0; wc<=W.c1; wc++){
+      var wp=cellCenter(W.r,wc);
+      var isLift = wc>=EST.lift.c0 && wc<=EST.lift.c1;
+      if (isLift) continue;
+      var doorX=wp.x + ((wc*7)%3-1)*0.35;
+      if ((wc-W.c0)%4===2 && wc>W.c0+1 && wc<W.c1-1){
+        // a meter cupboard instead of a door: the walkway's hiding place
+        var mx=wp.x, mz=W.r*CELL+WALL_HALF+0.22;
+        addProp({ t:'meter', x:mx, z:mz, yaw:Math.PI, nx:0, nz:1 });
+        hideSpots.push({ x:mx, z:mz, yaw:Math.PI, nx:0, nz:1, kind:'meter' });
       } else {
-        addProp({ t:'rug', x:ic.x, z:ic.z, yaw:0 });
-        addProp({ t:'crate', x:ic.x+ri(-1,1), z:ic.z+ri(-1,1), yaw:Math.random()<0.5?0:Math.PI/2 });
+        var dr={ t:'flatdoor', x:doorX, z:W.r*CELL+WALL_HALF, yaw:Math.PI, nx:0, nz:1, num:flatNo, col:(wc%5===0)?1:0 };
+        flatNo+=2; addProp(dr); EST.doors.push(dr);
       }
+      if ((wc-W.c0)%3===1){
+        addProp({ t:'tube', x:wp.x, z:W.r*CELL+WALL_HALF+0.17, y:DECK_H+2.25, yaw:Math.PI, nx:0, nz:1 });
+        addLamp(wp.x, W.r*CELL+0.55, DECK_H+2.2, 'tube', Z.WALK);
+      }
+      if ((wc-W.c0)%2===1) addProp({ t:'drip', x:wp.x+0.9, z:(W.r+1)*CELL-0.6, yaw:0 });
+    }
+    addProp({ t:'cctv', x:W.c0*CELL+0.5, z:W.r*CELL+0.4, y:DECK_H+2.3, yaw:-0.8, wall:true });
+    addProp({ t:'cctv', x:(W.c1+1)*CELL-0.5, z:W.r*CELL+0.4, y:DECK_H+2.3, yaw:0.8, wall:true });
+    addProp({ t:'plate', x:(W.c0+1)*CELL, z:W.r*CELL+WALL_HALF+0.02, y:DECK_H+2.05, yaw:Math.PI, nx:0, nz:1, kind:'level' });
+    addProp({ t:'plate', x:(W.c1)*CELL, z:W.r*CELL+WALL_HALF+0.02, y:DECK_H+2.05, yaw:Math.PI, nx:0, nz:1, kind:'level' });
+
+    // ---- lift landing: the lift itself is drawn live (drawDoorPanel); here the
+    // call button, a tube, a notice board and a cleaner's cupboard to hide in
+    var L=EST.lift, lp=cellCenter(L.r1, mid);
+    addProp({ t:'tube', x:lp.x, z:L.r0*CELL+2.0, y:DECK_H+2.3, yaw:0, nx:0, nz:0, flat:true });
+    addLamp(lp.x, L.r0*CELL+2.0, DECK_H+2.2, 'tube', Z.LIFT);
+    addProp({ t:'callbtn', x:(mid+1)*CELL-0.9, z:L.r0*CELL+WALL_HALF+0.03, y:DECK_H+1.15, yaw:Math.PI, nx:0, nz:1 });
+    addProp({ t:'notice', x:(L.c0)*CELL+WALL_HALF+0.03, z:L.r1*CELL+1.6, y:DECK_H+1.55, yaw:Math.PI/2, nx:1, nz:0 });
+    var cup={ x:(L.c1+1)*CELL-WALL_HALF-0.31, z:L.r1*CELL+2.6, yaw:-Math.PI/2, nx:1, nz:0 };
+    addProp({ t:'cupboard', x:cup.x, z:cup.z, yaw:cup.yaw, nx:cup.nx, nz:cup.nz });
+    hideSpots.push({ x:cup.x, z:cup.z, yaw:cup.yaw, nx:cup.nx, nz:cup.nz, kind:'cupboard' });
+
+    // ---- stairwells: tubes on both landings, an intercom and a wired-glass
+    // door at the bottom, a cupboard under the stairs to hide in
+    for (var si=0; si<EST.stairs.length; si++){
+      var st=EST.stairs[si], inner = st.side==='W' ? 1 : -1;      // toward the yard
+      var scx=(st.c0+st.c1+1)/2*CELL;
+      var wallX = st.side==='W' ? st.c0*CELL : (st.c1+1)*CELL;    // the outer wall
+      var wo=WALL_HALF;
+      addProp({ t:'tube', x:wallX+inner*(wo+0.17), z:(st.topR0+1)*CELL, y:DECK_H+2.25, yaw:st.side==='W'?Math.PI/2:-Math.PI/2, nx:inner, nz:0 });
+      addLamp(wallX+inner*0.6, (st.topR0+1)*CELL, DECK_H+2.2, 'tube', Z.STAIR);
+      addProp({ t:'tube', x:wallX+inner*(wo+0.17), z:(st.botR0+1)*CELL, y:2.25, yaw:st.side==='W'?Math.PI/2:-Math.PI/2, nx:inner, nz:0 });
+      addLamp(wallX+inner*0.6, (st.botR0+1)*CELL, 2.2, 'tube', Z.STAIR);
+      addProp({ t:'tube', x:wallX+inner*(wo+0.17), z:(st.rampR0+2.5)*CELL, y:DECK_H*0.5+2.25, yaw:st.side==='W'?Math.PI/2:-Math.PI/2, nx:inner, nz:0, dim:true });
+      addProp({ t:'plate', x:wallX+inner*(wo+0.02), z:(st.topR0)*CELL+1.2, y:DECK_H+1.9, yaw:st.side==='W'?Math.PI/2:-Math.PI/2, nx:inner, nz:0, kind:'stairs' });
+      addProp({ t:'plate', x:wallX+inner*(wo+0.02), z:(st.botR1)*CELL+1.2, y:1.9, yaw:st.side==='W'?Math.PI/2:-Math.PI/2, nx:inner, nz:0, kind:'stairs' });
+      // the cupboard under the stairs, at the bottom landing against the outer wall
+      var cx=wallX+inner*(wo+0.31), cz=(st.botR1)*CELL+2.4;
+      addProp({ t:'cupboard', x:cx, z:cz, yaw:st.side==='W'?Math.PI/2:-Math.PI/2, nx:inner, nz:0 });
+      hideSpots.push({ x:cx, z:cz, yaw:st.side==='W'?Math.PI/2:-Math.PI/2, nx:inner, nz:0, kind:'cupboard' });
+      // communal door frame and intercom where the undercroft meets the landing
+      var doorC = st.side==='W' ? st.c1+1 : st.c0;
+      addProp({ t:'commdoor', x:doorC*CELL, z:(st.botR1)*CELL+CELL/2, yaw:0, side:st.side });
+      addProp({ t:'intercom', x:wallX+inner*(wo+0.035), z:(st.botR0)*CELL+0.8, y:1.35, yaw:st.side==='W'?Math.PI/2:-Math.PI/2, nx:inner, nz:0 });
+      // the same frame at the top, opening onto the deck
+      addProp({ t:'commdoor', x:doorC*CELL, z:(st.topR0)*CELL+CELL/2, yaw:0, side:st.side, up:true });
     }
 
-    // evidence, spread across rooms that are neither the start nor the exit
-    var pool=[];
-    for (var k=0;k<rooms.length;k++){
-      if (rooms[k]!==startRoom && rooms[k]!==exitRoom) pool.push(rooms[k]);
+    // ---- undercroft: columns and sodium bulkheads along the passage, a second
+    // lift door that should not be there
+    for (var uc=U.c0; uc<=U.c1; uc++){
+      var up=cellCenter(U.r,uc);
+      if ((uc-U.c0)%2===0){ addProp({ t:'column', x:uc*CELL+0.32, z:(U.r+1)*CELL-0.35, yaw:0 }); }
+      if ((uc-U.c0)%3===1){
+        addProp({ t:'bulkhead', x:up.x, z:U.r*CELL+WALL_HALF+0.15, y:2.4, yaw:Math.PI, nx:0, nz:1 });
+        addLamp(up.x, U.r*CELL+0.7, 2.3, 'sodium', Z.UNDER);
+      }
+      if ((uc-U.c0)%4===3) addProp({ t:'puddle', x:up.x+(Math.random()-0.5), z:up.z+(Math.random()-0.5), yaw:Math.random()*3, sx:0.9+Math.random()*0.6, sz:0.5+Math.random()*0.4 });
     }
+    addProp({ t:'liftdoor2', x:mid*CELL+CELL/2, z:U.r*CELL+WALL_HALF, yaw:Math.PI, nx:0, nz:1 });
+    addProp({ t:'sign', x:(U.c0+1)*CELL, z:U.r*CELL+WALL_HALF+0.03, y:1.7, yaw:Math.PI, nx:0, nz:1, kind:'block' });
+
+    // ---- courtyard: lamp posts, bins, a skip, benches, cage, clutter, estate sign
+    var lampSpots=[ {c:Cy.c0+2, r:Cy.r0+2}, {c:Cy.c1-2, r:Cy.r0+2}, {c:mid, r:Cy.r1-2}, {c:Cy.c0+3, r:Cy.r1-3}, {c:Cy.c1-3, r:Cy.r1-3} ];
+    for (var ls=0; ls<lampSpots.length; ls++){
+      var lq=lampSpots[ls];
+      if (lq.r>=B.r0-1 && lq.c>=Math.min(B.c0,ringC(B))-1 && lq.c<=Math.max(B.c1,ringC(B))+1) continue;
+      var lc=cellCenter(lq.r,lq.c);
+      if (ls>=3 && Math.random()<0.4) continue;
+      addProp({ t:'lamppost', x:lc.x, z:lc.z, yaw:0, broken: ls===1 && Math.random()<0.5 });
+      if (!props[props.length-1].broken) addLamp(lc.x, lc.z-0.2, 4.1, 'sodium', Z.COURT);
+    }
+    function ringC(b){ return b.west?4:COLS-5; }
+    var skipC = B.west ? Cy.c1-2 : Cy.c0+2;
+    var skc=cellCenter(Cy.r1-1, skipC);
+    addProp({ t:'skip', x:skc.x, z:skc.z, yaw:0.12 });
+    hideSpots.push({ x:skc.x, z:skc.z, yaw:0, nx:0, nz:1, kind:'skip' });
+    addProp({ t:'sign', x:(mid-2)*CELL, z:(ROWS-1)*CELL-WALL_HALF-0.04, y:1.5, yaw:0, nx:0, nz:-1, kind:'estate' });
+    addProp({ t:'cctv', x:(mid+3)*CELL, z:(ROWS-1)*CELL-0.6, y:3.6, yaw:Math.PI*0.85, pole:true });
+    addProp({ t:'bench', x:cellCenter(Cy.r0+1, mid-4).x, z:cellCenter(Cy.r0+1, mid-4).z, yaw:0 });
+    addProp({ t:'bench', x:cellCenter(Cy.r0+1, mid+4).x, z:cellCenter(Cy.r0+1, mid+4).z, yaw:0 });
+    var clutter=['pallet','trolley','tyres','bin','bin','pallet'];
+    for (var ck=0; ck<clutter.length; ck++){
+      for (var ct=0; ct<20; ct++){
+        var oc=openCells[(Math.random()*openCells.length)|0];
+        if (zone[oc.r][oc.c]!==Z.COURT) continue;
+        if (EST.cage && oc.r>=EST.cage.r0 && oc.r<=EST.cage.r1 && oc.c>=EST.cage.c0 && oc.c<=EST.cage.c1) continue;
+        var cp=cellCenter(oc.r,oc.c), px=cp.x+(Math.random()-0.5)*1.6, pz=cp.z+(Math.random()-0.5)*1.6;
+        if (dist(px,pz,cellCenter(startCell.r,startCell.c).x,cellCenter(startCell.r,startCell.c).z)<4) continue;
+        if (propHit(px,pz,0.9)) continue;
+        addProp({ t:clutter[ck], x:px, z:pz, yaw:Math.random()*6.28 });
+        break;
+      }
+    }
+    for (var pd=0; pd<10; pd++){
+      var oc2=openCells[(Math.random()*openCells.length)|0];
+      if (zone[oc2.r][oc2.c]!==Z.COURT && zone[oc2.r][oc2.c]!==Z.WALK) continue;
+      var pp=cellCenter(oc2.r,oc2.c);
+      addProp({ t:'puddle', x:pp.x+(Math.random()-0.5)*2, z:pp.z+(Math.random()-0.5)*2, yaw:Math.random()*3, sx:0.7+Math.random()*1.2, sz:0.45+Math.random()*0.7 });
+    }
+    // the yard: washing-line posts and a sodium lamp on the block face, seen through the railings
+    var Y=EST.yard;
+    for (var yc=Y.c0+1; yc<Y.c1; yc+=4){ addProp({ t:'linepost', x:yc*CELL+1, z:(Y.r0+3)*CELL, yaw:0 }); }
+    addProp({ t:'bulkhead', x:(mid)*CELL, z:(Y.r0)*CELL+0.15, y:2.6, yaw:0, nx:0, nz:1, yard:true });
+    addLamp((mid)*CELL, (Y.r0)*CELL+0.8, 2.5, 'sodium', Z.YARD);
+
+    // ---- bin store: the communal bins, a bulkhead lamp, and behind the bins is where you hide
+    var bcen=cellCenter(B.r0+1, (B.c0+B.c1)>>1);
+    var bx0=B.west ? B.c0*CELL+WALL_HALF+0.50 : (B.c1+1)*CELL-WALL_HALF-0.50;
+    var binYaw = B.west ? Math.PI/2 : -Math.PI/2;
+    addProp({ t:'binbank', x:bx0, z:B.r0*CELL+1.4, yaw:binYaw });
+    addProp({ t:'binbank', x:bx0, z:B.r0*CELL+3.6, yaw:binYaw });
+    addProp({ t:'bin', x:bcen.x+0.6, z:(B.r1+1)*CELL-0.7, yaw:0.3 });
+    addProp({ t:'bin', x:bcen.x-0.3, z:(B.r1+1)*CELL-0.8, yaw:-0.2 });
+    var hb={ x:bx0, z:B.r0*CELL+6.2, yaw:binYaw, nx:B.west?-1:1, nz:0 };
+    addProp({ t:'binbank', x:hb.x, z:hb.z, yaw:binYaw, hide:true });
+    hideSpots.push({ x:hb.x, z:hb.z, yaw:hb.yaw, nx:hb.nx, nz:hb.nz, kind:'bins' });
+    addProp({ t:'bulkhead', x:bcen.x, z:(B.r0)*CELL+WALL_HALF+0.15, y:2.3, yaw:Math.PI, nx:0, nz:1 });
+    addLamp(bcen.x, (B.r0)*CELL+0.7, 2.2, 'sodium', Z.BINS);
+    addProp({ t:'plate', x:B.west ? (ringC(B))*CELL+WALL_HALF+0.02 : (ringC(B)+1)*CELL-WALL_HALF-0.02, z:(EST.binsGate.r)*CELL-0.9, y:1.7, yaw:B.west?Math.PI/2:-Math.PI/2, nx:B.west?1:-1, nz:0, kind:'bins' });
+
+    // ---- evidence: spread across the pool, at least one up top and one down here
+    var pool=[];
+    for (var k=0;k<rooms.length;k++) if (rooms[k]!==startRoom && rooms[k]!==exitRoom) pool.push(rooms[k]);
     shuffle(pool);
-    if (pool.length < D.evidence && exitRoom) pool.push(exitRoom);
-    if (pool.length < D.evidence) pool.push(startRoom);
-    var want=Math.min(D.evidence, pool.length);
+    var upFirst=null, downFirst=null, rest=[];
+    for (var q0=0;q0<pool.length;q0++){ var pr=pool[q0]; if (pr.up && !upFirst) upFirst=pr; else if (!pr.up && !downFirst) downFirst=pr; else rest.push(pr); }
+    var order=[]; if (upFirst) order.push(upFirst); if (downFirst) order.push(downFirst); order=order.concat(rest);
+    var want=Math.min(D.evidence, order.length);
     for (var q=0;q<want;q++){
-      var rm=pool[q], kx=0, kz=0, ok=false;
-      for (var tries=0; tries<24 && !ok; tries++){
+      var rm=order[q], kx=0, kz=0, ok=false;
+      for (var tries=0; tries<40 && !ok; tries++){
         var kp=cellCenter(ri(rm.r0,rm.r1), ri(rm.c0,rm.c1));
-        kx=kp.x+(Math.random()-0.5)*1.4; kz=kp.z+(Math.random()-0.5)*1.4;
+        kx=kp.x+(Math.random()-0.5)*1.6; kz=kp.z+(Math.random()-0.5)*1.6;
         ok = !propHit(kx,kz,0.55) && !collides(kx,kz,0.5);
       }
       evidenceItems.push({ x:kx, z:kz, taken:false, type:q%EVIDENCE_CATALOG.length, room:rooms.indexOf(rm) });
     }
-    if (!evidenceItems.length){
-      var fp=cellCenter(rooms[rooms.length-1].cr, rooms[rooms.length-1].cc);
-      evidenceItems.push({ x:fp.x, z:fp.z, taken:false, type:0, room:rooms.length-1 });
-    }
 
-    // ---- the dead. More of them in the rooms that are already a mess.
-    for (var bi=0; bi<rooms.length; bi++){
-      var rm2=rooms[bi];
-      if (rm2===startRoom) continue;
-      var want = (rm2===bathroom || gruesome[bi]) ? (1+((Math.random()*2)|0)) : (Math.random()<0.30?1:0);
-      for (var w2=0; w2<want; w2++){
-        for (var tb=0; tb<20; tb++){
-          var bp=cellCenter(ri(rm2.r0,rm2.r1), ri(rm2.c0,rm2.c1));
-          var bxp=bp.x+(Math.random()-0.5)*2.0, bzp=bp.z+(Math.random()-0.5)*2.0;
-          if (propHit(bxp,bzp,0.9) || collides(bxp,bzp,0.8)) continue;
-          bodies.push({ x:bxp, z:bzp, yaw:Math.random()*Math.PI*2, pose:(Math.random()*3)|0 });
-          break;
-        }
-      }
-    }
-
-    // ---- traps, anywhere but the room you wake up in
-    var sc=cellCenter(startRoom.cr, startRoom.cc);
+    // ---- loose drain grates: step on one and you go through to the knee
+    var sc=cellCenter(startCell.r, startCell.c);
     for (var t=0; t<D.traps; t++){
       for (var tr=0; tr<40; tr++){
-        var oc=openCells[(Math.random()*openCells.length)|0];
-        if (oc.r>=startRoom.r0 && oc.r<=startRoom.r1 && oc.c>=startRoom.c0 && oc.c<=startRoom.c1) continue;
-        var cc2=cellCenter(oc.r,oc.c);
-        var tx=cc2.x+(Math.random()-0.5)*2.2, tz=cc2.z+(Math.random()-0.5)*2.2;
+        var oc3=openCells[(Math.random()*openCells.length)|0];
+        var zn=zone[oc3.r][oc3.c];
+        if (zn!==Z.COURT && zn!==Z.UNDER && zn!==Z.WALK && zn!==Z.BINS) continue;
+        var cc2=cellCenter(oc3.r,oc3.c);
+        var tx=cc2.x+(Math.random()-0.5)*2.0, tz=cc2.z+(Math.random()-0.5)*(zn===Z.WALK?1.4:2.0);
         if (dist(tx,tz,sc.x,sc.z) < 9) continue;
         if (propHit(tx,tz,0.6) || collides(tx,tz,0.6)) continue;
         var clash=false;
-        for (var q2=0;q2<traps.length;q2++) if (dist(tx,tz,traps[q2].x,traps[q2].z)<3){ clash=true; break; }
-        for (var k2=0;k2<evidenceItems.length;k2++) if (dist(tx,tz,evidenceItems[k2].x,evidenceItems[k2].z)<1.6){ clash=true; break; }
+        for (var q2=0;q2<traps.length;q2++) if (dist(tx,tz,traps[q2].x,traps[q2].z)<4){ clash=true; break; }
+        for (var k2=0;k2<evidenceItems.length;k2++) if (dist(tx,tz,evidenceItems[k2].x,evidenceItems[k2].z)<1.8){ clash=true; break; }
+        for (var h2=0;h2<hideSpots.length;h2++) if (dist(tx,tz,hideSpots[h2].x,hideSpots[h2].z)<2.2){ clash=true; break; }
         if (clash) continue;
         traps.push({ x:tx, z:tz, sprung:false, yaw:Math.random()*Math.PI });
         break;
@@ -1304,9 +1324,14 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return true;
   }
   function planHouseShift(){
+    // the estate closes an undercroft bay (or something it opened earlier) and
+    // opens a recess somewhere it should not: a door in the flats that was not
+    // there, a bay over the yard, an alcove under the deck, a hole in the bin store
     var close=[];
     for (var r=1;r<ROWS-1;r++) for (var c=1;c<COLS-1;c++){
       if (grid[r][c]!==1 || insideRoom(r,c) || openNeighbourCount(r,c)<2 || !shiftCellIsClear(r,c)) continue;
+      var zn=zone[r][c];
+      if (zn!==Z.UNDER && zn!==Z.COURT && zn!==Z.WALK) continue;
       close.push({r:r,c:c});
     }
     shuffle(close);
@@ -1316,7 +1341,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var open=[];
       for (var rr=1;rr<ROWS-1;rr++) for (var cc=1;cc<COLS-1;cc++){
         if (grid[rr][cc]!==0 || insideRoom(rr,cc) || anchoredCell(rr,cc) || !shiftCellIsClear(rr,cc)) continue;
-        if (openNeighbourCount(rr,cc)<2 || Math.abs(rr-shut.r)+Math.abs(cc-shut.c)<4) continue;
+        var zo=zone[rr][cc];
+        if (zo===Z.YARD && rr!==EST.yard.r0 && rr!==EST.yard.r1) continue;   // only the yard rows that touch a walkway or the undercroft
+        if (openNeighbourCount(rr,cc)<1 || Math.abs(rr-shut.r)+Math.abs(cc-shut.c)<4) continue;
         open.push({r:rr,c:cc});
       }
       shuffle(open);
@@ -1330,15 +1357,20 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return null;
   }
   function applyHouseShift(spec, record, quiet){
-    if (!spec || !spec.close || !spec.open) return false;
-    var cr=spec.close[0], cc=spec.close[1], or=spec.open[0], oc=spec.open[1];
-    if (!inb(cr,cc) || !inb(or,oc)) return false;
-    grid[cr][cc]=0; grid[or][oc]=1;
+    if (!spec || !spec.open) return false;
+    var or=spec.open[0], oc=spec.open[1];
+    if (!inb(or,oc)) return false;
+    if (spec.close){
+      var cr=spec.close[0], cc=spec.close[1];
+      if (!inb(cr,cc)) return false;
+      grid[cr][cc]=0; zone[cr][cc]=Z.SOLID;
+    }
+    grid[or][oc]=1; zone[or][oc]=zoneForOpened(or,oc);
     buildTopology();
     if (glOK) buildLevelMesh();
     creaturePath=[]; lastPath=0;
     if (creature) creature.cell=cellOf(creature.x,creature.z);
-    if (record!==false) houseShifts.push({ close:[cr,cc], open:[or,oc] });
+    if (record!==false) houseShifts.push({ close:spec.close?[spec.close[0],spec.close[1]]:null, open:[or,oc] });
     if (!quiet){
       frame.classList.remove('house-shifting'); void frame.offsetWidth; frame.classList.add('house-shifting');
       setTimeout(function(){ frame.classList.remove('house-shifting'); },1500);
@@ -1353,7 +1385,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     caseNumber.textContent='CASE FILE 38 / EVIDENCE '+String(index+1).padStart(2,'0')+(finder?' / '+finder.toUpperCase():'');
     caseTitle.textContent=clue.title;
     caseCopy.textContent=clue.copy;
-    caseEffect.textContent=moved ? 'Room pinned. Elsewhere, the house moved.' : 'Room pinned. This time, the house held.';
+    caseEffect.textContent=moved ? 'Pinned. Somewhere else, the block moved.' : 'Pinned. This time, the block held.';
     clearTimeout(caseTimer); caseCard.classList.add('show');
     caseTimer=setTimeout(function(){ caseCard.classList.remove('show'); },4200);
   }
@@ -1364,7 +1396,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     awakenStinger();
     setTimeout(function(){ voice(pick('gomad1','gomad2'),{vol:1.0,cool:0}); },350);
     flashEl.classList.remove('fire'); void flashEl.offsetWidth; flashEl.classList.add('fire');
-    showToast('The case is complete. Pun knows. Run.', true);
+    showToast('The case is complete. Pun knows. Get to the lift.', true);
   }
   function collectEvidence(index, opts){
     opts=opts||{};
@@ -1383,13 +1415,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   function usePunShift(){
     if (!NET.isPun) return false;
-    if (punShiftCd>0){ showToast('The house is still settling — '+Math.ceil(punShiftCd)+'s', true); return false; }
-    if (punRage<55){ showToast('Not enough house rage.', true); return false; }
+    if (punShiftCd>0){ showToast('The block is still settling — '+Math.ceil(punShiftCd)+'s', true); return false; }
+    if (punRage<55){ showToast('Not enough rage yet.', true); return false; }
     var shift=planHouseShift();
     if (!shift){ showToast('Every unseen passage is pinned.', true); return false; }
     punRage-=55; punShiftCd=12;
     applyHouseShift(shift); netSend('house-shift',{shift:shift});
-    updateEvidenceHud(); showToast('You rewrote an unseen corridor.', true);
+    updateEvidenceHud(); showToast('You rewrote an unseen passage.', true);
     return true;
   }
 
@@ -1508,6 +1540,17 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     A.conv.connect(dark); dark.connect(A.wet); A.wet.connect(A.master);
 
     A.noise=makeNoise(3);
+    // rain on concrete, and the low hum of the block: both sit under everything outdoors
+    var rn=ctx.createBufferSource(); rn.buffer=A.noise; rn.loop=true; rn.playbackRate.value=1.0;
+    var rf=ctx.createBiquadFilter(); rf.type='bandpass'; rf.frequency.value=2600; rf.Q.value=0.6;
+    var rf2=ctx.createBiquadFilter(); rf2.type='highpass'; rf2.frequency.value=900;
+    A.rainG=ctx.createGain(); A.rainG.gain.value=0;
+    var rl=ctx.createOscillator(); rl.frequency.value=0.9; var rlg=ctx.createGain(); rlg.gain.value=300; rl.connect(rlg); rlg.connect(rf.frequency); rl.start();
+    rn.connect(rf); rf.connect(rf2); rf2.connect(A.rainG); A.rainG.connect(A.master); rn.start();
+    var hum=ctx.createOscillator(); hum.type='triangle'; hum.frequency.value=50;
+    var hf=ctx.createBiquadFilter(); hf.type='lowpass'; hf.frequency.value=180;
+    A.humG=ctx.createGain(); A.humG.gain.value=0;
+    hum.connect(hf); hf.connect(A.humG); A.humG.connect(A.master); hum.start();
 
     // --- sub: felt, not heard. no harmonics, so nothing to buzz.
     A.subG=ctx.createGain(); A.subG.gain.value=0.07; A.subG.connect(A.master);
@@ -1964,6 +2007,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   function updateAudio(dread, hunting, dist, hidden, nowMs, prox, pan){
     if (!A.ctx) return;
+    if (A.rainG){
+      var pz=playerZone(), outside = isOutdoors(pz) && pz!==Z.BINS;
+      var rainWant = hidden ? 0.012 : (outside ? (pz===Z.WALK ? 0.05 : 0.075) : 0.014);
+      A.rainG.gain.setTargetAtTime(rainWant, A.ctx.currentTime, 0.6);
+      var nl=nearestLamp(player.x,player.z), buzz = nl.lamp ? (nl.lamp.kind==='tube' ? 0.03+nl.lamp.buzz*0.06 : 0.02) * Math.max(0, 1-nl.d/12) : 0;
+      A.humG.gain.setTargetAtTime(outside ? buzz*0.5 : buzz, A.ctx.currentTime, 0.3);
+    }
     A.master.gain.value = (0.50 + dread*0.30) * SET.master;
     A.padFilt.frequency.value = 300 + dread*700;
     A.padG.gain.value = 0.06 + dread*0.06;
@@ -2209,28 +2259,34 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   var glOpts={ antialias:true, alpha:false, preserveDrawingBuffer:true };
   var gl=canvas.getContext('webgl',glOpts)||canvas.getContext('experimental-webgl',glOpts);
   var glOK=!!gl, glInit=false;
-  var prog, loc={}, cubeVBO,cubeNBO,cubeCBO,cubeCount, lvlVBO,lvlNBO,lvlCBO,lvlCount;
+  var prog, loc={}, cubeVBO,cubeNBO,cubeCBO,cubeCount, lvlVBO,lvlNBO,lvlCBO,lvlMBO,lvlCount;
 
   var VS=[
     'attribute vec3 aPosition, aNormal, aColor;',
+    'attribute float aMat;',
     'uniform mat4 uModel, uView, uProjection;',
     'varying vec3 vNormal, vWorldPos, vColor;',
+    'varying float vMat;',
     'void main(){',
     '  vec4 wp = uModel * vec4(aPosition,1.0);',
     '  vWorldPos = wp.xyz;',
     '  vNormal = mat3(uModel) * aNormal;',
     '  vColor = aColor;',
+    '  vMat = aMat;',
     '  gl_Position = uProjection * uView * wp;',
     '}'
   ].join('\n');
 
+  // Materials, by aMat: 0 painted interior, 1 wet exterior concrete, 2 emissive,
+  // 3 metal, 4 brick, 5 wired glass, 6 dry interior floor, 7 standing water.
   var FS=[
     'precision highp float;',
     'varying vec3 vNormal, vWorldPos, vColor;',
+    'varying float vMat;',
     'uniform vec3 uColor, uAmbient, uFogColor, uCamPos;',
     'uniform vec3 uL1Pos, uL1Color, uL2Pos, uL2Color, uL3Pos, uL3Color;',
     'uniform float uL1Range, uL2Range, uL3Range, uFogNear, uFogFar, uUnlit;',
-    'uniform float uDetail;',
+    'uniform float uDetail, uWet;',
     '',
     'float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }',
     'float vnoise(vec2 p){',
@@ -2245,55 +2301,100 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     '  return v;',
     '}',
     '',
-    'vec3 lamp(vec3 n, vec3 lp, vec3 lc, float range){',
+    'vec3 lamp(vec3 n, vec3 lp, vec3 lc, float range, float shin, float k){',
     '  vec3 toL = lp - vWorldPos;',
     '  float d = length(toL);',
     '  float att = clamp(1.0 - d/range, 0.0, 1.0); att *= att;',
     '  vec3 ld = toL/max(d,0.001);',
     '  float diff = max(dot(n, ld), 0.0);',
-    '  float spec = pow(max(dot(reflect(-ld, n), normalize(uCamPos-vWorldPos)), 0.0), 24.0);',
-    '  return lc * (diff*0.85 + 0.12 + spec*0.10) * att;',
+    '  float spec = pow(max(dot(reflect(-ld, n), normalize(uCamPos-vWorldPos)), 0.0), shin);',
+    '  return lc * (diff*0.85 + 0.10 + spec*k) * att;',
     '}',
     '',
     'void main(){',
     '  vec3 n = normalize(vNormal);',
     '  vec3 albedo = uColor * vColor;',
     '  vec3 viewDir = normalize(uCamPos - vWorldPos);',
+    '  float m = vMat;',
+    '  float shin = 24.0, k = 0.10;',
+    '  bool unlit = uUnlit > 0.5 || (m > 1.5 && m < 2.5);',
     '',
-    '  if (uDetail > 0.5 && uUnlit < 0.5){',
-    '    // choose a texture plane from the dominant axis of the normal',
+    '  if (uDetail > 0.5 && !unlit){',
     '    vec2 uv;',
-    '    if (abs(n.y) > 0.6)      uv = vWorldPos.xz;',
+    '    bool floorish = abs(n.y) > 0.6;',
+    '    if (floorish)            uv = vWorldPos.xz;',
     '    else if (abs(n.x) > 0.6) uv = vec2(vWorldPos.z, vWorldPos.y);',
     '    else                     uv = vec2(vWorldPos.x, vWorldPos.y);',
     '    float grain = fbm(uv*7.0);',
     '    float broad = fbm(uv*1.1);',
-    '    albedo *= 0.80 + 0.34*grain;',
-    '    if (abs(n.y) > 0.6){',
-    '      // floors: grain stretched along the boards',
-    '      float wood = vnoise(vec2(uv.x*26.0, uv.y*2.2));',
-    '      albedo *= 0.86 + 0.26*wood;',
+    '    float ly = vWorldPos.y - 4.2*step(3.5, vWorldPos.y);',
+    '    if (m < 0.5){',
+    '      // painted plaster: blotchy, damp creeping up from the skirting, a tidemark',
+    '      albedo *= 0.84 + 0.28*grain;',
+    '      albedo *= 0.86 + 0.24*broad;',
+    '      float damp = smoothstep(1.3, 0.0, ly) * (0.35 + 0.5*grain);',
+    '      albedo = mix(albedo, albedo*vec3(0.55,0.58,0.52), damp*0.5);',
+    '      float grime = smoothstep(0.8, 0.0, abs(ly-0.95)) * grain;',
+    '      albedo *= 1.0 - grime*0.20;',
+    '    } else if (m < 1.5){',
+    '      // wet concrete: paving joints, dark patches where the water sits',
+    '      albedo *= 0.80 + 0.30*grain;',
+    '      albedo *= 0.86 + 0.26*broad;',
+    '      if (floorish){',
+    '        vec2 g = abs(fract(uv/2.0)-0.5);',
+    '        float joint = smoothstep(0.46, 0.5, max(g.x,g.y));',
+    '        albedo *= 1.0 - joint*0.42;',
+    '        float pud = smoothstep(0.52, 0.72, fbm(uv*0.55+3.1)) * uWet;',
+    '        albedo *= 1.0 - pud*0.55;',
+    '        shin = mix(28.0, 70.0, pud); k = mix(0.22, 1.1, pud)*uWet + 0.1;',
+    '      } else {',
+    '        float streak = smoothstep(0.6, 0.9, vnoise(vec2(uv.x*9.0, uv.y*0.7))) * smoothstep(2.6, 0.4, ly);',
+    '        albedo *= 1.0 - streak*0.35;',
+    '        k = 0.25*uWet; shin = 30.0;',
+    '      }',
+    '    } else if (m < 3.5){',
+    '      // painted metal, scuffed',
+    '      albedo *= 0.88 + 0.22*grain;',
+    '      shin = 40.0; k = 0.55;',
+    '    } else if (m < 4.5){',
+    '      // brown brick in stretcher bond, mortar recessed and pale',
+    '      float row = floor(uv.y*3.4);',
+    '      float bx = uv.x*1.55 + 0.5*mod(row,2.0);',
+    '      float course = fract(uv.y*3.4), along = fract(bx);',
+    '      float mortar = max(step(0.90,course), step(0.93,along));',
+    '      float per = hash(vec2(floor(bx), row));',
+    '      albedo *= 0.80 + 0.36*per;',
+    '      albedo = mix(albedo, vec3(0.52,0.50,0.46)*(0.7+0.3*grain), mortar*0.85);',
+    '      albedo *= 0.86 + 0.22*broad;',
+    '      float soot = smoothstep(1.4, 0.0, ly) * 0.35;',
+    '      albedo *= 1.0 - soot*grain;',
+    '      k = 0.12*uWet;',
+    '    } else if (m < 5.5){',
+    '      // wired glass: a square mesh in the pane, a cold sheen',
+    '      float wire = max(step(0.90, fract(uv.x*16.0)), step(0.90, fract(uv.y*16.0)));',
+    '      albedo = mix(albedo, albedo*0.6, wire);',
+    '      albedo += vec3(0.02,0.03,0.05);',
+    '      shin = 60.0; k = 0.9;',
+    '    } else if (m < 6.5){',
+    '      // terrazzo and vinyl: speckle, scuffs, a dull polish',
+    '      albedo *= 0.86 + 0.28*vnoise(uv*38.0);',
+    '      albedo *= 0.88 + 0.20*broad;',
+    '      shin = 34.0; k = 0.28;',
     '    } else {',
-    '      // walls: blotchy plaster, damp creeping up from the skirting, and a',
-    '      // dirty tidemark at shoulder height',
-    '      albedo *= 0.82 + 0.30*broad;',
-    '      float damp = smoothstep(1.5, 0.0, vWorldPos.y) * (0.35 + 0.5*grain);',
-    '      albedo = mix(albedo, albedo*vec3(0.52,0.55,0.50), damp*0.55);',
-    '      float grime = smoothstep(0.9, 0.0, abs(vWorldPos.y-0.55)) * grain;',
-    '      albedo *= 1.0 - grime*0.22;',
+    '      // standing water: almost a mirror for the lamps',
+    '      albedo *= 0.9;',
+    '      shin = 90.0; k = 1.8;',
     '    }',
-    '    // large-scale mottling, so no big surface is ever one flat tone',
-    '    albedo *= 0.88 + 0.24*broad;',
     '  }',
     '',
-    '  vec3 lit = uAmbient + lamp(n,uL1Pos,uL1Color,uL1Range) + lamp(n,uL2Pos,uL2Color,uL2Range)',
-    '           + lamp(n,uL3Pos,uL3Color,uL3Range);',
+    '  vec3 lit = uAmbient + lamp(n,uL1Pos,uL1Color,uL1Range,shin,k) + lamp(n,uL2Pos,uL2Color,uL2Range,shin,k)',
+    '           + lamp(n,uL3Pos,uL3Color,uL3Range,shin,k);',
     '  float rim = pow(1.0 - max(dot(n,viewDir),0.0), 3.0);',
-    '  vec3 base = albedo*lit + vec3(0.13,0.13,0.18)*rim*0.45;',
-    '  if (uUnlit > 0.5) base = albedo;',
+    '  vec3 base = albedo*lit + vec3(0.12,0.12,0.16)*rim*0.40;',
+    '  if (unlit) base = albedo;',
     '  float camDist = length(vWorldPos - uCamPos);',
     '  float fogT = clamp((camDist-uFogNear)/(uFogFar-uFogNear), 0.0, 1.0);',
-    '  if (uUnlit > 0.5) fogT *= 0.35;',
+    '  if (unlit) fogT *= 0.35;',
     '  gl_FragColor = vec4(mix(base, uFogColor, fogT), 1.0);',
     '}'
   ].join('\n');
@@ -2362,10 +2463,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     loc.aPos=gl.getAttribLocation(prog,'aPosition');
     loc.aNorm=gl.getAttribLocation(prog,'aNormal');
     loc.aCol=gl.getAttribLocation(prog,'aColor');
+    loc.aMat=gl.getAttribLocation(prog,'aMat');
     ['uModel','uView','uProjection','uColor','uAmbient','uFogColor','uCamPos',
      'uL1Pos','uL1Color','uL2Pos','uL2Color','uL3Pos','uL3Color',
      'uL1Range','uL2Range','uL3Range',
-     'uFogNear','uFogFar','uUnlit','uDetail',].forEach(function(n){ loc[n]=gl.getUniformLocation(prog,n); });
+     'uFogNear','uFogFar','uUnlit','uDetail','uWet',].forEach(function(n){ loc[n]=gl.getUniformLocation(prog,n); });
 
 
     var P=[],N=[],C=[];
@@ -2374,7 +2476,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     cubeVBO=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,cubeVBO); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(P),gl.STATIC_DRAW);
     cubeNBO=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,cubeNBO); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(N),gl.STATIC_DRAW);
     cubeCBO=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,cubeCBO); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(C),gl.STATIC_DRAW);
-    lvlVBO=gl.createBuffer(); lvlNBO=gl.createBuffer(); lvlCBO=gl.createBuffer();
+    lvlVBO=gl.createBuffer(); lvlNBO=gl.createBuffer(); lvlCBO=gl.createBuffer(); lvlMBO=gl.createBuffer();
 
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
@@ -2456,13 +2558,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     '  col = max(col - 0.004, 0.0);',
     '  col = pow(col, vec3(1.04, 1.03, 1.00));',
     '  float lum = dot(col, vec3(0.299,0.587,0.114));',
-    '  col = mix(vec3(lum), col, 0.62);',
-    '  col *= mix(vec3(0.80,0.86,1.06), vec3(1.10,0.98,0.84), smoothstep(0.0,0.55,lum));',
+    '  col = mix(vec3(lum), col, 0.82);',
+    '  col *= mix(vec3(0.84,0.88,1.04), vec3(1.08,0.99,0.86), smoothstep(0.0,0.55,lum));',
     '  col = mix(col, col*vec3(1.25,0.72,0.70), uDread*0.30);',
     '',
     '  // heavy lens vignette',
     '  float vig = smoothstep(1.05, 0.16, r2*1.55);',
-    '  col *= mix(0.34, 1.0, vig);',
+    '  col *= mix(0.42, 1.0, vig);',
     '',
     '  // film grain, coarser as it gets darker',
     '  float g = hash(gl_FragCoord.xy + fract(uTime)*137.0) - 0.5;',
@@ -2586,316 +2688,378 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
 
   // ---- the whole house baked into one buffer, AO in the vertex colours
+  // ===================== THE ESTATE MESH =====================
+  // Everything static: paving, deck, stairs, brick, render, railings, fences,
+  // fixtures, bins, signage and the tower blocks beyond. One buffer set, one
+  // draw call. Materials ride along as a float per vertex (see the shader).
+  var MAT_LIST=null;
+  function padMat(P, m){ if (MAT_LIST) while (MAT_LIST.length < P.length/3) MAT_LIST.push(m); }
+  var PAL={
+    paving:[0.38,0.37,0.345], pavingB:[0.33,0.325,0.30], tarmac:[0.14,0.14,0.145], undercroft:[0.26,0.255,0.245],
+    deck:[0.40,0.39,0.36], kerb:[0.50,0.49,0.45], terrazzo:[0.46,0.44,0.40], vinyl:[0.50,0.47,0.38], vinylB:[0.22,0.30,0.24],
+    step:[0.43,0.42,0.40], nosing:[0.06,0.06,0.06],
+    brick:[0.40,0.24,0.17], brickD:[0.30,0.18,0.13], coping:[0.44,0.43,0.40], concrete:[0.45,0.44,0.41], concreteD:[0.30,0.30,0.29],
+    green:[0.17,0.33,0.24], greenD:[0.12,0.24,0.17], cream:[0.70,0.66,0.53], creamD:[0.56,0.52,0.41], oxblood:[0.30,0.09,0.09],
+    black:[0.05,0.05,0.055], steel:[0.34,0.35,0.37], steelD:[0.22,0.23,0.25], glass:[0.20,0.26,0.32], glassD:[0.08,0.10,0.13],
+    binGreen:[0.10,0.22,0.14], binLid:[0.06,0.06,0.06], skip:[0.42,0.22,0.09], rust:[0.28,0.14,0.08], wood:[0.28,0.20,0.12],
+    tower:[0.05,0.05,0.06], winWarm:[0.85,0.62,0.30], winCool:[0.55,0.70,0.85], winDim:[0.28,0.22,0.14]
+  };
   function buildLevelMesh(){
-    var P=[],N=[],C=[];
-    var wallBase=[0.44,0.425,0.395], boardCol=[0.14,0.130,0.122], crownCol=[0.32,0.305,0.285];
-    var floorA=[0.225,0.185,0.152], floorB=[0.190,0.155,0.128];
-
+    var P=[],N=[],C=[],M=[]; MAT_LIST=M;
+    var mid=(COLS/2)|0;
+    function box(cx,cy,cz,hx,hy,hz,col,mat,b,t){ pushBox(P,N,C, cx,cy,cz,hx,hy,hz, col, b===undefined?1:b, t===undefined?1:t); padMat(P,mat); }
+    function boxYaw(cx,cy,cz,hx,hy,hz,yaw,col,mat,b,t){ pushBoxYaw(P,N,C, cx,cy,cz,hx,hy,hz,yaw, col, b===undefined?1:b, t===undefined?1:t); padMat(P,mat); }
+    function quad(v0,v1,v2,v3,n,c,mat){ pushQuad(P,N,C, v0,v1,v2,v3, n, c,c,c,c); padMat(P,mat); }
+    function floorQuad(x0,z0,x1,z1,y,c0,c1,c2,c3,mat){ pushQuad(P,N,C, [x0,y,z1],[x1,y,z1],[x1,y,z0],[x0,y,z0], [0,1,0], c0,c1,c2,c3); padMat(P,mat); }
     function solid(r,c){ return !isOpen(r,c); }
     function cornerAO(r,c,ux,vz){
       var dc = ux? 1:-1, dr = vz? 1:-1;
       var s1=solid(r,c+dc)?1:0, s2=solid(r+dr,c)?1:0, sd=solid(r+dr,c+dc)?1:0;
-      return 1 - 0.16*s1 - 0.16*s2 - 0.09*sd;
+      return 1 - 0.14*s1 - 0.14*s2 - 0.08*sd;
+    }
+    function tint(col,s){ return [col[0]*s,col[1]*s,col[2]*s]; }
+    // a quad standing just off a wall face, turned to face into the cell
+    function wallDecal(seg, cx, cy, cz, w, h, col, mat, off){
+      var horiz=(seg.z1===seg.z2);
+      off = off===undefined ? WALL_HALF+0.014 : off;
+      var px=cx + seg.nx*off, pz=cz + seg.nz*off;
+      var hw=w/2, hh=h/2, v0,v1,v2,v3, nrm=[seg.nx,0,seg.nz];
+      if (horiz){ var sgn=seg.nz>0?1:-1; v0=[px-hw*sgn, cy-hh, pz]; v1=[px+hw*sgn, cy-hh, pz]; v2=[px+hw*sgn, cy+hh, pz]; v3=[px-hw*sgn, cy+hh, pz]; }
+      else { var sgx=seg.nx>0?-1:1; v0=[px, cy-hh, pz-hw*sgx]; v1=[px, cy-hh, pz+hw*sgx]; v2=[px, cy+hh, pz+hw*sgx]; v3=[px, cy+hh, pz-hw*sgx]; }
+      quad(v0,v1,v2,v3, nrm, col, mat);
     }
 
+    // ---------- floors, cell by cell
     for (var r=0;r<ROWS;r++){
       for (var c=0;c<COLS;c++){
-        if (grid[r][c]!==1) continue;
-        var a00=cornerAO(r,c,0,0), a10=cornerAO(r,c,1,0), a01=cornerAO(r,c,0,1), a11=cornerAO(r,c,1,1);
-        var inBath = bathroom && r>=bathroom.r0 && r<=bathroom.r1 && c>=bathroom.c0 && c<=bathroom.c1;
-        if (inBath){
-          // cracked white tile, four to a cell
-          for (var tq=0; tq<4; tq++){
-            var tu=(tq%2), tv=(tq/2)|0;
-            var tx0=c*CELL+tu*CELL/2, tx1=tx0+CELL/2;
-            var tz0=r*CELL+tv*CELL/2, tz1=tz0+CELL/2;
-            var grubby=0.80+((r*3+c*5+tq)%4)*0.05;
-            var tcol=[0.60*grubby,0.60*grubby,0.585*grubby];
-            var aoT=(a00+a10+a01+a11)/4;
-            var tc2=[tcol[0]*aoT,tcol[1]*aoT,tcol[2]*aoT];
-            pushQuad(P,N,C, [tx0,0,tz1],[tx1,0,tz1],[tx1,0,tz0],[tx0,0,tz0], [0,1,0], tc2,tc2,tc2,tc2);
-          }
+        var zn=zone[r][c];
+        var x0=c*CELL, x1=(c+1)*CELL, z0=r*CELL, z1=(r+1)*CELL;
+        if (zn===Z.YARD){
+          // seen through the railings, never walked: wet tarmac with painted bays
+          var yv=0.85+((r*5+c*3)%4)*0.05;
+          floorQuad(x0,z0,x1,z1,0.0, tint(PAL.tarmac,yv),tint(PAL.tarmac,yv),tint(PAL.tarmac,yv*0.9),tint(PAL.tarmac,yv), 1);
+          if ((c%3)===0 && r>EST.yard.r0+1) box(x0+0.05, 0.004, (z0+z1)/2, 0.03, 0.002, 1.6, [0.55,0.55,0.50], 0);
           continue;
         }
-        var planks=5;
-        for (var p=0;p<planks;p++){
-          var u0=p/planks, u1=(p+1)/planks;
-          var base=((r*planks+p)%2===0)?floorA:floorB;
-          var tint=0.92+((r*7+c*13+p*5)%5)*0.035;
-          var x0=c*CELL+u0*CELL, x1=c*CELL+u1*CELL, z0=r*CELL, z1=(r+1)*CELL;
-          var ao=function(u,v){ return (a00*(1-u)+a10*u)*(1-v) + (a01*(1-u)+a11*u)*v; };
-          var col=function(u,v){ var s=ao(u,v)*tint; return [base[0]*s,base[1]*s,base[2]*s]; };
-          pushQuad(P,N,C, [x0,0,z1],[x1,0,z1],[x1,0,z0],[x0,0,z0], [0,1,0],
-                   col(u0,1),col(u1,1),col(u1,0),col(u0,0));
-        }
-      }
-    }
-
-    for (var i=0;i<wallSegs.length;i++){
-      var s=wallSegs[i];
-      var mx=(s.x1+s.x2)/2, mz=(s.z1+s.z2)/2, horiz=(s.z1===s.z2);
-      var len=horiz?Math.abs(s.x2-s.x1):Math.abs(s.z2-s.z1);
-      var hx=horiz?len/2:WALL_HALF, hz=horiz?WALL_HALF:len/2;
-      var jit=0.90+((i*37)%7)*0.032;
-      var wc=[wallBase[0]*jit, wallBase[1]*jit, wallBase[2]*jit];
-      pushBox(P,N,C, mx, WALL_H/2, mz, hx, WALL_H/2, hz, wc, 0.42, 0.82);
-      pushBox(P,N,C, mx, 0.13, mz, hx+0.035, 0.13, hz+0.035, boardCol, 0.55, 1.0);
-      pushBox(P,N,C, mx, WALL_H-0.06, mz, hx+0.03, 0.06, hz+0.03, crownCol, 0.85, 1.0);
-      pushBox(P,N,C, mx, 0.92, mz, hx+0.022, 0.045, hz+0.022, crownCol, 0.9, 1.0);
-    }
-
-    // ---- blood. Wall splatter and drip streaks, heaviest where bodies fell.
-    var BLOOD=[0.42,0.045,0.048], BLOOD2=[0.27,0.028,0.032], BLOOD3=[0.55,0.075,0.070];
-    function wallDecal(seg, cx, cy, cz, w, h, col){
-      // a quad standing just off the wall face, turned to face into the room
-      var horiz=(seg.z1===seg.z2);
-      var off=WALL_HALF+0.014;
-      var px=cx + seg.nx*off, pz=cz + seg.nz*off;
-      var hw=w/2, hh=h/2;
-      var v0,v1,v2,v3, nrm=[seg.nx,0,seg.nz];
-      if (horiz){
-        var sgn=seg.nz>0?1:-1;
-        v0=[px-hw*sgn, cy-hh, pz]; v1=[px+hw*sgn, cy-hh, pz];
-        v2=[px+hw*sgn, cy+hh, pz]; v3=[px-hw*sgn, cy+hh, pz];
-      } else {
-        var sgx=seg.nx>0?-1:1;
-        v0=[px, cy-hh, pz-hw*sgx]; v1=[px, cy-hh, pz+hw*sgx];
-        v2=[px, cy+hh, pz+hw*sgx]; v3=[px, cy+hh, pz-hw*sgx];
-      }
-      pushQuad(P,N,C, v0,v1,v2,v3, nrm, col,col,col,col);
-    }
-    function bloodQuad(x,z,w,h,col,y){
-      var yy=y===undefined?0.010:y;
-      pushQuad(P,N,C, [x-w/2,yy,z+h/2],[x+w/2,yy,z+h/2],
-                      [x+w/2,yy,z-h/2],[x-w/2,yy,z-h/2], [0,1,0], col,col,col,col);
-    }
-    // several overlapping blobs, so a pool has a ragged edge instead of corners
-    function floorBlood(x,z,w,h,col){
-      var n=3+((Math.random()*3)|0);
-      for (var i=0;i<n;i++){
-        var f=0.45+Math.random()*0.6;
-        bloodQuad(x+(Math.random()-0.5)*w*0.5, z+(Math.random()-0.5)*h*0.5,
-                  w*f, h*f, col, 0.010+i*0.0006);
-      }
-    }
-
-    for (var wb=0; wb<wallSegs.length; wb++){
-      var sg=wallSegs[wb];
-      var inBath2 = bathroom && sg.r>=bathroom.r0 && sg.r<=bathroom.r1 && sg.c>=bathroom.c0 && sg.c<=bathroom.c1;
-      var roomIdx=-1;
-      for (var rq=0; rq<rooms.length; rq++){
-        var rm3=rooms[rq];
-        if (sg.r>=rm3.r0&&sg.r<=rm3.r1&&sg.c>=rm3.c0&&sg.c<=rm3.c1){ roomIdx=rq; break; }
-      }
-      var heavy = inBath2 || gruesome[roomIdx];
-      var chance = heavy ? 0.92 : 0.26;
-      if (Math.random()>chance) continue;
-      var mxs=(sg.x1+sg.x2)/2, mzs=(sg.z1+sg.z2)/2;
-      var along = (sg.z1===sg.z2) ? Math.abs(sg.x2-sg.x1) : Math.abs(sg.z2-sg.z1);
-      var blobs = heavy ? (3+((Math.random()*4)|0)) : (1+((Math.random()*2)|0));
-      for (var bl=0; bl<blobs; bl++){
-        var offA=(Math.random()-0.5)*(along-0.8);
-        var bcx=mxs, bcz=mzs;
-        if (sg.z1===sg.z2) bcx+=offA; else bcz+=offA;
-        var by=0.35+Math.random()*1.7;
-        var bw=0.18+Math.random()*0.55, bh=0.14+Math.random()*0.45;
-        wallDecal(sg, bcx, by, bcz, bw, bh, Math.random()<0.5?BLOOD:BLOOD3);
-        // a drip running down from it
-        if (Math.random()<0.6){
-          var dl=0.25+Math.random()*0.9;
-          wallDecal(sg, bcx+(Math.random()-0.5)*0.15, by-bh/2-dl/2, bcz, 0.045+Math.random()*0.05, dl, BLOOD2);
-        }
-      }
-      if (heavy && Math.random()<0.7){
-        // a long smear low on the wall, as if something was dragged
-        var sy=0.12+Math.random()*0.3;
-        wallDecal(sg, mxs, sy, mzs, along*0.7, 0.10+Math.random()*0.16, BLOOD2);
-      }
-    }
-
-    // pools under the dead, and stray spatter across the floor
-    for (var bd=0; bd<bodies.length; bd++){
-      var bo=bodies[bd];
-      floorBlood(bo.x, bo.z, 1.5+Math.random()*0.9, 1.2+Math.random()*0.8, BLOOD);
-      for (var sp=0; sp<4; sp++){
-        floorBlood(bo.x+(Math.random()-0.5)*3.0, bo.z+(Math.random()-0.5)*3.0,
-                   0.2+Math.random()*0.45, 0.18+Math.random()*0.4, BLOOD2);
-      }
-    }
-    if (bathroom){
-      for (var fb=0; fb<26; fb++){
-        var fx2=bathroom.c0*CELL+Math.random()*((bathroom.c1-bathroom.c0+1)*CELL);
-        var fz2=bathroom.r0*CELL+Math.random()*((bathroom.r1-bathroom.r0+1)*CELL);
-        floorBlood(fx2,fz2, 0.25+Math.random()*1.1, 0.22+Math.random()*0.9,
-                   Math.random()<0.5?BLOOD:BLOOD2);
-      }
-    }
-
-    // ---- furniture
-    var WOOD=[0.245,0.165,0.105], WOOD2=[0.30,0.21,0.135], CLOTH=[0.30,0.13,0.135];
-    var LINEN=[0.55,0.50,0.44], RUG=[0.26,0.115,0.115], DARKW=[0.14,0.10,0.075];
-    var STONE=[0.30,0.28,0.31], STONE2=[0.38,0.35,0.38];
-    var BOOKS=[[0.32,0.11,0.10],[0.16,0.20,0.28],[0.28,0.22,0.09],[0.13,0.24,0.17],[0.30,0.17,0.24]];
-    for (var f=0; f<props.length; f++){
-      var pr=props[f];
-      if (pr.t==='wardrobe'){
-        pushBoxYaw(P,N,C, pr.x,1.02,pr.z, 0.58,1.02,0.34, pr.yaw, WOOD, 0.45,1.0);
-        pushBoxYaw(P,N,C, pr.x,1.02,pr.z, 0.60,0.96,0.36, pr.yaw, DARKW, 0.5,1.0);
-        pushBoxYaw(P,N,C, pr.x,2.10,pr.z, 0.62,0.07,0.38, pr.yaw, WOOD2, 1,1);
-        // a pale trim and a brass knob, so it reads as a door you could open
-        pushBoxYaw(P,N,C, pr.x,1.02,pr.z, 0.62,0.98,0.30, pr.yaw, [0.36,0.27,0.18], 0.6,1.0);
-        pushBoxYaw(P,N,C, pr.x,1.02,pr.z, 0.60,0.94,0.31, pr.yaw, DARKW, 0.5,1.0);
-      } else if (pr.t==='shelf'){
-        pushBoxYaw(P,N,C, pr.x,0.86,pr.z, 0.62,0.86,0.20, pr.yaw, WOOD, 0.5,1.0);
-        for (var sh2=0;sh2<3;sh2++)
-          pushBoxYaw(P,N,C, pr.x,0.42+sh2*0.55,pr.z, 0.64,0.035,0.23, pr.yaw, WOOD2, 1,1);
-      } else if (pr.t==='painting'){
-        pushBoxYaw(P,N,C, pr.x,1.55,pr.z, 0.42,0.32,0.035, pr.yaw, WOOD2, 1,1);
-        pushBoxYaw(P,N,C, pr.x+pr.nx*0.02,1.55,pr.z+pr.nz*0.02, 0.35,0.25,0.04, pr.yaw, [0.13,0.10,0.12], 1,1);
-      } else if (pr.t==='bed'){
-        pushBoxYaw(P,N,C, pr.x,0.28,pr.z, 1.00,0.28,0.62, pr.yaw, WOOD, 0.5,1.0);
-        pushBoxYaw(P,N,C, pr.x,0.60,pr.z, 0.96,0.10,0.58, pr.yaw, LINEN, 0.85,1.0);
-        var hb=rotY(-1.02,0,pr.yaw);
-        pushBoxYaw(P,N,C, pr.x+hb[0],0.75,pr.z+hb[1], 0.10,0.75,0.62, pr.yaw, WOOD2, 0.5,1.0);
-        var pl=rotY(-0.70,0,pr.yaw);
-        pushBoxYaw(P,N,C, pr.x+pl[0],0.73,pr.z+pl[1], 0.22,0.09,0.34, pr.yaw, [0.62,0.58,0.52], 1,1);
-      } else if (pr.t==='table'){
-        pushBoxYaw(P,N,C, pr.x,0.72,pr.z, 0.78,0.05,0.48, pr.yaw, WOOD2, 1,1);
-        [[-0.68,-0.38],[0.68,-0.38],[-0.68,0.38],[0.68,0.38]].forEach(function(o){
-          var lp=rotY(o[0],o[1],pr.yaw);
-          pushBoxYaw(P,N,C, pr.x+lp[0],0.34,pr.z+lp[1], 0.055,0.34,0.055, pr.yaw, WOOD, 0.5,1.0);
-        });
-      } else if (pr.t==='chair'){
-        pushBoxYaw(P,N,C, pr.x,0.44,pr.z, 0.22,0.04,0.22, pr.yaw, WOOD2, 1,1);
-        var bk=rotY(-0.20,0,pr.yaw);
-        pushBoxYaw(P,N,C, pr.x+bk[0],0.68,pr.z+bk[1], 0.04,0.28,0.22, pr.yaw, WOOD, 0.7,1.0);
-        [[-0.17,-0.17],[0.17,-0.17],[-0.17,0.17],[0.17,0.17]].forEach(function(o){
-          var lp=rotY(o[0],o[1],pr.yaw);
-          pushBoxYaw(P,N,C, pr.x+lp[0],0.21,pr.z+lp[1], 0.035,0.21,0.035, pr.yaw, WOOD, 0.5,1.0);
-        });
-      } else if (pr.t==='rug'){
-        var rc=[RUG[0],RUG[1],RUG[2]];
-        pushQuad(P,N,C,
-          [pr.x-1.3,0.012,pr.z+0.95],[pr.x+1.3,0.012,pr.z+0.95],
-          [pr.x+1.3,0.012,pr.z-0.95],[pr.x-1.3,0.012,pr.z-0.95],
-          [0,1,0], rc,rc,rc,rc);
-      } else if (pr.t==='crate'){
-        pushBoxYaw(P,N,C, pr.x,0.34,pr.z, 0.34,0.34,0.34, pr.yaw, [0.30,0.215,0.135], 0.55,1.0);
-        pushBoxYaw(P,N,C, pr.x,0.67,pr.z, 0.335,0.035,0.335, pr.yaw, [0.36,0.265,0.17], 1,1);
-      } else if (pr.t==='bookshelf'){
-        pushBoxYaw(P,N,C, pr.x,1.05,pr.z, 0.64,1.05,0.22, pr.yaw, DARKW, 0.4,1.0);
-        for (var bs=0; bs<4; bs++){
-          var sy=0.30+bs*0.48;
-          pushBoxYaw(P,N,C, pr.x,sy,pr.z, 0.60,0.03,0.20, pr.yaw, WOOD2, 1,1);
-          // a row of books, leaning at slightly different heights
-          for (var bk=0; bk<7; bk++){
-            var bh=0.20+((bs*7+bk)%4)*0.045;
-            var bcol=BOOKS[(bs*7+bk)%BOOKS.length];
-            var off=rotY(-0.48+bk*0.16, 0, pr.yaw);
-            pushBoxYaw(P,N,C, pr.x+off[0], sy+0.03+bh/2, pr.z+off[1],
-                       0.055,bh/2,0.15, pr.yaw, bcol, 0.7,1.0);
+        if (grid[r][c]!==1) continue;
+        var a00=cornerAO(r,c,0,0), a10=cornerAO(r,c,1,0), a01=cornerAO(r,c,0,1), a11=cornerAO(r,c,1,1);
+        var ao=function(u,v){ return (a00*(1-u)+a10*u)*(1-v) + (a01*(1-u)+a11*u)*v; };
+        if (zn===Z.COURT || zn===Z.BINS){
+          // paving slabs, two to a cell each way, grubby in a pattern
+          for (var q=0;q<4;q++){
+            var qu=q%2, qv=(q/2)|0;
+            var sx0=x0+qu*CELL/2, sx1=sx0+CELL/2, sz0=z0+qv*CELL/2, sz1=sz0+CELL/2;
+            var base=((r*2+qv + c*2+qu)%2===0)?PAL.paving:PAL.pavingB;
+            var g=0.88+((r*7+c*13+q*5)%5)*0.035;
+            var cc=function(u,v){ return tint(base, ao(u,v)*g); };
+            floorQuad(sx0,sz0,sx1,sz1,0.0, cc(qu*0.5,qv*0.5+0.5),cc(qu*0.5+0.5,qv*0.5+0.5),cc(qu*0.5+0.5,qv*0.5),cc(qu*0.5,qv*0.5), 1);
+          }
+        } else if (zn===Z.UNDER){
+          var uc=function(u,v){ return tint(PAL.undercroft, ao(u,v)*(0.9+((r+c)%3)*0.04)); };
+          floorQuad(x0,z0,x1,z1,0.0, uc(0,1),uc(1,1),uc(1,0),uc(0,0), 1);
+        } else if (zn===Z.WALK){
+          var dk=function(u,v){ return tint(PAL.deck, ao(u,v)*(0.9+((c*3)%4)*0.035)); };
+          floorQuad(x0,z0,x1,z1,DECK_H, dk(0,1),dk(1,1),dk(1,0),dk(0,0), 1);
+          // the deck slab under it, and the brick ground floor beneath that
+          box((x0+x1)/2, DECK_H-0.20, (z0+z1)/2, CELL/2, 0.18, CELL/2, PAL.concreteD, 1, 0.8, 1);
+          box((x0+x1)/2, (DECK_H-0.36)/2, z0+CELL/2-0.4, CELL/2, (DECK_H-0.36)/2, CELL/2-0.4, PAL.brickD, 4, 0.55, 0.95);
+        } else if (zn===Z.LIFT){
+          // vinyl tiles, cream with a green border
+          for (var q2=0;q2<4;q2++){
+            var qu2=q2%2, qv2=(q2/2)|0;
+            var tx0=x0+qu2*CELL/2, tx1=tx0+CELL/2, tz0=z0+qv2*CELL/2, tz1=tz0+CELL/2;
+            var border = (c===EST.lift.c0 && qu2===0) || (c===EST.lift.c1 && qu2===1);
+            var vb = border ? PAL.vinylB : PAL.vinyl;
+            var vc=function(u,v){ return tint(vb, ao(u,v)*(0.9+((r*3+c*5+q2)%4)*0.04)); };
+            floorQuad(tx0,tz0,tx1,tz1,DECK_H, vc(0,1),vc(1,1),vc(1,0),vc(0,0), 6);
+          }
+          box((x0+x1)/2, (DECK_H-0.03)/2, (z0+z1)/2, CELL/2, (DECK_H-0.03)/2, CELL/2, PAL.brickD, 4, 0.55, 0.95);
+        } else if (zn===Z.STAIR){
+          var st=stairAt(c);
+          if (r>=st.rampR0 && r<=st.rampR1){
+            // four treads to a cell, stepping down toward the south
+            var yN=floorAt(x0+1, z0+0.01), yS=floorAt(x0+1, z1-0.01);
+            var steps=4, rise=(yN-yS)/steps;
+            for (var s=0;s<steps;s++){
+              var tz=z0+s*CELL/steps, top=yN-(s+1)*rise+rise;
+              box((x0+x1)/2, top/2, tz+CELL/steps/2, CELL/2, top/2, CELL/steps/2, tint(PAL.step, ao(0.5, s/steps)), 6, 0.6, 1);
+              box((x0+x1)/2, top+0.012, tz+0.05, CELL/2, 0.012, 0.05, PAL.nosing, 0);
+            }
+          } else {
+            var tc=function(u,v){ return tint(PAL.terrazzo, ao(u,v)*(0.92+((r+c)%3)*0.03)); };
+            var ly=floorAt(x0+1,z0+1);
+            floorQuad(x0,z0,x1,z1,ly, tc(0,1),tc(1,1),tc(1,0),tc(0,0), 6);
+            if (ly>0.1) box((x0+x1)/2, (ly-0.03)/2, (z0+z1)/2, CELL/2, (ly-0.03)/2, CELL/2, PAL.concreteD, 1, 0.6, 1);
           }
         }
-      } else if (pr.t==='clock'){
-        pushBoxYaw(P,N,C, pr.x,0.95,pr.z, 0.28,0.95,0.24, pr.yaw, DARKW, 0.4,1.0);
-        pushBoxYaw(P,N,C, pr.x,1.55,pr.z, 0.22,0.22,0.26, pr.yaw, [0.52,0.46,0.36], 1,1);
-        pushBoxYaw(P,N,C, pr.x,0.95,pr.z, 0.09,0.55,0.26, pr.yaw, [0.30,0.24,0.16], 0.6,1.0);
-      } else if (pr.t==='fireplace'){
-        // surround
-        pushBoxYaw(P,N,C, pr.x,0.72,pr.z, 0.88,0.72,0.30, pr.yaw, STONE, 0.55,1.0);
-        pushBoxYaw(P,N,C, pr.x,1.50,pr.z, 0.98,0.10,0.36, pr.yaw, STONE2, 1,1);
-        pushBoxYaw(P,N,C, pr.x,1.05,pr.z, 0.74,0.35,0.32, pr.yaw, STONE2, 0.9,1.0);
-        // the opening, and embers glowing in it
-        var mo=rotY(0,-0.16,pr.yaw);
-        pushBoxYaw(P,N,C, pr.x+mo[0],0.42,pr.z+mo[1], 0.52,0.42,0.22, pr.yaw, [0.03,0.02,0.02], 0.4,1.0);
-      } else if (pr.t==='tub'){
-        var POR=[0.62,0.63,0.62], PORD=[0.44,0.45,0.44];
-        pushBoxYaw(P,N,C, pr.x,0.30,pr.z, 0.95,0.30,0.50, pr.yaw, POR, 0.6,1.0);
-        pushBoxYaw(P,N,C, pr.x,0.56,pr.z, 0.95,0.06,0.50, pr.yaw, [0.70,0.71,0.70], 1,1);
-        // the inside, and what is in it
-        pushBoxYaw(P,N,C, pr.x,0.42,pr.z, 0.84,0.20,0.39, pr.yaw, PORD, 0.7,1.0);
-        pushBoxYaw(P,N,C, pr.x,0.40,pr.z, 0.82,0.10,0.37, pr.yaw, [0.44,0.050,0.052], 0.8,1.0);
-        // blood over the lip, running down the side
-        var tf=rotY(0,-0.50,pr.yaw);
-        pushBoxYaw(P,N,C, pr.x+tf[0],0.30,pr.z+tf[1], 0.30,0.28,0.015, pr.yaw, [0.32,0.034,0.036], 0.7,1.0);
-        pushBoxYaw(P,N,C, pr.x,0.66,pr.z, 0.05,0.16,0.05, pr.yaw, [0.55,0.56,0.58], 1,1);   // tap
-      } else if (pr.t==='sink'){
-        pushBoxYaw(P,N,C, pr.x,0.72,pr.z, 0.38,0.10,0.26, pr.yaw, [0.64,0.65,0.64], 1,1);
-        pushBoxYaw(P,N,C, pr.x,0.70,pr.z, 0.30,0.07,0.19, pr.yaw, [0.46,0.055,0.058], 1,1);
-        pushBoxYaw(P,N,C, pr.x,0.40,pr.z, 0.10,0.32,0.10, pr.yaw, [0.50,0.51,0.50], 0.6,1.0);
-        pushBoxYaw(P,N,C, pr.x,0.85,pr.z, 0.04,0.12,0.04, pr.yaw, [0.55,0.56,0.58], 1,1);
-      } else if (pr.t==='toilet'){
-        pushBoxYaw(P,N,C, pr.x,0.20,pr.z, 0.24,0.20,0.30, pr.yaw, [0.62,0.63,0.62], 0.7,1.0);
-        pushBoxYaw(P,N,C, pr.x,0.42,pr.z, 0.26,0.05,0.32, pr.yaw, [0.68,0.69,0.68], 1,1);
-        var tb2=rotY(0,0.26,pr.yaw);
-        pushBoxYaw(P,N,C, pr.x+tb2[0],0.46,pr.z+tb2[1], 0.26,0.26,0.13, pr.yaw, [0.60,0.61,0.60], 0.8,1.0);
-      } else if (pr.t==='mirror'){
-        pushBoxYaw(P,N,C, pr.x,1.52,pr.z, 0.40,0.32,0.04, pr.yaw, [0.24,0.22,0.20], 1,1);
-        pushBoxYaw(P,N,C, pr.x+pr.nx*0.02,1.52,pr.z+pr.nz*0.02, 0.34,0.27,0.05, pr.yaw, [0.36,0.39,0.42], 1,1);
-        // cracks across the glass
-        for (var mc=0; mc<3; mc++){
-          pushBoxYaw(P,N,C, pr.x+pr.nx*0.035, 1.52+(mc-1)*0.09, pr.z+pr.nz*0.035,
-                     0.28-mc*0.05, 0.008, 0.05, pr.yaw, [0.10,0.10,0.11], 1,1);
+      }
+    }
+
+    // ---------- walls, railings, fences, per edge
+    for (var i=0;i<wallSegs.length;i++){
+      var sg=wallSegs[i];
+      var mx=(sg.x1+sg.x2)/2, mz=(sg.z1+sg.z2)/2, horiz=(sg.z1===sg.z2);
+      var len=horiz?Math.abs(sg.x2-sg.x1):Math.abs(sg.z2-sg.z1);
+      var hx=horiz?len/2:WALL_HALF, hz=horiz?WALL_HALF:len/2;
+      var zc=zone[sg.r][sg.c], zo=zoneAt(sg.nr,sg.nc);
+      var fy=cellFloorBase(sg.r,sg.c), fyTop=fy;
+      if (zc===Z.STAIR){ var stc=stairAt(sg.c); if (sg.r>=stc.rampR0 && sg.r<=stc.rampR1) fyTop=floorAt(sg.c*CELL+1, sg.r*CELL+0.01); }
+      var jit=0.92+((i*37)%7)*0.024;
+      var tx=horiz?1:0, tz=horiz?0:1;                    // along the edge
+
+      if (sg.fence){
+        // the football cage: posts, rails and a dark mesh panel
+        box(mx, fy+1.25, mz, hx+0.02, 1.25, hz+0.02, [0.09,0.10,0.09], 3, 0.7, 1);
+        for (var pf=-1; pf<=1; pf+=2) box(mx+tx*pf*len/2, fy+1.3, mz+tz*pf*len/2, 0.05, 1.3, 0.05, PAL.black, 3);
+        box(mx, fy+2.55, mz, hx+0.05, 0.035, hz+0.05, PAL.black, 3);
+        box(mx, fy+1.30, mz, hx+0.05, 0.03, hz+0.05, PAL.black, 3);
+        continue;
+      }
+      if (zo===Z.YARD && zc===Z.WALK){
+        // the walkway edge: a concrete upstand and a black railing over the drop
+        box(mx, fy+0.16, mz, hx, 0.16, hz+0.04, PAL.kerb, 1, 0.8, 1);
+        box(mx, fy+1.12, mz, hx+0.02, 0.025, hz+0.02, PAL.black, 3);
+        box(mx, fy+0.62, mz, hx+0.02, 0.02, hz+0.02, PAL.black, 3);
+        for (var bl=0; bl<12; bl++){ var bo=-len/2+len*(bl+0.5)/12; box(mx+tx*bo, fy+0.68, mz+tz*bo, 0.02, 0.44, 0.02, PAL.black, 3); }
+        for (var bp=-1; bp<=1; bp+=2){ box(mx+tx*bp*len/2, fy+0.70, mz+tz*bp*len/2, 0.035, 0.42, 0.035, PAL.black, 3); }
+        continue;
+      }
+      if (zo===Z.YARD && (zc===Z.UNDER || zc===Z.COURT)){
+        // chain-link between the passage and the service yard
+        box(mx, fy+0.95, mz, hx+0.02, 0.95, hz+0.02, [0.10,0.11,0.10], 3, 0.7, 1);
+        for (var pf2=-1; pf2<=1; pf2+=2) box(mx+tx*pf2*len/2, fy+1.0, mz+tz*pf2*len/2, 0.04, 1.0, 0.04, PAL.steelD, 3);
+        box(mx, fy+1.95, mz, hx+0.04, 0.03, hz+0.04, PAL.steelD, 3);
+        continue;
+      }
+      if (zo===Z.YARD && zc===Z.STAIR){
+        // the stair core's outer face over the yard: concrete full height with a wired-glass band per landing
+        var topY=DECK_H+WALL_H;
+        box(mx, topY/2, mz, hx+0.06, topY/2, hz+0.06, tint(PAL.concrete,jit), 1, 0.7, 1);
+        wallDecal(sg, mx, fyTop+1.85, mz, len-0.5, 0.9, PAL.glass, 5, WALL_HALF+0.07);
+        continue;
+      }
+      if (zc===Z.WALK && zo===Z.FLAT){
+        // the flats: cream render over a brick spandrel, and two dark storeys above
+        box(mx, fy+0.45, mz, hx, 0.45, hz, tint(PAL.brick,jit), 4, 0.7, 1);
+        box(mx, fy+0.9+(WALL_H-0.9)/2, mz, hx, (WALL_H-0.9)/2, hz, tint(PAL.cream,jit), 0, 0.75, 1);
+        box(mx, fy+WALL_H+0.05, mz, hx+0.03, 0.05, hz+0.05, PAL.concreteD, 1);
+        box(mx, fy+WALL_H+0.1+2.9, mz-sg.nz*0.15, hx, 2.9, hz+0.12, tint(PAL.brickD,jit), 4, 0.55, 0.9);
+        box(mx, fy+WALL_H+6.0, mz-sg.nz*0.15, hx+0.03, 0.06, hz+0.16, PAL.concreteD, 1);
+        // upper windows, some lit
+        for (var wq=0; wq<2; wq++){
+          var wx=mx+(wq-0.5)*1.9, litW=((sg.c*7+wq*3)%5)===0, wcol=litW?PAL.winDim:PAL.glassD;
+          wallDecal(sg, wx, fy+WALL_H+0.1+1.7, mz, 0.9, 1.1, wcol, litW?2:5, WALL_HALF+0.16);
+          wallDecal(sg, wx, fy+WALL_H+0.1+4.4, mz, 0.9, 1.1, ((sg.c*11+wq)%7)===0?PAL.winWarm:PAL.glassD, ((sg.c*11+wq)%7)===0?2:5, WALL_HALF+0.16);
         }
-      } else if (pr.t==='candle'){
-        pushBoxYaw(P,N,C, pr.x,0.83,pr.z, 0.05,0.10,0.05, pr.yaw, [0.62,0.58,0.48], 0.8,1.0);
-        pushBoxYaw(P,N,C, pr.x,0.75,pr.z, 0.09,0.02,0.09, pr.yaw, [0.30,0.26,0.20], 1,1);
+        continue;
       }
+      if (zc===Z.STAIR || zc===Z.LIFT || (zc===Z.WALK && zo===Z.STAIR) || (zc===Z.WALK && zo===Z.LIFT)){
+        // painted concrete: municipal green below the dado line, dirty cream above
+        var wh=WALL_H+(fyTop-fy);
+        box(mx, fy+0.55, mz, hx, 0.55, hz, tint(PAL.green,jit), 0, 0.72, 1);
+        box(mx, fy+1.10+(wh-1.10)/2, mz, hx, (wh-1.10)/2, hz, tint(PAL.cream,jit), 0, 0.85, 1);
+        box(mx, fy+1.10, mz, hx+0.012, 0.03, hz+0.012, PAL.greenD, 0);
+        box(mx, fy+0.06, mz, hx+0.02, 0.06, hz+0.02, PAL.black, 0);
+        if (zc===Z.STAIR && !horiz){
+          // handrail up the ramp side
+          var stR=stairAt(sg.c);
+          if (sg.r>=stR.rampR0 && sg.r<=stR.rampR1){
+            var yA=floorAt(sg.c*CELL+1, sg.z1+0.01)+0.95, yB=floorAt(sg.c*CELL+1, sg.z2-0.01)+0.95;
+            var segs=4;
+            for (var hs=0; hs<segs; hs++){
+              var zz=sg.z1+(sg.z2-sg.z1)*(hs+0.5)/segs, yy=yA+(yB-yA)*(hs+0.5)/segs;
+              box(mx+sg.nx*0.12, yy, zz, 0.03, 0.03, len/segs/2+0.02, PAL.black, 3);
+              if (hs%2===0) box(mx+sg.nx*0.06, yy-0.02, zz, 0.06, 0.02, 0.02, PAL.black, 3);
+            }
+          }
+        }
+        continue;
+      }
+      // everything else at ground level is brick with a concrete coping
+      var bh=WALL_H+(fyTop-fy);
+      box(mx, fy+bh/2, mz, hx, bh/2, hz, tint(PAL.brick,jit), 4, 0.62, 1);
+      box(mx, fy+bh+0.04, mz, hx+0.04, 0.05, hz+0.04, PAL.coping, 1);
+    }
 
-      // contact shadow, so furniture sits on the floor instead of floating
+    // ---------- the undercroft: a deep beam above, columns come from the props
+    var U=EST.under, ux0=U.c0*CELL, ux1=(U.c1+1)*CELL;
+    box((ux0+ux1)/2, 5.8, U.r*CELL+CELL*0.5, (ux1-ux0)/2, 0.22, CELL*0.5+0.1, PAL.concreteD, 1, 0.8, 1);
+    box((ux0+ux1)/2, 5.6, (U.r+1)*CELL-0.2, (ux1-ux0)/2, 0.16, 0.22, PAL.concrete, 1, 0.8, 1);
+
+    // ---------- the block face at the back of the yard, under the walkway
+    var Y=EST.yard, W=EST.walk;
+    box((W.c0*CELL+(W.c1+1)*CELL)/2, (DECK_H-0.36)/2, Y.r0*CELL-0.3, ((W.c1+1)-W.c0)*CELL/2, (DECK_H-0.36)/2, 0.3, PAL.brickD, 4, 0.5, 0.95);
+    for (var gw=W.c0; gw<=W.c1; gw+=2){
+      var gwx=gw*CELL+CELL;
+      quad([gwx-0.7,0.9,Y.r0*CELL+0.01],[gwx+0.7,0.9,Y.r0*CELL+0.01],[gwx+0.7,2.0,Y.r0*CELL+0.01],[gwx-0.7,2.0,Y.r0*CELL+0.01], [0,0,1], ((gw*5)%3===0)?PAL.winDim:PAL.glassD, ((gw*5)%3===0)?2:5);
+    }
+
+    // ---------- props
+    for (var f=0; f<props.length; f++){
+      var pr=props[f], py=floorAt(pr.x,pr.z);
+      if (pr.t==='flatdoor'){
+        var dcol = pr.col ? PAL.oxblood : PAL.green;
+        boxYaw(pr.x, py+1.05, pr.z+pr.nz*0.05, 0.62,1.05,0.05, pr.yaw, PAL.cream, 0, 0.8, 1);           // frame
+        boxYaw(pr.x, py+1.02, pr.z+pr.nz*0.09, 0.50,0.98,0.03, pr.yaw, dcol, 0, 0.7, 1);                 // leaf
+        boxYaw(pr.x, py+1.55, pr.z+pr.nz*0.125, 0.18,0.16,0.01, pr.yaw, PAL.glassD, 5);                  // spyglass pane
+        boxYaw(pr.x, py+0.95, pr.z+pr.nz*0.125, 0.16,0.03,0.01, pr.yaw, [0.55,0.45,0.20], 3);             // letterbox
+        boxYaw(pr.x+0.36, py+1.02, pr.z+pr.nz*0.135, 0.025,0.025,0.02, pr.yaw, [0.55,0.45,0.20], 3);      // knob
+        boxYaw(pr.x, py+0.03, pr.z+pr.nz*0.42, 0.62,0.03,0.36, pr.yaw, PAL.concreteD, 1);                 // step
+        if (pr.col) boxYaw(pr.x+0.62, py+1.25, pr.z+pr.nz*0.08, 0.02,0.55,0.02, pr.yaw, [0.36,0.20,0.10], 3); // a cane by the door
+      } else if (pr.t==='meter'){
+        boxYaw(pr.x, py+0.95, pr.z, 0.55,0.95,0.20, pr.yaw, PAL.cream, 0, 0.7, 1);
+        boxYaw(pr.x, py+0.95, pr.z+pr.nz*0.02, 0.50,0.90,0.20, pr.yaw, PAL.creamD, 0, 0.7, 1);
+        for (var lv=0; lv<6; lv++) boxYaw(pr.x, py+0.35+lv*0.24, pr.z+pr.nz*0.04, 0.42,0.02,0.20, pr.yaw, PAL.cream, 0);
+        boxYaw(pr.x, py+1.0, pr.z+pr.nz*0.06, 0.02,0.90,0.18, pr.yaw, PAL.creamD, 0);
+        boxYaw(pr.x+0.1, py+1.0, pr.z+pr.nz*0.08, 0.05,0.06,0.14, pr.yaw, PAL.steelD, 3);                 // padlock hasp
+      } else if (pr.t==='cupboard'){
+        boxYaw(pr.x, py+1.0, pr.z, 0.60,1.0,0.30, pr.yaw, PAL.green, 0, 0.6, 1);
+        boxYaw(pr.x, py+1.0, pr.z-pr.nz*0.02-pr.nx*0.02, 0.54,0.94,0.30, pr.yaw, PAL.greenD, 0, 0.6, 1);
+        boxYaw(pr.x, py+1.55, pr.z, 0.22,0.10,0.31, pr.yaw, PAL.black, 3);                                // vent
+        boxYaw(pr.x+0.32, py+0.98, pr.z, 0.03,0.03,0.33, pr.yaw, PAL.steel, 3);
+      } else if (pr.t==='commdoor'){
+        // a wired-glass communal door standing open in a steel frame across the opening
+        var dx=pr.x, dz=pr.z;
+        box(dx, py+1.15, dz-CELL/2+0.12, 0.08,1.15,0.08, PAL.steelD, 3);
+        box(dx, py+1.15, dz+CELL/2-0.12, 0.08,1.15,0.08, PAL.steelD, 3);
+        box(dx, py+2.32, dz, 0.10,0.08,CELL/2, PAL.steelD, 3);
+        box(dx, py+2.36, dz, 0.05,0.28,CELL/2-0.16, PAL.glass, 5);                                        // fanlight
+        var leafYaw = (pr.side==='W') ? 1.15 : -1.15;
+        var lx=dx+Math.sin(leafYaw)*0.45*(pr.side==='W'?1:-1)*0 + (pr.side==='W'?0.42:-0.42), lz=dz+CELL/2-0.16-0.9;
+        boxYaw(lx, py+1.12, lz, 0.05,1.08,0.85, leafYaw, PAL.steelD, 3);
+        boxYaw(lx, py+1.30, lz, 0.055,0.62,0.66, leafYaw, PAL.glass, 5);
+        boxYaw(lx, py+1.10, lz, 0.06,0.02,0.85, leafYaw, PAL.steel, 3);
+      } else if (pr.t==='intercom'){
+        boxYaw(pr.x, pr.y, pr.z, 0.16,0.24,0.03, pr.yaw, PAL.steel, 3);
+        for (var ib=0; ib<8; ib++) boxYaw(pr.x+(-pr.nz)*((ib%2)*0.09-0.045), pr.y+0.13-((ib/2)|0)*0.06, pr.z+pr.nx*((ib%2)*0.09-0.045)+pr.nz*0.02, 0.025,0.018,0.02, pr.yaw, PAL.black, 3);
+        boxYaw(pr.x, pr.y-0.17, pr.z+pr.nz*0.02, 0.06,0.02,0.02, pr.yaw, [0.20,0.75,0.35], 2);
+      } else if (pr.t==='cctv'){
+        if (pr.pole){ box(pr.x, pr.y/2, pr.z, 0.05, pr.y/2, 0.05, PAL.steelD, 3); }
+        else { boxYaw(pr.x, pr.y-0.15, pr.z, 0.04,0.04,0.28, pr.yaw, PAL.steelD, 3); }
+      } else if (pr.t==='plate'){
+        // a small municipal plate: cream with green text bars
+        boxYaw(pr.x, pr.y, pr.z, 0.42,0.16,0.012, pr.yaw, PAL.cream, 0);
+        boxYaw(pr.x-0.06, pr.y+0.03, pr.z+pr.nz*0.012+pr.nx*0.012, 0.26,0.028,0.006, pr.yaw, PAL.greenD, 0);
+        boxYaw(pr.x+0.04, pr.y-0.04, pr.z+pr.nz*0.012+pr.nx*0.012, 0.18,0.022,0.006, pr.yaw, PAL.greenD, 0);
+      } else if (pr.t==='sign'){
+        // the estate board: green, cream border, three lines and a crest-shaped blank
+        var big = pr.kind==='estate';
+        boxYaw(pr.x, pr.y, pr.z, big?1.3:0.8, big?0.75:0.45, 0.03, pr.yaw, PAL.cream, 0);
+        boxYaw(pr.x, pr.y, pr.z+pr.nz*0.02+pr.nx*0.02, big?1.22:0.74, big?0.67:0.39, 0.02, pr.yaw, PAL.green, 0);
+        for (var sl=0; sl<3; sl++) boxYaw(pr.x-(big?0.2:0.1)+sl*0.05, pr.y+(big?0.22:0.12)-sl*(big?0.2:0.12), pr.z+pr.nz*0.04+pr.nx*0.04, (big?0.6:0.36)-sl*0.12, big?0.05:0.03, 0.008, pr.yaw, PAL.cream, 0);
+        if (big){ boxYaw(pr.x-0.9, pr.y+0.05, pr.z+pr.nz*0.04+pr.nx*0.04, 0.18,0.22,0.008, pr.yaw, PAL.cream, 0); boxYaw(pr.x-0.9, pr.y+0.05, pr.z+pr.nz*0.05+pr.nx*0.05, 0.12,0.15,0.006, pr.yaw, PAL.green, 0); }
+        if (big){ box(pr.x-1.1, pr.y/2-0.2, pr.z+0.02, 0.05, pr.y/2, 0.05, PAL.steelD, 3); box(pr.x+1.1, pr.y/2-0.2, pr.z+0.02, 0.05, pr.y/2, 0.05, PAL.steelD, 3); }
+      } else if (pr.t==='tube'){
+        boxYaw(pr.x, pr.y, pr.z, pr.flat?0.66:0.66, 0.06, pr.flat?0.12:0.16, pr.yaw, PAL.steelD, 3);
+        if (pr.dim) boxYaw(pr.x, pr.y-0.02, pr.z, 0.60, 0.04, 0.10, pr.yaw, [0.30,0.32,0.30], 2);
+      } else if (pr.t==='bulkhead'){
+        boxYaw(pr.x, pr.y, pr.z, 0.22,0.14,0.14, pr.yaw, PAL.steelD, 3);
+        boxYaw(pr.x, pr.y, pr.z+pr.nz*0.06+pr.nx*0.06, 0.16,0.10,0.10, pr.yaw, [0.55,0.40,0.20], 2);
+        box(pr.x, pr.y+0.22, pr.z, 0.10,0.02,0.10, PAL.steelD, 3);
+      } else if (pr.t==='lamppost'){
+        box(pr.x, 2.1, pr.z, 0.07, 2.1, 0.07, PAL.steelD, 3, 0.6, 1);
+        box(pr.x, 4.25, pr.z-0.25, 0.09, 0.05, 0.35, PAL.steelD, 3);
+        box(pr.x, 4.18, pr.z-0.45, 0.24, 0.12, 0.30, PAL.steelD, 3);
+        box(pr.x, 4.06, pr.z-0.45, 0.20, 0.03, 0.26, pr.broken?PAL.glassD:[0.9,0.55,0.15], pr.broken?5:2);
+        box(pr.x, 0.35, pr.z, 0.11, 0.35, 0.11, PAL.steelD, 3, 0.6, 1);
+      } else if (pr.t==='column'){
+        box(pr.x, 2.85, pr.z, 0.30, 2.85, 0.30, PAL.concrete, 1, 0.55, 1);
+        box(pr.x, 0.9, pr.z, 0.31, 0.02, 0.31, PAL.greenD, 0);
+      } else if (pr.t==='bin'){
+        boxYaw(pr.x, py+0.48, pr.z, 0.27,0.44,0.27, pr.yaw, PAL.binGreen, 3, 0.55, 1);
+        boxYaw(pr.x, py+0.95, pr.z, 0.29,0.04,0.29, pr.yaw, PAL.binLid, 3);
+        boxYaw(pr.x, py+0.08, pr.z+0.22, 0.30,0.08,0.05, pr.yaw, PAL.black, 3);
+      } else if (pr.t==='binbank'){
+        boxYaw(pr.x, py+0.62, pr.z, 0.78,0.60,0.48, pr.yaw, PAL.binGreen, 3, 0.5, 1);
+        boxYaw(pr.x, py+1.25, pr.z, 0.80,0.05,0.50, pr.yaw, PAL.binLid, 3);
+        boxYaw(pr.x, py+1.32, pr.z-0.1, 0.60,0.04,0.30, pr.yaw, PAL.binLid, 3);
+        boxYaw(pr.x, py+0.75, pr.z+0.49, 0.30,0.10,0.01, pr.yaw, PAL.cream, 0);
+      } else if (pr.t==='skip'){
+        boxYaw(pr.x, py+0.55, pr.z, 1.10,0.55,0.62, pr.yaw, PAL.skip, 3, 0.45, 1);
+        boxYaw(pr.x, py+1.10, pr.z, 1.12,0.03,0.64, pr.yaw, PAL.rust, 3);
+        boxYaw(pr.x, py+1.08, pr.z, 0.98,0.05,0.50, pr.yaw, [0.16,0.15,0.13], 3);
+        boxYaw(pr.x-0.4, py+1.18, pr.z+0.1, 0.30,0.10,0.22, pr.yaw+0.4, PAL.wood, 0);
+        boxYaw(pr.x+0.3, py+1.16, pr.z-0.15, 0.35,0.08,0.18, pr.yaw-0.3, [0.24,0.22,0.20], 1);
+      } else if (pr.t==='bench'){
+        boxYaw(pr.x-0.7, py+0.22, pr.z, 0.08,0.22,0.22, pr.yaw, PAL.concrete, 1);
+        boxYaw(pr.x+0.7, py+0.22, pr.z, 0.08,0.22,0.22, pr.yaw, PAL.concrete, 1);
+        for (var bs=0; bs<3; bs++) boxYaw(pr.x, py+0.46, pr.z-0.16+bs*0.16, 0.80,0.025,0.06, pr.yaw, PAL.wood, 0);
+      } else if (pr.t==='pallet'){
+        boxYaw(pr.x, py+0.07, pr.z, 0.55,0.07,0.45, pr.yaw, PAL.wood, 0, 0.6, 1);
+        for (var pl=0; pl<4; pl++) boxYaw(pr.x, py+0.15, pr.z-0.34+pl*0.22, 0.56,0.015,0.06, pr.yaw, [0.32,0.24,0.14], 0);
+      } else if (pr.t==='trolley'){
+        boxYaw(pr.x, py+0.55, pr.z, 0.34,0.35,0.42, pr.yaw+0.3, PAL.steelD, 3);
+        boxYaw(pr.x, py+0.55, pr.z, 0.30,0.32,0.38, pr.yaw+0.3, [0.09,0.09,0.10], 3);
+        boxYaw(pr.x, py+0.10, pr.z, 0.30,0.02,0.36, pr.yaw+0.3, PAL.steelD, 3);
+      } else if (pr.t==='tyres'){
+        boxYaw(pr.x, py+0.14, pr.z, 0.36,0.14,0.36, pr.yaw, PAL.black, 3);
+        boxYaw(pr.x+0.08, py+0.42, pr.z+0.05, 0.36,0.14,0.36, pr.yaw+0.5, [0.07,0.07,0.075], 3);
+      } else if (pr.t==='linepost'){
+        box(pr.x, 1.25, pr.z, 0.05, 1.25, 0.05, PAL.steelD, 3);
+        box(pr.x, 2.5, pr.z, 0.5, 0.03, 0.03, PAL.steelD, 3);
+      } else if (pr.t==='puddle'){
+        var PUD=[0.15,0.16,0.18];
+        boxYaw(pr.x, py+0.006, pr.z, pr.sx*0.7, 0.003, pr.sz*0.7, pr.yaw, PUD, 7);
+        boxYaw(pr.x+pr.sx*0.25, py+0.0065, pr.z-pr.sz*0.2, pr.sx*0.5, 0.003, pr.sz*0.55, pr.yaw+0.7, PUD, 7);
+        boxYaw(pr.x-pr.sx*0.3, py+0.007, pr.z+pr.sz*0.15, pr.sx*0.45, 0.003, pr.sz*0.6, pr.yaw-0.5, PUD, 7);
+      } else if (pr.t==='drip'){
+        box(pr.x, py+0.008, pr.z, 0.45, 0.003, 0.30, [0.25,0.24,0.21], 1);
+      } else if (pr.t==='callbtn'){
+        boxYaw(pr.x, pr.y, pr.z, 0.09,0.12,0.02, pr.yaw, PAL.steel, 3);
+        boxYaw(pr.x, pr.y, pr.z+pr.nz*0.02, 0.03,0.03,0.015, pr.yaw, [0.6,0.35,0.15], 2);
+      } else if (pr.t==='notice'){
+        boxYaw(pr.x, pr.y, pr.z, 0.55,0.40,0.02, pr.yaw, PAL.wood, 0);
+        for (var nt=0; nt<3; nt++) boxYaw(pr.x-0.25+nt*0.26, pr.y+(nt%2?0.05:-0.04), pr.z+pr.nx*0.02, 0.10,0.14,0.005, pr.yaw+(nt-1)*0.08, [0.80,0.78,0.70], 0);
+      } else if (pr.t==='liftdoor2'){
+        boxYaw(pr.x, py+1.10, pr.z+0.02, 0.85,1.10,0.06, pr.yaw, PAL.steelD, 3);
+        boxYaw(pr.x-0.40, py+1.05, pr.z+0.08, 0.38,1.02,0.02, pr.yaw, PAL.steel, 3, 0.7, 1);
+        boxYaw(pr.x+0.40, py+1.05, pr.z+0.08, 0.38,1.02,0.02, pr.yaw, PAL.steel, 3, 0.7, 1);
+        boxYaw(pr.x, py+2.32, pr.z+0.08, 0.20,0.06,0.02, pr.yaw, [0.75,0.30,0.12], 2);
+      }
       var sz2=PROP_SOLID[pr.t];
-      if (sz2){
-        var sc=[0.02,0.016,0.024];
-        pushQuadYawShadow(P,N,C, pr.x, pr.z, sz2[0]*1.18, sz2[1]*1.35, pr.yaw||0, sc);
-      }
+      if (sz2 && pr.t!=='lamppost'){ pushQuadYawShadow(P,N,C, pr.x, pr.z, sz2[0]*1.18, sz2[1]*1.35, pr.yaw||0, [0.02,0.02,0.024]); padMat(P,0); }
+      // sit contact shadows on the floor the prop stands on
+      if (sz2 && pr.t!=='lamppost' && py>0.01) for (var sv=P.length-18; sv<P.length; sv+=3) P[sv+1]+=py;
     }
 
-    // ---- the dead
-    var DEAD_SKIN=[0.42,0.36,0.33], SHIRT_A=[0.20,0.18,0.22], SHIRT_B=[0.24,0.17,0.15];
-    for (var dd=0; dd<bodies.length; dd++){
-      var bo2=bodies[dd];
-      var cl = (dd%2) ? SHIRT_A : SHIRT_B;
-      var yw = bo2.yaw;
-      function bp2(lx,lz){ var q=rotY(lx,lz,yw); return [bo2.x+q[0], bo2.z+q[1]]; }
-      // torso flat on the floor
-      var tp=bp2(0,0);
-      pushBoxYaw(P,N,C, tp[0],0.14,tp[1], 0.30,0.14,0.52, yw, cl, 0.7,1.0);
-      // head, turned aside
-      var hp=bp2(0,-0.66);
-      pushBoxYaw(P,N,C, hp[0],0.13,hp[1], 0.16,0.13,0.16, yw, DEAD_SKIN, 0.7,1.0);
-      // arms, thrown out at different angles per pose
-      var spread=[0.55,0.85,0.30][bo2.pose];
-      var al=bp2(-0.34,-0.10+spread*0.2), ar=bp2(0.34,-0.10-spread*0.2);
-      pushBoxYaw(P,N,C, al[0],0.10,al[1], 0.30,0.09,0.11, yw+spread, cl, 0.7,1.0);
-      pushBoxYaw(P,N,C, ar[0],0.10,ar[1], 0.30,0.09,0.11, yw-spread, cl, 0.7,1.0);
-      // legs
-      var ll=bp2(-0.13,0.62), lr=bp2(0.15,0.60);
-      pushBoxYaw(P,N,C, ll[0],0.10,ll[1], 0.12,0.10,0.42, yw+0.12, [0.14,0.13,0.17], 0.7,1.0);
-      pushBoxYaw(P,N,C, lr[0],0.10,lr[1], 0.12,0.10,0.42, yw-0.22, [0.14,0.13,0.17], 0.7,1.0);
-    }
+    // ---------- the bin store gate, standing open
+    var B=EST.bins, gx=(EST.binsGate.c+0.5)*CELL, gz=EST.binsGate.r*CELL;
+    box(gx-CELL/2+0.1, 1.1, gz, 0.06,1.1,0.06, PAL.steelD, 3); box(gx+CELL/2-0.1, 1.1, gz, 0.06,1.1,0.06, PAL.steelD, 3);
+    box(B.west ? gx+CELL/2-0.1 : gx-CELL/2+0.1, 1.05, gz+0.9, 0.04, 0.95, 0.9, [0.10,0.11,0.10], 3);
 
-    // ---- ground beyond the house, so the edges fall away into dark
-    var MX=COLS*CELL, MZ=ROWS*CELL, PAD=30, ap=[0.05,0.042,0.058];
-    function apron(x0,z0,x1,z1){
-      pushQuad(P,N,C, [x0,-0.03,z1],[x1,-0.03,z1],[x1,-0.03,z0],[x0,-0.03,z0], [0,1,0], ap,ap,ap,ap);
-    }
+    // ---------- ground beyond the block, and the tower blocks past it
+    var MX=COLS*CELL, MZ=ROWS*CELL, PAD=60, ap=PAL.tarmac;
+    function apron(x0,z0,x1,z1){ floorQuad(x0,z0,x1,z1,-0.03, ap,ap,ap,ap, 1); }
     apron(-PAD,-PAD,MX+PAD,0); apron(-PAD,MZ,MX+PAD,MZ+PAD);
     apron(-PAD,0,0,MZ);        apron(MX,0,MX+PAD,MZ);
-
-    // ---- the way out
-    var ed=doorTransform();
-    var frameCol=[0.20,0.15,0.13];
-    pushBoxYaw(P,N,C, ed.x + ed.tx*0.95, 0.95, ed.z + ed.tz*0.95, 0.24,0.95,0.22, ed.yaw, frameCol, 0.5,1.0);
-    pushBoxYaw(P,N,C, ed.x - ed.tx*0.95, 0.95, ed.z - ed.tz*0.95, 0.24,0.95,0.22, ed.yaw, frameCol, 0.5,1.0);
-    pushBoxYaw(P,N,C, ed.x, 2.02, ed.z, 0.26,0.18,1.15, ed.yaw, frameCol, 0.9,1.0);
+    var towers=[ {x:-22,z:MZ*0.55,w:9,d:9,h:34}, {x:MX+24,z:MZ*0.35,w:10,d:8,h:30}, {x:MX*0.25,z:MZ+26,w:12,d:9,h:26}, {x:MX*0.75,z:MZ+30,w:9,d:9,h:38}, {x:MX*0.5,z:-34,w:14,d:10,h:22} ];
+    for (var tw=0; tw<towers.length; tw++){
+      var T=towers[tw];
+      box(T.x, T.h/2, T.z, T.w/2, T.h/2, T.d/2, PAL.tower, 0, 0.6, 1);
+      box(T.x, T.h+0.6, T.z, T.w/2-1, 0.6, T.d/2-1, PAL.tower, 0);
+      var floors=(T.h/3.0)|0, cols=(T.w/1.6)|0;
+      for (var fl=1; fl<floors; fl++) for (var wc=0; wc<cols; wc++){
+        var h2=hash2(tw*131+fl*17+wc*7);
+        if (h2>0.32) continue;
+        var wcol = h2<0.10 ? PAL.winCool : (h2<0.22 ? PAL.winWarm : PAL.winDim);
+        var wx=T.x-T.w/2+0.8+wc*1.6, wy=fl*3.0+0.3, hw=0.45, hh=0.55;
+        var frontZ = T.z<MZ/2 ? T.z+T.d/2+0.02 : T.z-T.d/2-0.02, nz=T.z<MZ/2?1:-1;
+        quad([wx-hw,wy-hh,frontZ],[wx+hw,wy-hh,frontZ],[wx+hw,wy+hh,frontZ],[wx-hw,wy+hh,frontZ], [0,0,nz], wcol, 2);
+        var sideX = T.x<MX/2 ? T.x+T.w/2+0.02 : T.x-T.w/2-0.02, nx=T.x<MX/2?1:-1, wz=T.z-T.d/2+0.8+wc*1.6;
+        if (wc<(T.d/1.6|0)) quad([sideX,wy-hh,wz-hw],[sideX,wy-hh,wz+hw],[sideX,wy+hh,wz+hw],[sideX,wy+hh,wz-hw], [nx,0,0], wcol, 2);
+      }
+    }
 
     lvlCount=P.length/3;
     gl.bindBuffer(gl.ARRAY_BUFFER,lvlVBO); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(P),gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER,lvlNBO); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(N),gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER,lvlCBO); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(C),gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER,lvlMBO); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(M),gl.STATIC_DRAW);
+    MAT_LIST=null;
   }
+  function hash2(n){ var x=Math.sin(n*12.9898)*43758.5453; return x-Math.floor(x); }
 
-  // where the exit door stands, and which way it faces
+  // where the lift stands, and which way it faces
   function doorTransform(){
     var ctr=cellCenter(exitCell.r, exitCell.c);
     if (exitDir==='E') return { x:(exitCell.c+1)*CELL, z:ctr.z, yaw:0,         tx:0,tz:1, nx:1, nz:0 };
@@ -2903,6 +3067,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (exitDir==='S') return { x:ctr.x, z:(exitCell.r+1)*CELL, yaw:Math.PI/2, tx:1,tz:0, nx:0, nz:1 };
     return                     { x:ctr.x, z:exitCell.r*CELL,    yaw:Math.PI/2, tx:1,tz:0, nx:0, nz:-1 };
   }
+
   function pastDoor(){
     var m=0.45;
     if (exitDir==='E') return player.x > (exitCell.c+1)*CELL - m;
@@ -2915,12 +3080,18 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return dist(player.x,player.z,d.x,d.z) < 2.2;
   }
 
-  function bindMesh(v,n,c){
+  function bindMesh(v,n,c,m){
     gl.bindBuffer(gl.ARRAY_BUFFER,v); gl.vertexAttribPointer(loc.aPos,3,gl.FLOAT,false,0,0); gl.enableVertexAttribArray(loc.aPos);
     gl.bindBuffer(gl.ARRAY_BUFFER,n); gl.vertexAttribPointer(loc.aNorm,3,gl.FLOAT,false,0,0); gl.enableVertexAttribArray(loc.aNorm);
     gl.bindBuffer(gl.ARRAY_BUFFER,c); gl.vertexAttribPointer(loc.aCol,3,gl.FLOAT,false,0,0); gl.enableVertexAttribArray(loc.aCol);
+    if (m){ gl.bindBuffer(gl.ARRAY_BUFFER,m); gl.vertexAttribPointer(loc.aMat,1,gl.FLOAT,false,0,0); gl.enableVertexAttribArray(loc.aMat); }
+    else { gl.disableVertexAttribArray(loc.aMat); gl.vertexAttrib1f(loc.aMat, 0); }
   }
+  var DRAW_MAT=0;   // material for dynamic cubes (0 painted, 3 metal)
+  var DRAW_Y=0;     // floor height under whatever is being drawn (set per entity)
   function drawCube(model,color,unlit){
+    if (DRAW_Y){ model=m4Multiply(m4Translate(0,DRAW_Y,0), model); }
+    gl.vertexAttrib1f(loc.aMat, DRAW_MAT);
     gl.uniformMatrix4fv(loc.uModel,false,model);
     gl.uniform3f(loc.uColor,color[0],color[1],color[2]);
     gl.uniform1f(loc.uUnlit,unlit?1:0);
@@ -2952,11 +3123,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function resetGame(){
     // together, everyone builds the same house from the same seed
     if (NET.on) Math.random=mulberry32(NET.seed);
-    generateHouse();
+    generateEstate();
     if (glOK){ initGL(); buildLevelMesh(); }
 
     var st=cellCenter(startCell.r, startCell.c);
-    player={ x:st.x, z:st.z, yaw:0, animT:0, moving:false, sprinting:false, pose:null };
+    player={ x:st.x, z:st.z, yaw:0, animT:0, moving:false, sprinting:false, pose:null, fy:0 };
 
     // it starts as far away as the house allows
     var dfs=bfsDistances(startCell), best=-1, spawn=null;
@@ -2966,7 +3137,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     }
     if (!spawn) spawn=openCells[openCells.length-1];
     var cs=cellCenter(spawn.r,spawn.c);
-    creature={ x:cs.x, z:cs.z, cell:{r:spawn.r,c:spawn.c}, animT:0, jx:0, jz:0, yaw:0 };
+    creature={ x:cs.x, z:cs.z, cell:{r:spawn.r,c:spawn.c}, animT:0, jx:0, jz:0, yaw:0, fy:floorAt(cs.x,cs.z) };
+    estateReset();
 
     huntMode=false; lastKnown=null; searchTimer=0;
     graceLeft=D.grace;
@@ -3027,7 +3199,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     else { var ed=doorTransform(); tx=ed.x; tz=ed.z; toDoor=true; best=dist(player.x,player.z,tx,tz); }
     var ang = Math.atan2(tx-player.x, -(tz-player.z)) * 180/Math.PI;
     needleEl.style.transform = 'rotate('+ang.toFixed(1)+'deg)';
-    compassText.textContent = (toDoor?'the door ':'nearest evidence ') + Math.round(best) + 'm';
+    compassText.textContent = (toDoor?'the lift ':'nearest evidence ') + Math.round(best) + 'm';
     compassEl.className = 'compass ' + (toDoor?'to-door':'to-key');
   }
 
@@ -3047,7 +3219,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   function updateEvidenceHud(){
     if (NET.isPun){
-      keysLabel.textContent='HOUSE RAGE '+Math.floor(punRage);
+      keysLabel.textContent='RAGE '+Math.floor(punRage);
       keysLabel.classList.toggle('done', punRage>=55);
       $('act-btn').textContent=punShiftCd>0?('SHIFT '+Math.ceil(punShiftCd)):'SHIFT';
     } else {
@@ -3158,7 +3330,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (trapped){
       trapTimer -= dt;
       promptEl.classList.remove('hidden');
-      promptEl.innerHTML = 'Caught in a trap &mdash; '+(isTouch ? '<kbd>tap rapidly</kbd>' : '<kbd>mash any key</kbd>')+' to pull free';
+      promptEl.innerHTML = 'Through a loose grate &mdash; '+(isTouch ? '<kbd>tap rapidly</kbd>' : '<kbd>mash any key</kbd>')+' to pull free';
       stamina = Math.max(0, stamina - dt*4);
       staminaFill.style.width = stamina+'%';
       player.moving=false; player.sprinting=false;
@@ -3166,7 +3338,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         trapped=false;
         promptEl.classList.add('hidden');
         frame.classList.remove('shaking');
-        showToast('Free — but he heard that');
+        showToast('Out — but the whole block heard that');
       }
       actPressed=false;
       return;
@@ -3217,7 +3389,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       return;
     } else if (near){
       promptEl.classList.remove('hidden');
-      promptEl.innerHTML = near.kind==='bed' ? actionHint+' Get under the bed' : actionHint+' Hide in the wardrobe';
+      promptEl.innerHTML = actionHint+' '+(near.kind==='bins' ? 'Get behind the bins' : near.kind==='skip' ? 'Climb into the skip' : near.kind==='meter' ? 'Get in the meter cupboard' : 'Get in the cupboard');
       if (actPressed){
         hidden=true; hideSpot=near;
         near.uses=(near.uses||0)+1;
@@ -3234,7 +3406,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
     if (NET.isPun && graceLeft>0) moving=false, mx=0, mz=0;
     var sprinting = !NET.isPun && (sprintHeld || stickRun) && moving && stamina>2;
-    var speed = NET.isPun ? D.chase*1.25 : (sprinting?SPRINT:WALK);
+    var speed = NET.isPun ? D.chase*1.25 : (sprinting?SPRINT:WALK)*estateSpeedMul();
+    if (HZ.lift && HZ.lift.ride>0){ moving=false; mx=0; mz=0; }
     stamina = sprinting ? Math.max(0, stamina-dt*D.staminaDrain)
                         : Math.min(100, stamina+dt*D.staminaGain);
     staminaFill.style.width=stamina+'%';
@@ -3334,7 +3507,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (!punMemory.warned){
       punMemory.warned=true;
       knockSound(Math.max(-1,Math.min(1,(hideSpot.x-player.x)/5)));
-      showToast(hideSpot.kind==='bed'?'He is looking under the bed…':'He is checking the wardrobe…', true);
+      showToast(hideSpot.kind==='bins'?'He is moving the bins…':hideSpot.kind==='skip'?'He is looking in the skip…':'He is trying the cupboard door…', true);
     }
     if (punMemory.checkT>1.85){
       var found=hideSpot;
@@ -3491,6 +3664,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var S=scares; if (!S) return;
     var w=S.watcher;
     if (w.active && w.fade>0.02){
+      DRAW_Y=floorAt(w.x,w.z);
       var f=w.fade, yaw=Math.atan2(-(player.x-w.x), -(player.z-w.z));
       var DARK=[0.02*f,0.016*f,0.02*f];
       drawCube(trsModel(w.x,0.95,w.z,yaw,0.46,1.90,0.34), DARK, true);
@@ -3520,6 +3694,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var kn=S.knocks[k]; if (kn.t<0 || kn.t>0.7) continue;
       // the door shivers on each knock
       var sh=Math.sin(kn.t*60)*0.02*(1-kn.t/0.7), h=kn.h;
+      DRAW_Y=floorAt(h.x,h.z);
       drawCube(trsModel(h.x-h.nx*0.36+(-h.nz)*sh, 1.02, h.z-h.nz*0.36+(h.nx)*sh, h.yaw, 0.56,1.86,0.03), [0.10,0.07,0.05], false);
     }
   }
@@ -3675,7 +3850,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   var FACE=[0.92,0.90,0.86], FLESH=[0.78,0.74,0.70], BLADE=[0.55,0.57,0.62];
   var C_DOOR_OPEN=[0.74,0.82,0.80], C_DOOR_LOCKED=[0.50,0.12,0.13];
   var C_KEY=[0.95,0.70,0.26], C_SHADOW=[0.014,0.011,0.016];
-  var FOG=[0.028,0.026,0.034];
+  var FOG_OUT=[0.055,0.040,0.026], FOG_IN=[0.030,0.034,0.030], FOG=[0.055,0.040,0.026];
   var playerLantern=[0,1.2,0];
   var projMat=null;
 
@@ -3689,7 +3864,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var handY=shY-0.50*Math.cos(rArmPitch);
     var lanternY=handY-0.21;
     var p=rotY(0.335, handLZ-0.03, pl.yaw);
-    if (pl===player){ playerLantern[0]=pl.x+p[0]; playerLantern[1]=lanternY+0.06; playerLantern[2]=pl.z+p[1]; }
+    if (pl===player){ playerLantern[0]=pl.x+p[0]; playerLantern[1]=lanternY+0.06+(pl.fy||0); playerLantern[2]=pl.z+p[1]; }
     pl.pose={ swing:swing, bob:bob, shY:shY,
       lean: pl.sprinting?0.16:(pl.moving?0.07:0),
       rArmPitch:rArmPitch, handLZ:handLZ, handY:handY, lanternY:lanternY };
@@ -3711,28 +3886,29 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var dx=player.x-creature.x, dz=player.z-creature.z;
       var dl=Math.sqrt(dx*dx+dz*dz)||1; dx/=dl; dz/=dl;
       var k=Math.min(1, scareT/0.85);
-      var back=2.60-1.25*k;
-      eye=[creature.x+dx*back, 1.95+0.20*k, creature.z+dz*back];
-      target=[creature.x, 2.16-0.06*k, creature.z];
+      var back=2.60-1.25*k, cfy=creature.fy||0;
+      eye=[creature.x+dx*back, 1.95+0.20*k+cfy, creature.z+dz*back];
+      target=[creature.x, 2.16-0.06*k+cfy, creature.z];
     } else if (phase==='dead'){
       var sp=spectateTarget();
-      eye=[sp.x, CAM_HEIGHT, sp.z+CAM_BACK]; target=[sp.x, 1.05, sp.z-CAM_LOOK];
+      var sfy=floorAt(sp.x,sp.z);
+      eye=[sp.x, CAM_HEIGHT+sfy, sp.z+CAM_BACK]; target=[sp.x, 1.05+sfy, sp.z-CAM_LOOK];
     } else if (hidden && hideSpot){
       // peering out through the crack: you watch the room, and it walks past
-      var ix=-hideSpot.nx, iz=-hideSpot.nz;
-      if (hideSpot.kind==='bed'){
-        eye=[hideSpot.x + ix*0.62, 0.22, hideSpot.z + iz*0.62];
-        target=[hideSpot.x + ix*8, 0.35, hideSpot.z + iz*8];
+      var ix=-hideSpot.nx, iz=-hideSpot.nz, hfy=floorAt(hideSpot.x,hideSpot.z);
+      if (hideSpot.kind==='bins' || hideSpot.kind==='skip'){
+        eye=[hideSpot.x + ix*0.62, 0.95+hfy, hideSpot.z + iz*0.62];
+        target=[hideSpot.x + ix*8, 0.70+hfy, hideSpot.z + iz*8];
       } else {
-        eye=[hideSpot.x + ix*0.55, 1.62, hideSpot.z + iz*0.55];
-        target=[hideSpot.x + ix*8, 1.15, hideSpot.z + iz*8];
+        eye=[hideSpot.x + ix*0.55, 1.62+hfy, hideSpot.z + iz*0.55];
+        target=[hideSpot.x + ix*8, 1.15+hfy, hideSpot.z + iz*8];
       }
     } else {
       // a slow handheld drift, so the frame is never perfectly still
       var swayX=Math.sin(now/2300)*0.045 + Math.sin(now/770)*0.016;
       var swayY=Math.cos(now/1900)*0.035 + Math.sin(now/610)*0.012;
-      eye=[player.x+swayX, CAM_HEIGHT+swayY, player.z+CAM_BACK];
-      target=[player.x+swayX*0.4, 1.05, player.z-CAM_LOOK];
+      eye=[player.x+swayX, CAM_HEIGHT+swayY+player.fy, player.z+CAM_BACK];
+      target=[player.x+swayX*0.4, 1.05+player.fy, player.z-CAM_LOOK];
     }
     var view=m4LookAt(eye,target,[0,1,0]);
 
@@ -3742,6 +3918,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       sizePost(canvas.width, canvas.height);
       gl.bindFramebuffer(gl.FRAMEBUFFER, post.scene.fb);
     }
+    var pzn=playerZone(), outdoors=isOutdoors(pzn) && pzn!==Z.BINS;
+    var fogWant = outdoors ? FOG_OUT : FOG_IN;
+    for (var fk=0; fk<3; fk++) FOG[fk] += (fogWant[fk]-FOG[fk])*0.06;
+    var fogNear = outdoors ? 10.0 : 6.5, fogFar = outdoors ? 40.0 : 21.0;
+    if (pzn===Z.WALK && HZ.stretch<0.9) fogFar -= (1-HZ.stretch)*40;
     gl.viewport(0,0,canvas.width,canvas.height);
     gl.clearColor(FOG[0],FOG[1],FOG[2],1);
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
@@ -3751,31 +3932,29 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     gl.uniform3f(loc.uCamPos,eye[0],eye[1],eye[2]);
     // less fill light than before: the lantern should be doing the work
     if (phase==='scare') gl.uniform3f(loc.uAmbient, 0.26,0.075,0.085);
-    else gl.uniform3f(loc.uAmbient, hidden?0.150:0.238, hidden?0.140:0.224, hidden?0.178:0.264);
+    else if (outdoors) gl.uniform3f(loc.uAmbient, hidden?0.11:0.17, hidden?0.095:0.145, hidden?0.085:0.12);
+    else gl.uniform3f(loc.uAmbient, hidden?0.09:0.15, hidden?0.10:0.165, hidden?0.095:0.15);
     gl.uniform3f(loc.uFogColor,FOG[0],FOG[1],FOG[2]);
-    gl.uniform1f(loc.uFogNear, 8.0);
-    gl.uniform1f(loc.uFogFar, 23.0);
+    gl.uniform1f(loc.uFogNear, fogNear);
+    gl.uniform1f(loc.uFogFar, fogFar);
+    gl.uniform1f(loc.uWet, outdoors?1.0:0.35);
 
     // the flame, and how close it is to going out
     var fl = 1 + Math.sin(now/97)*0.06 + Math.sin(now/41)*0.035 + Math.sin(now/13)*0.018;
     fl *= lanternHealth;
     if (lanternHealth < 0.7) fl *= 0.55 + Math.random()*0.7;   // stuttering
     gl.uniform3f(loc.uL1Pos, playerLantern[0],playerLantern[1],playerLantern[2]);
-    gl.uniform3f(loc.uL1Color, 1.55*fl, 1.06*fl, 0.62*fl);
-    gl.uniform1f(loc.uL1Range, (hidden?10.0:15.5)*(0.55+0.45*lanternHealth));
+    gl.uniform3f(loc.uL1Color, 0.95*fl, 1.02*fl, 1.12*fl);
+    gl.uniform1f(loc.uL1Range, (hidden?8.5:12.5)*(0.55+0.45*lanternHealth));
 
-    // the closest hearth or candle lights the room around it
-    var nf=null, nfd=1e9;
-    for (var fi=0; fi<fires.length; fi++){
-      var fr=fires[fi], fd=dist(player.x,player.z,fr.x,fr.z);
-      if (fd<nfd){ nfd=fd; nf=fr; }
-    }
-    if (nf && nfd<16){
-      var ff = 1 + Math.sin(now/71)*0.12 + Math.sin(now/29)*0.07 + Math.sin(now/11)*0.04;
-      var big = nf.kind==='fire';
+    // the nearest fixture lights the ground around it: sodium outside, a tube inside
+    var nlq=nearestLamp(player.x,player.z), nf=nlq.lamp, nfd=nlq.d;
+    if (nf && nfd<22){
+      var ff = lampLevel(nf, now);
       gl.uniform3f(loc.uL3Pos, nf.x, nf.y, nf.z);
-      gl.uniform3f(loc.uL3Color, (big?1.0:0.55)*ff, (big?0.46:0.30)*ff, (big?0.15:0.10)*ff);
-      gl.uniform1f(loc.uL3Range, big?8.5:3.6);
+      if (nf.kind==='sodium') gl.uniform3f(loc.uL3Color, 2.3*ff, 1.12*ff, 0.26*ff);
+      else gl.uniform3f(loc.uL3Color, 0.95*ff, 1.06*ff, 0.88*ff);
+      gl.uniform1f(loc.uL3Range, nf.kind==='sodium'?17.0:11.0);
     } else {
       gl.uniform3f(loc.uL3Color, 0,0,0);
       gl.uniform1f(loc.uL3Range, 1);
@@ -3784,7 +3963,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
     var eyeGlow = (graceLeft>0) ? 0.22 : (huntMode?1.0:0.42);
     if (phase==='scare') eyeGlow=2.6;
-    gl.uniform3f(loc.uL2Pos, creature.x, 2.10, creature.z);
+    gl.uniform3f(loc.uL2Pos, creature.x, 2.10+(creature.fy||0), creature.z);
     if (huntMode || phase==='scare')
       gl.uniform3f(loc.uL2Color, 0.95*eyeGlow, 0.10*eyeGlow, 0.09*eyeGlow);
     else
@@ -3792,7 +3971,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     gl.uniform1f(loc.uL2Range, phase==='scare'?14:6.5);
 
     // the house gets procedural surface detail; characters and props do not
-    bindMesh(lvlVBO,lvlNBO,lvlCBO);
+    bindMesh(lvlVBO,lvlNBO,lvlCBO,lvlMBO);
     gl.uniformMatrix4fv(loc.uModel,false,m4Identity());
     gl.uniform3f(loc.uColor,1,1,1);
     gl.uniform1f(loc.uUnlit,0);
@@ -3803,7 +3982,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     bindMesh(cubeVBO,cubeNBO,cubeCBO);
     drawDoorPanel(now);
     drawHideMarkers(now);
-    drawFires(now);
+    drawLamps(now); drawNumbers(now); drawCctv(now);
     drawAnchors(now);
     drawEvidence(now);
     drawTraps(now);
@@ -3814,7 +3993,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     drawShadow(creature.x,creature.z,0.85);
     if ((!hidden || phase==='scare') && !NET.isPun && phase!=='dead') drawPlayer(player);
     drawCreature(d);
-    drawMotes(now);
+    if (isOutdoors(playerZone())) drawRain(now); else drawMotes(now);
 
     if (usePost){
       // dread drives the warp, the red push and the grain
@@ -3831,30 +4010,28 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     for (var i=0;i<traps.length;i++){
       var tp=traps[i];
       if (Math.abs(tp.x-player.x)>17 || Math.abs(tp.z-player.z)>17) continue;
-      var METAL=[0.30,0.31,0.34], METAL2=[0.42,0.43,0.47];
-      // base plate and spring
-      drawCube(trsModel(tp.x,0.05,tp.z,tp.yaw, 0.46,0.05,0.30), METAL, false);
-      drawCube(trsModel(tp.x,0.10,tp.z,tp.yaw, 0.16,0.08,0.16), METAL2, false);
+      DRAW_Y=floorAt(tp.x,tp.z);
+      var IRON=[0.16,0.16,0.17], IRON2=[0.24,0.24,0.26];
+      // the hole, and the frame around it
+      drawCube(trsModel(tp.x,0.004,tp.z,tp.yaw, 0.70,0.006,0.50), [0.02,0.02,0.025], true);
+      drawCube(trsModel(tp.x,0.02,tp.z,tp.yaw, 0.76,0.03,0.56), IRON, false);
+      drawCube(trsModel(tp.x,0.03,tp.z,tp.yaw, 0.66,0.03,0.46), [0.03,0.03,0.035], true);
       if (tp.sprung){
-        // jaws shut, standing upright and locked together
-        drawCube(trsModel(tp.x,0.24,tp.z,tp.yaw, 0.40,0.24,0.05), METAL2, false);
+        // the grate, dropped in at an angle
+        var m1=m4Multiply(m4Translate(tp.x,0.10,tp.z), m4RotateY(tp.yaw));
+        m1=m4Multiply(m1, m4RotateX(0.55));
+        for (var b=0;b<5;b++) drawCube(m4Multiply(m4Multiply(m1, m4Translate(-0.24+b*0.12,0,0)), m4Scale(0.04,0.03,0.44)), IRON2, false);
       } else {
-        // jaws open, waiting - a faint glint so it can be spotted
-        var lean=0.85;
-        var m1=m4Multiply(m4Translate(tp.x,0.07,tp.z), m4RotateY(tp.yaw));
-        m1=m4Multiply(m1, m4RotateX(lean));
-        drawCube(m4Multiply(m1, m4Scale(0.40,0.05,0.30)), METAL2, false);
-        var m2=m4Multiply(m4Translate(tp.x,0.07,tp.z), m4RotateY(tp.yaw));
-        m2=m4Multiply(m2, m4RotateX(-lean));
-        drawCube(m4Multiply(m2, m4Scale(0.40,0.05,0.30)), METAL2, false);
-        var glint=0.5+Math.sin(now/520+i)*0.28;
-        drawCube(trsModel(tp.x,0.30,tp.z,tp.yaw, 0.05,0.02,0.05),
-                 [0.55*glint,0.58*glint,0.62*glint], true);
+        // the bars, sitting a touch proud, one of them missing: the only tell
+        for (var b2=0;b2<6;b2++){ if (b2===2) continue; drawCube(trsModel(tp.x-0.28+b2*0.11,0.045,tp.z,tp.yaw, 0.045,0.03,0.46), IRON2, false); }
+        var glint=0.4+Math.sin(now/520+i)*0.25;
+        drawCube(trsModel(tp.x-0.06,0.065,tp.z-0.1,tp.yaw, 0.03,0.01,0.08), [0.40*glint,0.42*glint,0.46*glint], true);
       }
     }
   }
 
   function drawGirl(now){
+    DRAW_Y=floorAt(girl.x,girl.z);
     if (!girl.active || girl.fade<=0.02) return;
     var f=girl.fade;
     var sway=Math.sin(now/900)*0.03;
@@ -3884,6 +4061,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     for (var i=0;i<hideSpots.length;i++){
       var h=hideSpots[i], dd=dist(player.x,player.z,h.x,h.z);
       if (dd>9) continue;
+      DRAW_Y=floorAt(h.x,h.z);
       var near=1-dd/9, pulse=0.55+0.45*Math.sin(now/380+i);
       var g=(0.10+near*0.55)*pulse + (dd<2.2?0.35:0);
       var fx=h.x-h.nx*0.33, fz=h.z-h.nz*0.33;
@@ -3893,35 +4071,89 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       drawCube(trsModel(kx,1.05,kz,h.yaw, 0.05,0.05,0.04), [0.9*(0.4+g),0.72*(0.4+g),0.30*(0.4+g)], true);
     }
   }
-  function drawShadow(x,z,r){ drawCube(trsModel(x,0.02,z,0,r,0.01,r*0.85), C_SHADOW, true); }
+  function drawShadow(x,z,r){ DRAW_Y=floorAt(x,z); drawCube(trsModel(x,0.02,z,0,r,0.01,r*0.85), C_SHADOW, true); }
 
+  // the lift: two steel leaves in a green surround, an indicator above. Shut and
+  // dark until the case is complete, then lit and standing open.
   function drawDoorPanel(now){
     var ed=doorTransform();
+    DRAW_Y=DECK_H;
     var unlocked = evidenceHeld>=evidenceItems.length;
-    var base = unlocked?C_DOOR_OPEN:C_DOOR_LOCKED;
-    var pulse = unlocked ? (0.95+Math.sin(now/240)*0.35) : (0.42+Math.sin(now/700)*0.10);
-    drawCube(trsModel(ed.x,0.92,ed.z, ed.yaw, 0.16,1.84,1.5),
-             [base[0]*pulse, base[1]*pulse, base[2]*pulse], true);
+    var open = unlocked ? 0.62 : 0.0;
+    var lx=ed.x-ed.tx*0.9, lz=ed.z-ed.tz*0.9, rx=ed.x+ed.tx*0.9, rz=ed.z+ed.tz*0.9;
+    drawCube(trsModel(lx,1.15,lz, ed.yaw, 0.16,2.30,0.20), PAL.greenD, false);
+    drawCube(trsModel(rx,1.15,rz, ed.yaw, 0.16,2.30,0.20), PAL.greenD, false);
+    drawCube(trsModel(ed.x,2.36,ed.z, ed.yaw, 0.16,0.14,2.0), PAL.greenD, false);
+    var sheen = 0.9+Math.sin(now/900)*0.05;
+    DRAW_MAT=3;
+    drawCube(trsModel(ed.x-ed.tx*(0.38+open),1.10,ed.z-ed.tz*(0.38+open)+ed.nz*0.02, ed.yaw, 0.06,2.16,0.74), [0.36*sheen,0.37*sheen,0.40*sheen], false);
+    drawCube(trsModel(ed.x+ed.tx*(0.38+open),1.10,ed.z+ed.tz*(0.38+open)+ed.nz*0.02, ed.yaw, 0.06,2.16,0.74), [0.36*sheen,0.37*sheen,0.40*sheen], false);
+    DRAW_MAT=0;
+    if (unlocked){
+      // the car behind, lit
+      var lc=0.85+Math.sin(now/140)*0.12;
+      drawCube(trsModel(ed.x+ed.nx*1.2,1.10,ed.z+ed.nz*1.2, ed.yaw, 0.08,2.10,1.4), [0.75*lc,0.78*lc,0.66*lc], true);
+    }
+    var ind = unlocked ? (0.9+Math.sin(now/240)*0.1) : (HZ.lift && HZ.lift.ride>0 ? 0.5+0.5*Math.sin(now/90) : 0.12+Math.sin(now/1400)*0.04);
+    drawCube(trsModel(ed.x,2.55,ed.z-ed.nz*0.02, ed.yaw, 0.02,0.10,0.34), [0.85*ind,0.35*ind,0.10*ind], true);
+  }
+  // camera heads that turn to follow you, a red pinprick on each
+  function drawCctv(now){
+    for (var i=0;i<props.length;i++){
+      var p=props[i]; if (p.t!=='cctv') continue;
+      if (Math.abs(p.x-player.x)>20 || Math.abs(p.z-player.z)>20) continue;
+      DRAW_Y=0;
+      var yaw=(p.track===undefined?p.yaw:p.track), y=p.y;
+      var fx=Math.sin(yaw)*0.18, fz=Math.cos(yaw)*0.18;
+      drawCube(trsModel(p.x,y,p.z, yaw, 0.12,0.12,0.12), [0.30,0.31,0.33], false);
+      drawCube(trsModel(p.x+fx,y-0.03,p.z+fz, yaw, 0.10,0.10,0.30), [0.62,0.63,0.62], false);
+      drawCube(trsModel(p.x+fx*1.8,y-0.03,p.z+fz*1.8, yaw, 0.06,0.06,0.02), [0.02,0.02,0.03], true);
+      var blink = (Math.floor(now/900)%2===0) ? 1 : 0.15;
+      drawCube(trsModel(p.x+fx*1.6,y+0.05,p.z+fz*1.6, yaw, 0.015,0.015,0.015), [0.9*blink,0.05,0.05], true);
+    }
+  }
+  // rain, when you are under the sky: thin streaks in a column around you,
+  // heavier in the courtyard, thinner on the walkway where the deck above helps
+  var rain=[];
+  function drawRain(now){
+    var zn=playerZone();
+    if (!isOutdoors(zn) || zn===Z.BINS) return;
+    if (!rain.length) for (var i=0;i<90;i++) rain.push({ ox:(Math.random()-0.5)*14, oz:(Math.random()-0.5)*12, ph:Math.random()*6, sp:7+Math.random()*4, len:0.22+Math.random()*0.22 });
+    var t=now/1000, n = zn===Z.WALK ? 50 : 90;
+    if (SET.lowq) n=(n/2)|0;
+    DRAW_Y=player.fy;
+    for (var k=0;k<n;k++){
+      var m=rain[k];
+      var y = 5.5 - ((t*m.sp + m.ph) % 5.5);
+      var x=player.x+m.ox, z=player.z+m.oz;
+      var dd=Math.abs(m.ox)/7+Math.abs(m.oz)/6;
+      var fade=Math.max(0,1-dd)*0.55;
+      drawCube(trsModel(x,y,z,0, 0.012,m.len,0.012), [0.30*fade,0.32*fade,0.38*fade], true);
+    }
   }
 
-  function drawFires(now){
-    for (var i=0;i<fires.length;i++){
-      var f=fires[i];
-      if (Math.abs(f.x-player.x)>19 || Math.abs(f.z-player.z)>19) continue;
-      var fl=0.8+Math.sin(now/70+i)*0.16+Math.random()*0.12;
-      if (f.kind==='fire'){
-        // embers plus a couple of licking tongues of flame
-        drawCube(trsModel(f.x,0.16,f.z,0,0.62,0.10,0.24), [0.75*fl,0.20*fl,0.05*fl], true);
-        for (var t=0;t<3;t++){
-          var ph=now/150+t*2.1;
-          var h=0.28+Math.sin(ph)*0.12;
-          var ox=(t-1)*0.17;
-          drawCube(trsModel(f.x+ox,0.22+h/2,f.z,0, 0.11,h,0.10),
-                   [1.0*fl, (0.52+Math.sin(ph)*0.12)*fl, 0.13*fl], true);
-        }
+  // how bright a fixture is right now: steady, stuttering near Pun, or out
+  function lampLevel(l, now){
+    if (l.dead>0) return (l.kind==='tube' && Math.random()<0.06) ? 0.5 : 0.0;
+    var f = l.kind==='tube'
+      ? 1 + Math.sin(now/13)*0.02 + (l.health<0.8 ? (Math.random()<0.5+l.health*0.4 ? 0 : -0.7) : 0)
+      : 0.92 + Math.sin(now/230+l.id)*0.06;
+    return Math.max(0, f*Math.max(0.15,l.health));
+  }
+  // the glowing part of every fixture in range: tube diffusers and sodium heads
+  function drawLamps(now){
+    DRAW_Y=0;
+    for (var i=0;i<lamps.length;i++){
+      var l=lamps[i];
+      var cull = l.kind==='sodium' ? 44 : 24;
+      if (Math.abs(l.x-player.x)>cull || Math.abs(l.z-player.z)>cull) continue;
+      var lv=lampLevel(l, now), dim=0.12;
+      if (l.kind==='tube'){
+        var c=[dim+0.9*lv, dim+0.95*lv, dim+0.86*lv];
+        drawCube(trsModel(l.x,l.y+0.05,l.z-0.4*(l.zone===Z.STAIR?0:1),0, l.zone===Z.STAIR?0.08:0.62, 0.05, l.zone===Z.STAIR?0.62:0.08), c, true);
       } else {
-        var h2=0.10+Math.sin(now/90+i)*0.03;
-        drawCube(trsModel(f.x,0.95+h2/2,f.z,0, 0.05,h2,0.05), [1.0*fl,0.72*fl,0.30*fl], true);
+        var s=[dim+1.0*lv, dim+0.55*lv, dim+0.12*lv];
+        drawCube(trsModel(l.x,l.y,l.z,0, 0.16,0.10,0.16), s, true);
       }
     }
   }
@@ -3930,6 +4162,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     for (var i=0;i<evidenceItems.length;i++){
       var item=evidenceItems[i];
       if (item.taken) continue;
+      DRAW_Y=floorAt(item.x,item.z);
       var bob=Math.sin(now/420+i)*0.08, spin=now/1050+i*1.7, y=0.66+bob;
       var clue=EVIDENCE_CATALOG[item.type]||EVIDENCE_CATALOG[0];
       if (clue.id==='photo'){
@@ -3957,6 +4190,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     for (var i=0;i<evidenceItems.length;i++){
       var item=evidenceItems[i]; if (!item.taken || !anchoredRooms[item.room]) continue;
       if (Math.abs(item.x-player.x)>17 || Math.abs(item.z-player.z)>17) continue;
+      DRAW_Y=floorAt(item.x,item.z);
       var pulse=0.72+Math.sin(now/360+i)*0.12, chalk=[0.64*pulse,0.54*pulse,0.38*pulse];
       drawCube(trsModel(item.x,0.025,item.z-0.52,0,0.50,0.012,0.025),chalk,true);
       drawCube(trsModel(item.x,0.025,item.z+0.52,0,0.50,0.012,0.025),chalk,true);
@@ -3967,6 +4201,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
 
   function drawPlayer(pl, tint){
+    DRAW_Y = (pl===player) ? player.fy : floorAt(pl.x,pl.z);
     pl=pl||player; tint=tint||null;
     var yaw=pl.yaw, po=pl.pose;
     var swing=po.swing, bob=po.bob, lean=po.lean;
@@ -4026,6 +4261,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   var OAF_LEATHER=[0.045,0.038,0.042], OAF_LEATHER2=[0.075,0.065,0.07], OAF_DENIM=[0.13,0.14,0.19];
   var OAF_BOOT=[0.05,0.045,0.045], OAF_HAIR=[0.06,0.05,0.05], OAF_BEARD=[0.16,0.13,0.12], OAF_INK=[0.22,0.20,0.22];
   function drawCreature(d){
+    DRAW_Y=creature.fy||0;
     var yaw=creature.yaw;
     var bx=creature.x+creature.jx, bz=creature.z+creature.jz;
     var t=creature.animT;
@@ -4159,6 +4395,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   function drawMotes(now){
     var t=now/1000;
+    DRAW_Y=player.fy;
     for (var i=0;i<motes.length;i++){
       var m=motes[i];
       var x=player.x+m.ox+Math.sin(t*m.sp+m.ph)*0.6;
@@ -4169,6 +4406,225 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var fade=(1-dd/7)*0.55;
       drawCube(trsModel(x,y,z,0,m.sz,m.sz,m.sz), [0.95*fade,0.72*fade,0.48*fade], true);
     }
+  }
+
+  // ===================== THE ESTATE =====================
+  // What the block does on its own: lights that answer to Pun, a walkway that
+  // takes longer than it looks, a stair that puts you back where you started,
+  // flat numbers that will not stay put, and a lift that goes where it wants.
+  // Everything here is local to the player's own screen (or already covered
+  // by the shift specs), so none of it can desync a room.
+  var HZ={};
+  function estateReset(){
+    HZ={ stretch:1, stretchT:0, stretchToast:false, stairArmed:{}, stairCd:20, loopCount:0,
+         lift:{ cd:0, ride:0, t:0, dest:null, refused:0 }, renumberT:0, numToast:false, lastZone:-1, zoneT:0,
+         buzzT:0, camYaw:{} };
+    for (var i=0;i<lamps.length;i++){ lamps[i].health=1; lamps[i].dead=0; lamps[i].buzz=0; }
+  }
+  function nearestLamp(x,z){
+    var best=null, bd=1e9;
+    for (var i=0;i<lamps.length;i++){ var l=lamps[i], d=dist(x,z,l.x,l.z); if (d<bd){ bd=d; best=l; } }
+    return { lamp:best, d:bd };
+  }
+  // fixtures react to Pun: the nearer he is, the more a tube stutters, and now
+  // and then it goes out for a few seconds. Sodium lamps only dim and hum.
+  function updateLamps(dt, now){
+    var cx=creature?creature.x:1e9, cz=creature?creature.z:1e9;
+    var rc = NET.remoteCreature||null;
+    for (var i=0;i<lamps.length;i++){
+      var l=lamps[i];
+      var dcre=dist(l.x,l.z,cx,cz);
+      if (rc) dcre=Math.min(dcre, dist(l.x,l.z,rc.x,rc.z));
+      var near=Math.max(0, 1-dcre/10);
+      if (l.dead>0){ l.dead-=dt; if (l.dead<=0){ l.dead=0; l.health=0.35; } l.health=0; continue; }
+      if (near>0.15 && Math.random()<near*dt*(l.kind==='tube'?0.55:0.18)){
+        l.dead = 1.2+Math.random()*2.6*near;
+        var dp=dist(player.x,player.z,l.x,l.z);
+        if (dp<14 && l.kind==='tube'){ tubeBuzz(Math.max(-1,Math.min(1,(l.x-player.x)/6)), 1-dp/14); renumberNear(l); }
+      }
+      var want = 1 - near*0.6;
+      l.health += (want-l.health)*Math.min(1, dt*(l.health<want?1.2:4));
+      l.buzz = near;
+    }
+  }
+  // the flat numbers on a dark stretch of walkway are not the numbers you passed
+  function renumberNear(l){
+    if (!EST || !EST.doors) return;
+    var changed=0;
+    for (var i=0;i<EST.doors.length;i++){
+      var d=EST.doors[i];
+      if (Math.abs(d.x-l.x)<8 && Math.random()<0.7){ d.num = EST.flatBase + ri(0,40)*2 + (Math.random()<0.15?1:0); changed++; }
+    }
+    if (changed && !HZ.numToast && playerZone()===Z.WALK){ HZ.numToast=true; showToast('The numbers on the doors have changed.', true); }
+  }
+  // the walkway: with Pun elsewhere and nobody watching the far end, it stretches
+  function updateStretch(dt){
+    var zn=playerZone();
+    var onWalk = zn===Z.WALK && player.moving && !huntMode && !endgame && graceLeft<=0;
+    var want = onWalk ? 0.74 : 1;
+    if (onWalk) HZ.stretchT+=dt; else HZ.stretchT=Math.max(0, HZ.stretchT-dt*2);
+    HZ.stretch += (want-HZ.stretch)*Math.min(1, dt*(onWalk?0.35:2.5));
+    if (HZ.stretchT>7 && !HZ.stretchToast){ HZ.stretchToast=true; showToast('The walkway is longer than it was.', true); }
+  }
+  function estateSpeedMul(){ return HZ.stretch||1; }
+  // the stairs: reaching the top landing sometimes puts you back at the bottom
+  function updateStairLoop(dt){
+    HZ.stairCd=Math.max(0, HZ.stairCd-dt);
+    var cc=cellOf(player.x,player.z), st=stairAt(cc.c);
+    if (!st || zone[cc.r][cc.c]!==Z.STAIR){ HZ.climbing=false; return; }
+    var climbing = player.moving && player.fy>DECK_H*0.15 && player.fy<DECK_H*0.98;
+    if (climbing && !HZ.climbing){ HZ.climbing=true; HZ.climbFrom=player.fy; }
+    if (!climbing) return;
+    var goingUp = player.fy>HZ.climbFrom+0.4;
+    if (goingUp && player.fy>DECK_H*0.86 && HZ.stairCd<=0 && !huntMode && !endgame && graceLeft<=0 && HZ.loopCount<2){
+      var chance = 0.35 + dread*0.3;
+      if (Math.random()<chance){
+        HZ.stairCd=45; HZ.loopCount++; HZ.climbing=false;
+        var bz=(st.botR0+1)*CELL; player.z=bz; player.fy=0;
+        lightFade=0.05; lanternHealth=0.2;
+        var nl=nearestLamp(player.x,player.z); if (nl.lamp) nl.lamp.dead=2.5;
+        doorSlam(); stairLoopSting();
+        showToast('The landing is the one you started on.', true);
+      } else HZ.stairCd=12;
+    }
+  }
+  // the lift: called without the whole case it either refuses or takes you
+  // somewhere it should not be able to reach
+  function liftAttempt(){
+    var lf=HZ.lift;
+    // shoved back out either way; the doors are not open
+    if (exitDir==='N') player.z=exitCell.r*CELL+0.6;
+    if (lf.cd>0 || lf.ride>0) return;
+    var punNear = creature && dist(player.x,player.z,creature.x,creature.z)<D.aware;
+    if (huntMode || punNear || Math.random()<0.45){
+      lf.cd=6; lf.refused++;
+      if (toastTimer<=0) showToast('OUT OF ORDER — '+(evidenceItems.length-evidenceHeld)+' piece'+(evidenceItems.length-evidenceHeld>1?'s':'')+' of evidence still missing', true);
+      return;
+    }
+    // misdelivery: doors close on you, the light goes, and they open on the wrong floor
+    var targets=[];
+    if (EST.roomBins) targets.push(EST.roomBins);
+    for (var i=0;i<EST.stairs.length;i++) targets.push(EST.stairs[i].roomTop);
+    targets.push({ cr:EST.under.r, cc:(EST.under.c0+EST.under.c1)>>1 });
+    shuffle(targets);
+    var t=targets[0], tc=cellCenter(t.cr,t.cc);
+    lf.dest={ x:tc.x, z:tc.z }; lf.ride=2.6; lf.t=0; lf.cd=40;
+    liftHum();
+    showToast('The doors close. It is not going up.', true);
+  }
+  function updateLift(dt){
+    var lf=HZ.lift;
+    lf.cd=Math.max(0, lf.cd-dt);
+    if (lf.ride<=0) return;
+    lf.t+=dt; lf.ride-=dt;
+    player.moving=false; player.sprinting=false;
+    lightFade = lf.t<0.5 ? Math.max(0.02, 1-lf.t*2) : (lf.ride<0.6 ? Math.min(1, (0.6-lf.ride)*1.6) : 0.02);
+    if (lf.t>1.2 && lf.dest){
+      player.x=lf.dest.x; player.z=lf.dest.z; player.fy=floorAt(player.x,player.z); lf.dest=null;
+      var nl=nearestLamp(player.x,player.z); if (nl.lamp) nl.lamp.dead=3;
+      showToast('The doors open somewhere they should not.', true);
+      if (creature && dist(player.x,player.z,creature.x,creature.z)<7){ huntMode=true; searchTimer=0; lastKnown={x:player.x,z:player.z}; }
+    }
+  }
+  // the cameras turn to follow you
+  function updateCctv(dt){
+    for (var i=0;i<props.length;i++){
+      var p=props[i]; if (p.t!=='cctv') continue;
+      var dd=dist(p.x,p.z,player.x,player.z); if (dd>18) continue;
+      var want=Math.atan2(player.x-p.x, player.z-p.z);
+      if (p.track===undefined) p.track=p.yaw;
+      var dy=want-p.track; while(dy>Math.PI)dy-=Math.PI*2; while(dy<-Math.PI)dy+=Math.PI*2;
+      p.track+=dy*Math.min(1, dt*0.9);
+    }
+  }
+  function updateEstate(dt, now){
+    if (!HZ.lift) return;
+    player.fy += (floorAt(player.x,player.z)-player.fy)*Math.min(1, dt*9);
+    if (creature) creature.fy += (floorAt(creature.x,creature.z)-(creature.fy||0))*Math.min(1, dt*9);
+    updateLamps(dt, now);
+    if (!NET.isPun){ updateStretch(dt); updateStairLoop(dt); updateLift(dt); }
+    updateCctv(dt);
+    // a line of copy as you cross into a new part of the estate, once each
+    var zn=playerZone();
+    if (zn!==HZ.lastZone){ HZ.lastZone=zn; HZ.zoneT=0; }
+    HZ.zoneT+=dt;
+    if (HZ.zoneT>0.8 && !HZ['seen'+zn] && toastTimer<=0 && phase==='play'){
+      HZ['seen'+zn]=true;
+      var line = zn===Z.WALK ? 'First floor walkway. Flats along one side, the drop on the other.'
+               : zn===Z.STAIR ? 'The stairwell. Sound carries in here.'
+               : zn===Z.LIFT ? 'The lift landing. It only comes when the case is complete.'
+               : zn===Z.UNDER ? 'The undercroft. Keep to the light.'
+               : zn===Z.BINS ? 'The bin store. Nobody looks in here.' : null;
+      if (line) showToast(line);
+    }
+  }
+  // seven-segment numerals, drawn as small unlit boxes on the flat doors near you
+  var SEG=[[1,1,1,1,1,1,0],[0,1,1,0,0,0,0],[1,1,0,1,1,0,1],[1,1,1,1,0,0,1],[0,1,1,0,0,1,1],[1,0,1,1,0,1,1],[1,0,1,1,1,1,1],[1,1,1,0,0,0,0],[1,1,1,1,1,1,1],[1,1,1,1,0,1,1]];
+  function drawDigit(dg, x, y, z, nx, nz, s, col){
+    var segs=SEG[dg]||SEG[8];
+    var tx=-nz, tz=nx;                                   // along the wall
+    function bar(ox,oy,horiz){
+      var px=x+tx*ox*s, pz=z+tz*ox*s;
+      drawCube(trsModel(px, y+oy*s, pz, Math.atan2(nx,nz), horiz?s*0.46:s*0.12, horiz?s*0.12:s*0.46, 0.02), col, true);
+    }
+    if (segs[0]) bar(0, 1.0, true);
+    if (segs[1]) bar(0.42, 0.5, false);
+    if (segs[2]) bar(0.42,-0.5, false);
+    if (segs[3]) bar(0,-1.0, true);
+    if (segs[4]) bar(-0.42,-0.5, false);
+    if (segs[5]) bar(-0.42, 0.5, false);
+    if (segs[6]) bar(0, 0, true);
+  }
+  function drawNumbers(now){
+    if (!EST || !EST.doors) return;
+    DRAW_Y=0;
+    for (var i=0;i<EST.doors.length;i++){
+      var d=EST.doors[i];
+      if (Math.abs(d.x-player.x)>10 || Math.abs(d.z-player.z)>10) continue;   // a few doors at a time: each digit is draw calls
+      var nl=nearestLamp(d.x,d.z), lit = nl.lamp ? (nl.lamp.dead>0?0.25:0.55+0.45*nl.lamp.health) : 0.6;
+      var col=[0.88*lit,0.84*lit,0.72*lit];
+      var s=0.17, str=String(d.num), w=(str.length-1)*s*1.15;
+      for (var k=0;k<str.length;k++){
+        var ox=(k*s*1.15-w/2);
+        drawDigit(+str[k], d.x+(-d.nz)*ox+d.nx*0.14, DECK_H+1.85, d.z+(d.nx)*ox+d.nz*0.14, d.nx, d.nz, s, col);
+      }
+    }
+  }
+  // ---- sounds for the block
+  function tubeBuzz(pan, vol){
+    if (!A.ready) return;
+    var ctx=A.ctx, t=ctx.currentTime;
+    var o=ctx.createOscillator(); o.type='sawtooth'; o.frequency.value=100;
+    var o2=ctx.createOscillator(); o2.type='square'; o2.frequency.value=50;
+    var f=ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=1800; f.Q.value=2.5;
+    var g=ctx.createGain(); g.gain.setValueAtTime(0.0001,t);
+    for (var i=0;i<6;i++){ var tt=t+i*0.11+Math.random()*0.05; g.gain.linearRampToValueAtTime((0.05+Math.random()*0.16)*vol, tt); g.gain.linearRampToValueAtTime(0.0001, tt+0.05); }
+    g.gain.linearRampToValueAtTime(0.0001, t+0.9);
+    var out=A.master;
+    if (ctx.createStereoPanner){ var p=ctx.createStereoPanner(); p.pan.value=pan; g.connect(p); p.connect(out); } else g.connect(out);
+    o.connect(f); o2.connect(f); f.connect(g);
+    o.start(t); o2.start(t); o.stop(t+1); o2.stop(t+1);
+  }
+  function liftHum(){
+    if (!A.ready) return;
+    var ctx=A.ctx, t=ctx.currentTime;
+    var o=ctx.createOscillator(); o.type='triangle'; o.frequency.setValueAtTime(48,t); o.frequency.linearRampToValueAtTime(62,t+1.3); o.frequency.linearRampToValueAtTime(40,t+2.6);
+    var g=ctx.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(0.5,t+0.4); g.gain.setValueAtTime(0.5,t+2.0); g.gain.exponentialRampToValueAtTime(0.0001,t+2.7);
+    o.connect(g); g.connect(A.master); o.start(t); o.stop(t+2.8);
+    // the doors: a metal clank at either end
+    [0.05,2.45].forEach(function(at){
+      var n=ctx.createBufferSource(); n.buffer=A.noise; n.playbackRate.value=0.6;
+      var f=ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=900; f.Q.value=4;
+      var ng=ctx.createGain(); ng.gain.setValueAtTime(0.7,t+at); ng.gain.exponentialRampToValueAtTime(0.0001,t+at+0.35);
+      n.connect(f); f.connect(ng); ng.connect(A.conv); n.start(t+at); n.stop(t+at+0.4);
+    });
+  }
+  function stairLoopSting(){
+    if (!A.ready) return;
+    var ctx=A.ctx, t=ctx.currentTime;
+    var o=ctx.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(220,t); o.frequency.exponentialRampToValueAtTime(55,t+1.4);
+    var g=ctx.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(0.4,t+0.05); g.gain.exponentialRampToValueAtTime(0.0001,t+1.5);
+    o.connect(g); g.connect(A.conv); o.start(t); o.stop(t+1.6);
   }
 
   // ===================== LOOP =====================
@@ -4186,6 +4642,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       updateGirl(dt,t);
       updateScares(dt,t);
       d=updateCreature(dt,t);
+      updateEstate(dt,t);
       updateRememberedHiding(dt);
 
       var el=(t-startTime)/1000, mm=(el/60)|0, ss=(el%60)|0;
@@ -4209,22 +4666,22 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         dreadLabel.textContent = punMemory.checkT>0 ? 'HE IS CHECKING — LEAVE NOW' : (endgame ? 'HIDDEN — HE IS STILL LOOKING' : 'HIDDEN');
       } else if (graceLeft>0){
         dreadLabel.className='status calm';
-        dreadLabel.textContent='THE HOUSE IS STILL · '+Math.ceil(graceLeft)+'s';
+        dreadLabel.textContent='THE ESTATE IS QUIET · '+Math.ceil(graceLeft)+'s';
       } else if (endgame){
         dreadLabel.className='status dread';
-        dreadLabel.textContent = (d<2.8?'HE HAS YOUR SCENT':'HE KNOWS — RUN FOR THE DOOR');
+        dreadLabel.textContent = (d<2.8?'HE HAS YOUR SCENT':'HE KNOWS — GET TO THE LIFT');
       } else if (huntMode){
         dreadLabel.className='status dread';
         dreadLabel.textContent = (d<2.8?'HE SEES YOU':'HE IS HUNTING');
       } else if (prox>0.72){
         dreadLabel.className='status warn';
-        dreadLabel.textContent='HE IS IN THE NEXT ROOM';
+        dreadLabel.textContent='HE IS ON THIS LANDING';
       } else if (prox>0.3){
         dreadLabel.className='status warn';
         dreadLabel.textContent='FOOTSTEPS · CLOSE';
       } else {
         dreadLabel.className='status calm';
-        dreadLabel.textContent='SOMETHING IS MOVING';
+        dreadLabel.textContent='SOMETHING IS MOVING IN THE BLOCK';
       }
 
       updateCompass();
@@ -4242,18 +4699,14 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         if (evidenceHeld>=evidenceItems.length){
           netSend('out',{}); NET.out=true;
           phase='over'; running=false;
-          winSub.textContent='You escaped with Pun\'s case file in '+timerEl.textContent+' on '+diffName+'.';
+          winSub.textContent='The lift came. You got out of the block with Pun\'s case file in '+timerEl.textContent+' on '+diffName+'.';
           winOverlay.classList.remove('hidden');
           frame.classList.remove('shaking');
           dreadWash.style.opacity=0;
           if (A.ctx){ A.master.gain.setTargetAtTime(0.28, A.ctx.currentTime, 0.7); escapeChord(); }
         } else {
-          // shoved back out — the door will not open yet
-          if (exitDir==='E') player.x=(exitCell.c+1)*CELL-0.6;
-          if (exitDir==='W') player.x=exitCell.c*CELL+0.6;
-          if (exitDir==='S') player.z=(exitCell.r+1)*CELL-0.6;
-          if (exitDir==='N') player.z=exitCell.r*CELL+0.6;
-          if (toastTimer<=0) showToast('The door rejects you — '+(evidenceItems.length-evidenceHeld)+' piece'+(evidenceItems.length-evidenceHeld>1?'s':'')+' of evidence still missing', true);
+          // the lift will not take you up yet, and it may take you somewhere else
+          liftAttempt();
         }
       }
 
@@ -4372,7 +4825,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           // the player behind the monster is gone; the house itself takes over
           NET.mode='coop'; NET.punId=null;
           creature.cell=cellOf(creature.x,creature.z); creaturePath=[]; lastKnown=null;
-          if (document.body.classList.contains('playing')) showToast('Pun is gone. The house has him now.', true);
+          if (document.body.classList.contains('playing')) showToast('Pun is gone. The block has him now.', true);
         }
       }
       // if the host vanished, the earliest remaining player takes over
@@ -4397,7 +4850,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       collectEvidence(m.payload.i,{ shift:m.payload.shift||null, at:m.payload.at, finder:who?who.name:'someone' });
     });
     ch.on('broadcast',{event:'house-shift'},function(m){
-      if (applyHouseShift(m.payload.shift)) showToast('Pun rewrote an unseen corridor.', true);
+      if (applyHouseShift(m.payload.shift)) showToast('Pun rewrote an unseen passage.', true);
     });
     ch.on('broadcast',{event:'rtc'},function(m){ voiceSignal(m.payload); });
     ch.on('broadcast',{event:'round'},function(m){ netRoundEnd(m.payload); });
@@ -4405,7 +4858,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     ch.on('broadcast',{event:'voice'},function(m){ voice(m.payload.k,{vol:1.0,minGap:0,cool:0,local:true}); });
     ch.on('broadcast',{event:'dead'},function(m){ var q=NET.peers[m.payload.from]; if (q){ q.dead=true; showToast('He got '+q.name, true); } });
     ch.on('broadcast',{event:'out'},function(m){ var q=NET.peers[m.payload.from]; if (q){ q.out=true; showToast(q.name+' made it out'); } });
-    ch.on('broadcast',{event:'trap'},function(m){ var q=NET.peers[m.payload.from]; if (q) showToast((q.name)+' is in a trap', true); if (typeof m.payload.i==='number' && traps[m.payload.i]) traps[m.payload.i].sprung=true; if (isHost() && !NET.isPun){ huntMode=true; searchTimer=0; lastKnown={x:m.payload.x,z:m.payload.z}; } });
+    ch.on('broadcast',{event:'trap'},function(m){ var q=NET.peers[m.payload.from]; if (q) showToast((q.name)+' went through a grate', true); if (typeof m.payload.i==='number' && traps[m.payload.i]) traps[m.payload.i].sprung=true; if (isHost() && !NET.isPun){ huntMode=true; searchTimer=0; lastKnown={x:m.payload.x,z:m.payload.z}; } });
     ch.subscribe(function(status){
       if (status==='SUBSCRIBED'){ lbStatus.textContent=asHost?'you are the host':'in'; ch.track({ name:NET.name, host:asHost }); }
       else if (status==='CHANNEL_ERROR' || status==='TIMED_OUT'){ lbStatus.textContent='connection failed — try again'; }
@@ -4541,9 +4994,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       if (outs===0){ winOverlay.querySelector('.end-title').textContent='YOU GOT THEM ALL'; winSub.textContent='Nobody got out. Pun go mad.'; winOverlay.classList.remove('hidden'); }
       else { loseOverlay.querySelector('.end-title').textContent='THEY GOT OUT'; loseSub.textContent=who+' got past you.'; loseOverlay.classList.remove('hidden'); }
     } else if (NET.out){
-      winOverlay.querySelector('.end-title').textContent='You Made It Out'; winSub.textContent = outs>1 ? ('Out with '+(outs-1)+' of the others.') : 'The only one who found the door.'; winOverlay.classList.remove('hidden');
+      winOverlay.querySelector('.end-title').textContent='You Made It Out'; winSub.textContent = outs>1 ? ('Out with '+(outs-1)+' of the others.') : 'The only one the lift came for.'; winOverlay.classList.remove('hidden');
     } else {
-      loseOverlay.querySelector('.end-title').textContent='HE HAS YOU'; loseSub.textContent = outs>0 ? (who+' made it out. You did not.') : 'None of you found the door.'; loseOverlay.classList.remove('hidden');
+      loseOverlay.querySelector('.end-title').textContent='HE HAS YOU'; loseSub.textContent = outs>0 ? (who+' made it out. You did not.') : 'None of you reached the lift.'; loseOverlay.classList.remove('hidden');
     }
   }
   setInterval(function(){ try{ netRoundCheck(); }catch(e){} }, 600);
