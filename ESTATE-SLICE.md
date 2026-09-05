@@ -121,6 +121,43 @@ second; anything that scores is a reliable message settled by one authority.
   "first to the light" and "a natural Pun".
 - `sw.js` cache `estate-5`; the menu shows `estate slice 5`.
 
+## Pass 6: friends on screen, Chase that lasts
+
+- **Teammate markers**: a name tag over each friend's head while they are on
+  screen; when they are off screen an arrow sits on the edge of the frame
+  pointing at them with their distance, dimmed if they are hiding and red if
+  Pun is after them. Never shown to a human Pun, never during the cage.
+- **Dead Tube** is out of the rotation (still in the code). Rotation is now
+  Scramble, Intercom, Chase.
+- **Chase** lasts 32 s in a bigger cage; runners are faster than Pun, so he
+  has to corner them; anyone caught is stunned for a beat and then joins the
+  chase, drawn as Pun, until one runner is left. The original Pun scores six
+  for every catch the pack makes, the catcher three, runners their seconds.
+- `sw.js` cache `estate-6`; the menu shows `estate slice 6`.
+
+## Pass 7: last one standing
+
+- **Last One Standing** is a mode of its own, solo (the OUTLAST HIM stamp next
+  to GO IN) and in the lobby. No case, no locked doors, no lift, no minigames:
+  ten seconds of grace and then he comes, straight into the courtyard if that
+  is where you are. Every forty seconds he gets quicker, sharper-eared and
+  keener-eyed, and a light in the block dies for good ("He is getting
+  quicker." … "Nowhere left."). The HUD counts STANDING and the compass points
+  at the nearest living friend. Together, the round ends the moment one player
+  is left alive: the host names the winner in the round message so every phone
+  agrees, the winner gets LAST ONE STANDING with their time, everyone else sees
+  who outlasted them, and the scoreboard ranks by time lasted. When only you are
+  left you hear "Get over 'ere!" and a toast says so. Solo, the lose screen
+  shows how long you lasted and your best on that difficulty (kept on the
+  phone). Try Again replays the same mode.
+- **The case mode gets him out sooner**: if nobody has found the fob within
+  fifty seconds the stair doors buzz open on their own ("The door buzzes.
+  Someone let him out.").
+- **Voice diagnostics**: the settings panel shows a line per friend (no link,
+  connecting, linked and hearing them, or linked but sound blocked) and the
+  last voice event, so a phone that cannot hear can say why.
+- `sw.js` cache `estate-7`; the menu shows `estate slice 7`.
+
 ## What the estate does
 
 All of this is either seeded, sent over the wire as an existing shift spec,
@@ -167,8 +204,8 @@ settings, the ending overlays and the service worker.
   shader does brick, plaster, wet concrete, glass, metal, terrazzo and water
   procedurally, with a `uWet` uniform for specular outdoors.
 - Fog colour and range, ambient and rain follow the player's zone.
-- `sw.js` VERSION is `missing-pun-preview-estate-3`; the menu shows
-  `estate slice 3`.
+- `sw.js` VERSION carries the pass number (`estate-7`); the menu build tag
+  matches it.
 
 ## Testing performed (Playwright, headless Chromium, swiftshader)
 
@@ -185,6 +222,12 @@ settings, the ending overlays and the service worker.
   marks the player; tube likewise; a bagged piece starts a game on its own;
   two tabs play the same game, exchange results, the winner is announced and
   the loser marked on both screens; the board renders with titles.
+- Last one standing: solo start shows STANDING 1, no evidence and no locked
+  doors, the ratchet fires at 40 and 80 s and kills two lamps, death shows the
+  lasted line and stores a best, Try Again keeps the mode and GO IN returns to
+  the case; case mode auto-unlocks at 50 s; three tabs in last mode agree on
+  the mode, the HUD drops to STANDING 2 on the first death, the round ends on
+  the second with the survivor named on all three screens and ranked first.
 - Multiplayer (mock Supabase over BroadcastChannel, two tabs): both tabs build
   the same grid and zones from the host's seed; evidence pickup and its shift
   replicate; positions replicate. No page errors.
