@@ -689,6 +689,15 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   .mg-scores b{ font-weight:400; }
   .mg-result{ min-height:1.2em; margin-top:8px; text-align:center; font-family:'Space Mono', monospace; font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--bone-dim); }
   .mg-result.win{ color:var(--win); } .mg-result.lose{ color:var(--blood-bright); }
+  .mg-cue{ display:none; }
+  .mg.arena{ background:transparent; pointer-events:none; align-items:center; justify-content:flex-start; flex-direction:column; }
+  .mg.arena .mg-card{ margin-top:max(46px, calc(env(safe-area-inset-top) + 40px)); background:rgba(14,12,16,.72); pointer-events:none; width:min(560px, 96vw); align-self:center; }
+  .mg.arena .mg-body{ grid-template-columns:1fr; }
+  .mg.arena #mg-canvas{ display:none; }
+  .mg.arena .mg-scores{ display:flex; flex-wrap:wrap; gap:4px 14px; justify-content:center; }
+  .mg.arena .mg-scores div{ border:none; padding:2px 4px; gap:8px; }
+  .mg.arena .mg-cue{ display:block; margin-top:10px; padding:8px 16px; background:rgba(6,5,8,.7); border-radius:4px; font-family:'Space Mono', monospace; font-size:.8rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); text-align:center; white-space:pre-line; line-height:1.6; }
+  .mg.arena .mg-cue:empty{ display:none; }
   @media (max-width:700px){
     .mg-body{ grid-template-columns:1fr 84px; gap:6px; }
     #mg-canvas{ height:170px; }
@@ -785,7 +794,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         </div>
         </div>
       </div>
-      <p class="wall-note">one block &middot; four floors of it move &middot; real-time 3d &middot; he is already in the stairwell <span id="build-tag">&middot; estate slice 4</span></p>
+      <p class="wall-note">one block &middot; four floors of it move &middot; real-time 3d &middot; he is already in the stairwell <span id="build-tag">&middot; estate slice 5</span></p>
     </div>
   </div>
 
@@ -849,6 +858,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           </div>
           <div class="mg-result" id="mg-result"></div>
         </div>
+        <div class="mg-cue" id="mg-cue"></div>
       </div>
       <div class="stick" id="stick"><div class="ring"></div><div class="knob" id="knob"></div></div>
       <button class="act-btn" id="act-btn">HIDE</button>
@@ -3429,7 +3439,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     stickEl.classList.add('live');
   }
   frame.addEventListener('pointerdown', function(e){
-    if (MG.active) return;
+    if (MG.active && !(MG.G && MG.G.arena)) return;
     if (!isTouch || e.pointerType==='mouse' || !document.body.classList.contains('playing')) return;
     if (e.target.closest('button') || e.target.closest('.act-btn')) return;
     var fr=frame.getBoundingClientRect();
@@ -4048,6 +4058,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       projMat=m4Perspective(Math.max(FOV, Math.min(70, v))*Math.PI/180, asp, 0.1, 70);
     }
     computePose(player);
+    if (MG.active && MG.G && MG.G.arena){ renderCage(now); return; }
 
     var eye, target;
     if (phase==='scare'){
@@ -4286,17 +4297,18 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   // rain, when you are under the sky: thin streaks in a column around you,
   // heavier in the courtyard, thinner on the walkway where the deck above helps
   var rain=[];
-  function drawRain(now){
+  function drawRain(now, at){
     var zn=playerZone();
-    if (!isOutdoors(zn) || zn===Z.BINS) return;
+    if (!at && (!isOutdoors(zn) || zn===Z.BINS)) return;
     if (!rain.length) for (var i=0;i<90;i++) rain.push({ ox:(Math.random()-0.5)*14, oz:(Math.random()-0.5)*12, ph:Math.random()*6, sp:7+Math.random()*4, len:0.22+Math.random()*0.22 });
-    var t=now/1000, n = zn===Z.WALK ? 50 : 90;
+    var t=now/1000, n = (zn===Z.WALK && !at) ? 50 : 90;
     if (SET.lowq) n=(n/2)|0;
-    DRAW_Y=player.fy;
+    DRAW_Y = at ? 0 : player.fy;
+    var ax = at ? at.x : player.x, az = at ? at.z : player.z;
     for (var k=0;k<n;k++){
       var m=rain[k];
       var y = 5.5 - ((t*m.sp + m.ph) % 5.5);
-      var x=player.x+m.ox, z=player.z+m.oz;
+      var x=ax+m.ox*(at?2.2:1), z=az+m.oz*(at?1.6:1);
       var dd=Math.abs(m.ox)/7+Math.abs(m.oz)/6;
       var fade=Math.max(0,1-dd)*0.55;
       drawCube(trsModel(x,y,z,0, 0.012,m.len,0.012), [0.30*fade,0.32*fade,0.38*fade], true);
@@ -4876,13 +4888,16 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   // while it runs. Nothing here needs a referee: results are exchanged and every
   // client ranks the same numbers the same way.
   var MG={ active:false };
+  var mgCue=$('mg-cue');
   var mgEl=$('mg'), mgTitle=$('mg-title'), mgHint=$('mg-hint'), mgTimer=$('mg-timer'), mgScores=$('mg-scores'), mgCanvas=$('mg-canvas'), mgResult=$('mg-result');
   var mgCtx=mgCanvas.getContext('2d');
   var MG_GAMES={
     intercom:{ title:'INTERCOM', hint:'He presses buttons. You press the same ones back, in order.', teach:['HE PRESSES', 'YOU PRESS THEM BACK', 'IN THE SAME ORDER'], par:{easy:3,normal:4,nightmare:5}, dur:22 },
-    tube:{ title:'DEAD TUBE', hint:'Tap the panel each time the tube lights. Never while it is dark.', teach:['TAP THE PANEL', 'ONLY WHEN THE TUBE IS LIT', 'DARK TAPS COUNT AGAINST YOU'], par:{easy:9,normal:12,nightmare:15}, dur:20 }
+    tube:{ title:'DEAD TUBE', hint:'Tap the panel each time the tube lights. Never while it is dark.', teach:['TAP THE PANEL', 'ONLY WHEN THE TUBE IS LIT', 'DARK TAPS COUNT AGAINST YOU'], par:{easy:9,normal:12,nightmare:15}, dur:20 },
+    scramble:{ title:'SCRAMBLE', hint:'A light comes on. First one standing in it takes it. Hold the panel to run.', teach:['A LIGHT COMES ON', 'FIRST TO STAND IN IT TAKES IT', 'THEN IT MOVES'], par:{easy:3,normal:4,nightmare:5}, dur:22, arena:true },
+    chase:{ title:'CHASE', hint:'One of you is Pun. Everyone else runs. Twenty seconds.', teach:['ONE OF YOU IS PUN', 'EVERYONE ELSE RUNS', 'TWENTY SECONDS'], par:{easy:0,normal:0,nightmare:0}, dur:20, arena:true, needs:2 }
   };
-  var MG_ORDER=['intercom','tube'];
+  var MG_ORDER=['intercom','scramble','tube','chase'];
   var STATS={};
   function statFor(id, name){ if (!STATS[id]) STATS[id]={ name:name||'you', ev:0, mg:0, mgLost:0, caught:0, out:false, escapedFirst:false }; if (name) STATS[id].name=name; return STATS[id]; }
   function myId(){ return NET.on ? NET.me : 'me'; }
@@ -4890,19 +4905,24 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function mgKindFor(index){
     var seed = NET.on ? (NET.seed|0) : (Math.floor(startTime/1000)|0);
     var pick = (seed + index*7919) % MG_ORDER.length;
-    return MG_ORDER[(pick+MG_ORDER.length)%MG_ORDER.length];
+    var kind = MG_ORDER[(pick+MG_ORDER.length)%MG_ORDER.length];
+    if (MG_GAMES[kind].needs && (!NET.on || mgArenaIds().length<MG_GAMES[kind].needs)) kind='scramble';
+    return kind;
   }
   function mgStart(index){
     if (MG.active || NET.isPun || phase!=='play') return;
     var kind=mgKindFor(index), G=MG_GAMES[kind];
     var seed = ((NET.on ? NET.seed : Math.floor(startTime/97)) + index*104729)|0;
-    MG={ active:true, kind:kind, G:G, t:0, phase:'intro', dur:G.dur, rnd:mulberry32(seed), score:0, done:false, scores:{}, results:{}, resultT:0, par:G.par[diffName]||G.par.normal, taps:0 };
+    MG={ active:true, kind:kind, G:Object.assign({},G), index:index, t:0, phase:'intro', dur:G.dur, rnd:mulberry32(seed), score:0, done:false, scores:{}, results:{}, resultT:0, par:G.par[diffName]||G.par.normal, taps:0 };
     MG.scores[myId()]=0;
-    if (kind==='intercom') mgIntercomInit(); else mgTubeInit();
+    if (kind==='intercom') mgIntercomInit(); else if (kind==='tube') mgTubeInit(); else if (kind==='scramble') mgScrambleInit(); else mgChaseInit();
     mgTitle.textContent="PUN'S GAME · "+G.title;
-    mgHint.textContent=G.hint+(isTouch ? '' : (kind==='intercom' ? ' Keys 1 to 8.' : ' Space bar.'));
+    mgHint.textContent=G.hint+(isTouch ? '' : (kind==='intercom' ? ' Keys 1 to 8.' : (G.arena ? ' WASD to run.' : ' Space bar.')));
     mgResult.textContent=''; mgResult.className='mg-result';
     mgEl.classList.remove('hidden'); mgEl.classList.remove('over');
+    mgEl.classList.toggle('arena', !!G.arena);
+    mgCue.textContent='';
+    if (G.arena){ lightFade=0.04; showToast('THE CAGE', true); }
     promptEl.classList.add('hidden');
     player.moving=false; player.sprinting=false; stickReset();
     if (A.ready){ awakenStinger(); setTimeout(function(){ voice(pick('cheeky1','cheeky2'),{vol:0.9,cool:0,minGap:0}); }, 250); }
@@ -4920,22 +4940,23 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var ids=Object.keys(MG.scores);
     ids.sort(function(a,b){ return (MG.scores[b]||0)-(MG.scores[a]||0); });
     for (var i=0;i<ids.length;i++){
-      var id=ids[i], nm = id===me ? (NET.on?NET.name:'you') : (NET.peers[id]?NET.peers[id].name:'?');
+      var id=ids[i], nm = id===me ? (NET.on?NET.name:'you') : (id==='pun' ? 'Pun' : (NET.peers[id]?NET.peers[id].name:'?'));
       rows.push('<div class="'+(id===me?'me':'')+'"><span>'+nm+'</span><b>'+(MG.scores[id]||0)+'</b></div>');
     }
-    if (!NET.on) rows.push('<div class="pun"><span>Pun</span><b>'+MG.par+'</b></div>');
+    if (!NET.on && !MG.G.arena) rows.push('<div class="pun"><span>Pun</span><b>'+MG.par+'</b></div>');
     mgScores.innerHTML=rows.join('');
   }
   function mgUpdate(dt, now){
     if (!MG.active) return;
     MG.t+=dt;
+    if (MG.G.arena){ lightFade += (1-lightFade)*Math.min(1, dt*2.2); mgCueUpdate(); }
     if (MG.phase==='intro'){
       mgTimer.style.width='100%';
-      if (MG.t>3.6){ MG.phase='play'; MG.t=0; MG.lastSend=0; if (MG.kind==='intercom') mgIntercomBegin(); }
+      if (MG.t>3.6){ MG.phase='play'; MG.t=0; MG.lastSend=0; if (MG.kind==='intercom') mgIntercomBegin(); if (MG.kind==='scramble') mgScrambleBegin(); }
     } else if (MG.phase==='play'){
       var left=Math.max(0, MG.dur-MG.t);
       mgTimer.style.width=(left/MG.dur*100)+'%';
-      if (MG.kind==='intercom') mgIntercomUpdate(dt, now); else mgTubeUpdate(dt, now);
+      if (MG.kind==='intercom') mgIntercomUpdate(dt, now); else if (MG.kind==='tube') mgTubeUpdate(dt, now); else if (MG.kind==='scramble') mgScrambleUpdate(dt, now); else mgChaseUpdate(dt, now);
       MG.scores[myId()]=MG.score;
       if (NET.on && (MG.t-MG.lastSend)>0.5){ MG.lastSend=MG.t; netSend('mg',{ s:MG.score }); }
       if (left<=0 || MG.done){ mgFinish(); }
@@ -4965,11 +4986,14 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       win=ids[0]; lose=ids[ids.length-1];
       if (MG.results[win]===MG.results[lose]) lose=null;   // everyone equal: nobody marked
     } else {
-      win = MG.score>=MG.par ? me : null;
-      lose = MG.score>=MG.par ? null : me;
+      var par = MG.kind==='scramble' ? (MG.scores.pun||0)+1 : MG.par;   // in the arena you have to beat him
+      win = MG.score>=par ? me : null;
+      lose = MG.score>=par ? null : me;
     }
     var won = win===me, lost = lose===me;
     var loseName = lose ? (lose===me ? (NET.on?NET.name:'you') : (NET.peers[lose]?NET.peers[lose].name:'someone')) : null;
+    if (MG.kind==='scramble') statFor(me, NET.name).lights=(statFor(me).lights||0)+MG.score;
+    if (MG.kind==='chase' && MG.punId===me) statFor(me, NET.name).catches=(statFor(me).catches||0)+(MG.catches||0);
     if (won){ statFor(me, NET.name).mg++; mgResult.textContent = NET.on ? 'YOU WON' : 'YOU BEAT HIM'; mgResult.className='mg-result win'; mgPerk(); }
     else if (lost){ statFor(me, NET.name).mgLost++; mgResult.textContent = NET.on ? 'LAST. HE IS COMING FOR YOU.' : 'HE WON. HE IS COMING FOR YOU.'; mgResult.className='mg-result lose'; }
     else { mgResult.textContent = loseName ? ('PUN IS AFTER '+loseName.toUpperCase()) : 'DRAW'; mgResult.className='mg-result'; }
@@ -4990,7 +5014,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     else if (NET.peers[id]){ NET.peers[id].marked=secs; showToast('PUN IS AFTER '+NET.peers[id].name.toUpperCase(), true); }
   }
   function mgEnd(){
-    MG.active=false; mgEl.classList.add('hidden');
+    if (MG.G && MG.G.arena){ lightFade=0.04; }
+    MG.active=false; mgEl.classList.add('hidden'); mgEl.classList.remove('arena');
     graceLeft=0;
     if (HZ.marked>0 && !NET.isPun){ huntMode=true; searchTimer=0; lastKnown={x:player.x,z:player.z}; showToast('He knows where you are. Move.', true); }
   }
@@ -5073,14 +5098,23 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var x=(p.clientX-r.left)*(MG.w/Math.max(1,r.width)), y=(p.clientY-r.top)*(MG.h/Math.max(1,r.height));
     if (MG.kind==='intercom'){
       var b=mgIntercomHit(x,y); if (b>=0) mgIntercomPress(b);
-    } else mgTubeTap();
+    } else if (MG.G.arena) mgArenaPointer(x,y);
+    else mgTubeTap();
   }
+  function mgPointerMove(ev){
+    if (!MG.active || !MG.G.arena || !MG.ar || !MG.ar.target) return;
+    var r=mgCanvas.getBoundingClientRect();
+    mgArenaPointer((ev.clientX-r.left)*(MG.w/Math.max(1,r.width)), (ev.clientY-r.top)*(MG.h/Math.max(1,r.height)));
+  }
+  mgEl.addEventListener('pointermove', function(ev){ if (MG.active && MG.G.arena){ ev.preventDefault(); mgPointerMove(ev); } }, {passive:false});
+  ['pointerup','pointercancel','pointerleave'].forEach(function(evn){ mgEl.addEventListener(evn, function(){ if (MG.active && MG.G.arena) mgArenaRelease(); }); });
   mgEl.addEventListener('pointerdown', function(ev){
     if (!MG.active) return;
     ev.preventDefault(); ev.stopPropagation();
     MG.taps=(MG.taps||0)+1;
     if (ev.target===mgCanvas || mgCanvas.contains(ev.target)) mgPointer(ev);
     else if (MG.kind==='tube') mgTubeTap();
+    else if (MG.G.arena){ var r=mgCanvas.getBoundingClientRect(); mgArenaPointer((ev.clientX-r.left)*(MG.w/Math.max(1,r.width)), (ev.clientY-r.top)*(MG.h/Math.max(1,r.height))); }
   }, {passive:false});
   mgEl.addEventListener('touchstart', function(ev){ if (MG.active) ev.preventDefault(); }, {passive:false});
   mgEl.addEventListener('touchmove', function(ev){ if (MG.active) ev.preventDefault(); }, {passive:false});
@@ -5100,6 +5134,14 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var bw=(w-pad*(cols+1))/cols, bh=(h*0.72-pad*(rows+1))/rows, out=[];
     for (var i=0;i<8;i++){ var c=i%4, r=(i/4)|0; out.push({ x:pad+c*(bw+pad), y:h*0.2+pad+r*(bh+pad), w:bw, h:bh }); }
     return out;
+  }
+  function mgCueUpdate(){
+    var left=Math.ceil(Math.max(0,MG.dur-MG.t));
+    if (MG.phase==='intro') mgCue.textContent = MG.G.teach.join('\n')+'\n'+Math.ceil(Math.max(0,3.6-MG.t));
+    else if (MG.phase==='play'){
+      if (MG.kind==='scramble') mgCue.textContent='RUN TO THE LIGHT · '+left+'s';
+      else { var amPun=MG.punId===myId(); mgCue.textContent=(amPun ? 'CATCH THEM' : (MG.frozen[myId()] ? 'CAUGHT' : 'RUN'))+' · '+left+'s'; }
+    } else mgCue.textContent='';
   }
   function mgTeach(c,w,h,now){
     // the intro card: three short lines and a countdown, over the panel
@@ -5125,6 +5167,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function mgDraw(now){
     var c=mgCtx, w=MG.w, h=MG.h; if (!w) return;
     c.clearRect(0,0,w,h);
+    if (MG.kind==='scramble'){ mgScrambleDraw(c,w,h,now); return; }
+    if (MG.kind==='chase'){ mgChaseDraw(c,w,h,now); return; }
     if (MG.kind==='intercom'){
       // a brushed steel panel with eight buttons and a speaker grille
       c.fillStyle='#2b2d31'; c.fillRect(0,0,w,h);
@@ -5163,6 +5207,280 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     }
   }
 
+  // ---- the arena: a top-down patch of the estate on the panel, everyone's dot
+  // live on everyone's screen. Positions go out ten times a second; anything
+  // that decides a score (a claim, a catch) is a reliable message the host
+  // (or the catcher) settles, so every phone agrees.
+  var AR_W=300, AR_H=200;
+  function mgArenaInit(){
+    MG.ar={ me:{x:AR_W/2,y:AR_H/2}, others:{}, dir:{x:0,y:0}, target:null, lastPos:0, speed:95, obst:[] };
+    var ids=mgArenaIds(), i=ids.indexOf(myId()), n=Math.max(1,ids.length);
+    for (var k=0;k<ids.length;k++){ var a=(k/n)*Math.PI*2; var p={ x:AR_W/2+Math.cos(a)*AR_W*0.36, y:AR_H/2+Math.sin(a)*AR_H*0.36 }; if (ids[k]===myId()) MG.ar.me=p; else MG.ar.others[ids[k]]={x:p.x,y:p.y,tx:p.x,ty:p.y}; }
+    for (var o=0;o<4;o++) MG.ar.obst.push({ x:40+MG.rnd()*(AR_W-80), y:35+MG.rnd()*(AR_H-70), r:11+MG.rnd()*7 });
+    if (!NET.on) MG.ar.others.pun={ x:AR_W*0.85, y:AR_H*0.5, tx:AR_W*0.85, ty:AR_H*0.5, ai:true };
+  }
+  function mgArenaIds(){
+    var ids=[myId()];
+    if (NET.on) for (var k in NET.peers){ var q=NET.peers[k]; if (q.role!=='pun' && !q.dead && !q.out) ids.push(k); }
+    return ids.sort();
+  }
+  function mgArenaName(id){ return id===myId() ? (NET.on?NET.name:'you') : (id==='pun' ? 'Pun' : (NET.peers[id]?NET.peers[id].name:'?')); }
+  function mgArenaColour(id){ if (id==='pun') return '#b3202f'; var ids=mgArenaIds(), i=Math.max(0,ids.indexOf(id)); return ['#e0b354','#7fb6d9','#8fd08a','#d98fb6','#d9a97f','#b6a0e0'][i%6]; }
+  function mgArenaMove(dt, frozen){
+    var A=MG.ar, sp=A.speed*dt;
+    if (!frozen){
+      var dx=A.dir.x, dy=A.dir.y;
+      if (A.target){ var tx=A.target.x-A.me.x, ty=A.target.y-A.me.y, tl=Math.sqrt(tx*tx+ty*ty); if (tl>4){ dx=tx/tl; dy=ty/tl; } else { dx=0; dy=0; } }
+      var nx=A.me.x+dx*sp, ny=A.me.y+dy*sp;
+      nx=Math.max(8,Math.min(AR_W-8,nx)); ny=Math.max(8,Math.min(AR_H-8,ny));
+      for (var i=0;i<A.obst.length;i++){ var o=A.obst[i], ox=nx-o.x, oy=ny-o.y, d=Math.sqrt(ox*ox+oy*oy); if (d<o.r+7){ nx=o.x+ox/d*(o.r+7); ny=o.y+oy/d*(o.r+7); } }
+      A.me.x=nx; A.me.y=ny;
+    }
+    for (var k in A.others){ var q=A.others[k]; if (q.ai) continue; q.x+=(q.tx-q.x)*Math.min(1,dt*12); q.y+=(q.ty-q.y)*Math.min(1,dt*12); }
+    if (NET.on && MG.t-A.lastPos>0.1){ A.lastPos=MG.t; netSend('mgp',{ x:+A.me.x.toFixed(1), y:+A.me.y.toFixed(1) }); }
+  }
+  function mgArenaPos(id){ return id===myId() ? MG.ar.me : MG.ar.others[id]; }
+  function mgArenaDraw(c,w,h,now){
+    var sx=w/AR_W, sy=h/AR_H;
+    c.fillStyle='#232421'; c.fillRect(0,0,w,h);
+    // paving grid and the bins in the way
+    c.strokeStyle='rgba(255,255,255,0.06)'; c.lineWidth=1;
+    for (var gx=0; gx<AR_W; gx+=25){ c.beginPath(); c.moveTo(gx*sx,0); c.lineTo(gx*sx,h); c.stroke(); }
+    for (var gy=0; gy<AR_H; gy+=25){ c.beginPath(); c.moveTo(0,gy*sy); c.lineTo(w,gy*sy); c.stroke(); }
+    for (var i=0;i<MG.ar.obst.length;i++){ var o=MG.ar.obst[i]; c.fillStyle='#14211a'; c.beginPath(); c.arc(o.x*sx,o.y*sy,o.r*sx,0,6.283); c.fill(); c.fillStyle='#0a0a0a'; c.beginPath(); c.arc(o.x*sx,o.y*sy,o.r*sx*0.55,0,6.283); c.fill(); }
+  }
+  function mgArenaDot(c,w,h,id,p,now,extra){
+    var sx=w/AR_W, sy=h/AR_H, col=mgArenaColour(id);
+    var frozen = MG.frozen && MG.frozen[id];
+    c.fillStyle=frozen?'#555':col; c.beginPath(); c.arc(p.x*sx,p.y*sy,7*sx,0,6.283); c.fill();
+    if (extra==='pun'){ c.strokeStyle='#ff4d4d'; c.lineWidth=2; c.beginPath(); c.arc(p.x*sx,p.y*sy,10*sx,0,6.283); c.stroke(); }
+    c.fillStyle='#e9dcc0'; c.font=Math.round(h*0.06)+'px "Space Mono", monospace'; c.textAlign='center'; c.textBaseline='bottom';
+    c.fillText(mgArenaName(id).slice(0,8), p.x*sx, p.y*sy-9*sx);
+  }
+  function mgArenaPointer(x,y){ MG.ar.target={ x:x*(AR_W/MG.w), y:y*(AR_H/MG.h) }; }
+  function mgArenaRelease(){ if (MG.ar) MG.ar.target=null; }
+  function mgArenaKeys(){
+    if (!MG.ar) return;
+    var dx=0, dy=0;
+    if (keys['w']||keys['arrowup']) dy-=1; if (keys['s']||keys['arrowdown']) dy+=1;
+    if (keys['a']||keys['arrowleft']) dx-=1; if (keys['d']||keys['arrowright']) dx+=1;
+    if (joy.mag>0.12){ dx=joy.x/joy.mag; dy=joy.y/joy.mag; }
+    var l=Math.sqrt(dx*dx+dy*dy)||1; MG.ar.dir={ x:dx/l, y:dy/l };
+    if (dx||dy) MG.ar.target=null;
+  }
+  // the AI Pun in a solo arena: a dot that goes for the light, or for you
+  function mgArenaAI(dt, goal, speed){
+    var q=MG.ar.others.pun; if (!q || !goal) return;
+    var dx=goal.x-q.x, dy=goal.y-q.y, d=Math.sqrt(dx*dx+dy*dy)||1;
+    q.x+=dx/d*speed*dt; q.y+=dy/d*speed*dt; q.tx=q.x; q.ty=q.y;
+  }
+
+  // ---- Scramble: a light comes on somewhere; first to stand in it takes it.
+  // The host says where the light is and who got there first.
+  function mgScrambleInit(){ mgArenaInit(); MG.spot=null; MG.spotIdx=0; MG.claimed={}; MG.won={}; MG.claimT=0; }
+  function mgScrambleBegin(){ if (!NET.on || isHost()) mgScrambleNewSpot(); }
+  function mgScrambleNewSpot(){
+    MG.spotIdx++;
+    var s={ i:MG.spotIdx, x:25+MG.rnd()*(AR_W-50), y:25+MG.rnd()*(AR_H-50), t:MG.t };
+    MG.spot=s;
+    if (NET.on) netSend('mgspot', s);
+  }
+  function mgScrambleUpdate(dt, now){
+    mgArenaKeys(); mgArenaMove(dt, false);
+    var s=MG.spot; if (!s) return;
+    if (!NET.on){
+      mgArenaAI(dt, s, 62+MG.t*1.2);
+      var q=MG.ar.others.pun, dq=Math.hypot(q.x-s.x,q.y-s.y);
+      if (dq<12){ MG.scores.pun=(MG.scores.pun||0)+1; mgBuzz(); mgScrambleNewSpot(); return; }
+    }
+    var d=Math.hypot(MG.ar.me.x-s.x, MG.ar.me.y-s.y);
+    if (d<12 && !MG.claimed[s.i]){
+      MG.claimed[s.i]=true;
+      if (!NET.on){ MG.score++; mgTone(5,0.1); mgScrambleNewSpot(); }
+      else if (isHost()) mgScrambleAward(s.i, myId());
+      else netSend('mgclaim',{ i:s.i });
+    }
+    // a light nobody reaches moves on by itself
+    if ((!NET.on || isHost()) && MG.t-s.t>5) mgScrambleNewSpot();
+  }
+  function mgScrambleAward(i, who){
+    if (MG.won[i]) return;
+    MG.won[i]=who;
+    if (NET.on) netSend('mgwin',{ i:i, who:who });
+    mgScrambleApply(i, who);
+    if (isHost()) mgScrambleNewSpot();
+  }
+  function mgScrambleApply(i, who){
+    MG.won[i]=who;
+    if (who===myId()){ MG.score++; mgTone(5,0.1); } else { MG.scores[who]=(MG.scores[who]||0)+1; mgTone(1,0.06); }
+    if (MG.spot && MG.spot.i===i) MG.spot=null;
+  }
+  function mgScrambleDraw(c,w,h,now){
+    mgArenaDraw(c,w,h,now);
+    var sx=w/AR_W, sy=h/AR_H;
+    if (MG.spot){
+      var s=MG.spot, pulse=0.6+0.4*Math.sin(now/90);
+      var g=c.createRadialGradient(s.x*sx,s.y*sy,2,s.x*sx,s.y*sy,26*sx);
+      g.addColorStop(0,'rgba(255,214,120,'+(0.9*pulse)+')'); g.addColorStop(1,'rgba(255,214,120,0)');
+      c.fillStyle=g; c.beginPath(); c.arc(s.x*sx,s.y*sy,26*sx,0,6.283); c.fill();
+      c.strokeStyle='rgba(255,230,160,0.9)'; c.lineWidth=2; c.beginPath(); c.arc(s.x*sx,s.y*sy,12*sx,0,6.283); c.stroke();
+    }
+    for (var k in MG.ar.others) mgArenaDot(c,w,h,k,MG.ar.others[k],now, k==='pun'?'pun':null);
+    mgArenaDot(c,w,h,myId(),MG.ar.me,now,null);
+    c.fillStyle='#c9c4b0'; c.font=Math.round(h*0.07)+'px "Space Mono", monospace'; c.textAlign='left'; c.textBaseline='middle';
+    c.fillText(MG.phase==='intro' ? 'A LIGHT IS ABOUT TO COME ON' : (isTouch ? 'HOLD TO RUN THAT WAY' : 'WASD TO RUN'), w*0.04, h*0.93);
+    c.textAlign='right'; c.fillText('LIGHTS '+MG.score, w*0.96, h*0.93);
+    if (MG.phase==='intro') mgTeach(c,w,h,now);
+
+  }
+
+  // ---- Chase: one of you is Pun for twenty seconds. Survive, or catch them.
+  function mgChaseInit(){
+    mgArenaInit();
+    var ids=mgArenaIds(), seedPick=((NET.on?NET.seed:0)+MG.index*31)|0;
+    MG.punId = ids[((seedPick%ids.length)+ids.length)%ids.length];
+    MG.frozen={}; MG.catches=0; MG.alive=MG.dur;
+    if (MG.punId===myId()){ MG.ar.speed=104; MG.ar.me={x:AR_W/2,y:AR_H/2}; }
+    else MG.ar.speed=92;
+    if (MG.ar.others[MG.punId]){ MG.ar.others[MG.punId].x=AR_W/2; MG.ar.others[MG.punId].y=AR_H/2; MG.ar.others[MG.punId].tx=AR_W/2; MG.ar.others[MG.punId].ty=AR_H/2; }
+    MG.G.teach = MG.punId===myId() ? ['YOU ARE PUN', 'CATCH THEM ALL', 'TWENTY SECONDS'] : ['ONE OF YOU IS PUN', 'STAY AWAY FROM '+mgArenaName(MG.punId).toUpperCase(), 'SURVIVE TWENTY SECONDS'];
+  }
+  function mgChaseUpdate(dt, now){
+    var me=myId(), amPun=MG.punId===me, frozen=!!(MG.frozen[me]);
+    mgArenaKeys(); mgArenaMove(dt, frozen);
+    if (amPun){
+      // the catcher decides: anyone within reach is caught, and everyone is told
+      for (var k in MG.ar.others){ if (MG.frozen[k]) continue; var q=MG.ar.others[k]; if (Math.hypot(q.x-MG.ar.me.x,q.y-MG.ar.me.y)<11){ MG.frozen[k]=+MG.t.toFixed(1); MG.catches++; MG.score=MG.catches*7; mgBuzz(); netSend('mgcatch',{ who:k, at:+MG.t.toFixed(1) }); } }
+      var left=0; for (var k2 in MG.ar.others) if (!MG.frozen[k2]) left++;
+      if (left===0) MG.done=true;
+    } else if (!frozen){
+      MG.score=Math.min(MG.dur, Math.round(MG.t));
+    }
+  }
+  function mgChaseCaught(who, at){
+    if (MG.frozen[who]) return;
+    MG.frozen[who]=at;
+    if (who===myId()){ MG.score=Math.round(at); detectStinger(); }
+    else if (who!==MG.punId){ MG.scores[who]=Math.round(at); }
+    MG.scores[MG.punId]=(Object.keys(MG.frozen).length)*7;
+  }
+  function mgChaseDraw(c,w,h,now){
+    mgArenaDraw(c,w,h,now);
+    for (var k in MG.ar.others) mgArenaDot(c,w,h,k,MG.ar.others[k],now, k===MG.punId?'pun':null);
+    mgArenaDot(c,w,h,myId(),MG.ar.me,now, MG.punId===myId()?'pun':null);
+    c.fillStyle='#c9c4b0'; c.font=Math.round(h*0.07)+'px "Space Mono", monospace'; c.textAlign='left'; c.textBaseline='middle';
+    var amPun=MG.punId===myId();
+    c.fillText(MG.phase==='intro' ? '' : (amPun ? 'CATCH THEM' : (MG.frozen[myId()] ? 'CAUGHT' : 'RUN')), w*0.04, h*0.93);
+    c.textAlign='right'; c.fillText(amPun ? ('CAUGHT '+MG.catches) : ('ALIVE '+Math.round(MG.t)+'s'), w*0.96, h*0.93);
+    if (MG.phase==='intro') mgTeach(c,w,h,now);
+
+  }
+
+  // ---- THE CAGE: the arena games are played somewhere else. When one starts the
+  // picture cuts to the estate's football cage at night, sodium light over wet
+  // tarmac, everyone's real character running about in it, seen from a high
+  // fixed camera so the whole cage fits the phone. The arena's 300x200 units map
+  // onto a 30x20 patch of world far from the block.
+  var CAGE_X0=-420, CAGE_Z0=-420, CAGE_S=0.1;   // scale is set per frame: the cage shrinks a little on a portrait phone
+  function cageW(p){ return { x:CAGE_X0+p.x*CAGE_S, z:CAGE_Z0+p.y*CAGE_S }; }
+  var cagePoses={};
+  function cagePose(id, p){
+    var o=cagePoses[id]; if (!o){ o=cagePoses[id]={ x:0, z:0, yaw:0, animT:0, moving:false, sprinting:false, pose:null, fy:0, px:null, pz:null }; }
+    var w=cageW(p);
+    var mv = o.px!==null ? Math.hypot(w.x-o.px, w.z-o.pz) : 0;
+    o.moving = mv>0.02; if (o.moving){ o.yaw=Math.atan2(-(w.x-o.px), -(w.z-o.pz)); o.animT+=mv*3.2; }
+    o.px=w.x; o.pz=w.z; o.x=w.x; o.z=w.z; o.sprinting=true;
+    return o;
+  }
+  function renderCage(now){
+    var A=MG.ar; if (!A) return;
+    var cx=CAGE_X0+AR_W*CAGE_S/2, cz=CAGE_Z0+AR_H*CAGE_S/2;
+    var asp=canvas.width/canvas.height, portrait=asp<1;
+    CAGE_S = portrait ? 0.07 : 0.1;
+    cx=CAGE_X0+AR_W*CAGE_S/2; cz=CAGE_Z0+AR_H*CAGE_S/2;
+    var eye=[cx, portrait?29:19.5, cz+(portrait?6:11)], target=[cx, 0.4, cz-(portrait?0.5:1.0)];
+    var view=m4LookAt(eye,target,[0,1,0]);
+    var usePost = post.ok;
+    if (usePost){ sizePost(canvas.width, canvas.height); gl.bindFramebuffer(gl.FRAMEBUFFER, post.scene.fb); }
+    gl.viewport(0,0,canvas.width,canvas.height);
+    gl.clearColor(0.05,0.04,0.03,1);
+    gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+    gl.useProgram(prog);
+    gl.uniformMatrix4fv(loc.uProjection,false,projMat);
+    gl.uniformMatrix4fv(loc.uView,false,view);
+    gl.uniform3f(loc.uCamPos,eye[0],eye[1],eye[2]);
+    gl.uniform3f(loc.uAmbient, 0.24, 0.20, 0.16);
+    gl.uniform3f(loc.uFogColor,0.05,0.04,0.03);
+    gl.uniform1f(loc.uFogNear, 30); gl.uniform1f(loc.uFogFar, 90);
+    gl.uniform1f(loc.uWet, 1.0);
+    // one sodium lamp over the middle, the light in play, and Pun's glow
+    var flick = 0.92+Math.sin(now/230)*0.05;
+    gl.uniform3f(loc.uL3Pos, cx, 9.5, cz); gl.uniform3f(loc.uL3Color, 3.2*flick, 1.7*flick, 0.45*flick); gl.uniform1f(loc.uL3Range, 44);
+    if (MG.kind==='scramble' && MG.spot){ var sw=cageW(MG.spot); gl.uniform3f(loc.uL1Pos, sw.x, 3.2, sw.z); gl.uniform3f(loc.uL1Color, 1.9, 1.7, 1.2); gl.uniform1f(loc.uL1Range, 7.5); }
+    else { gl.uniform3f(loc.uL1Color, 0,0,0); gl.uniform1f(loc.uL1Range, 1); gl.uniform3f(loc.uL1Pos, 0,-50,0); }
+    var punP = MG.kind==='chase' ? mgArenaPos(MG.punId) : (A.others.pun||null);
+    if (punP){ var pw=cageW(punP); gl.uniform3f(loc.uL2Pos, pw.x, 2.1, pw.z); gl.uniform3f(loc.uL2Color, 0.9,0.12,0.1); gl.uniform1f(loc.uL2Range, 6); }
+    else { gl.uniform3f(loc.uL2Color, 0,0,0); gl.uniform1f(loc.uL2Range, 1); gl.uniform3f(loc.uL2Pos, 0,-50,0); }
+
+    bindMesh(cubeVBO,cubeNBO,cubeCBO);
+    gl.uniform1f(loc.uDetail,1);
+    DRAW_Y=0;
+    // tarmac, the pitch markings, the fence and the bins
+    DRAW_MAT=1; drawCube(trsModel(cx,-0.05,cz,0, AR_W*CAGE_S+8, 0.1, AR_H*CAGE_S+8), [0.30,0.30,0.29], false);
+    DRAW_MAT=0;
+    var hw=AR_W*CAGE_S/2, hd=AR_H*CAGE_S/2, LINE=[0.75,0.75,0.70];
+    drawCube(trsModel(cx,0.012,cz-hd,0, hw*2,0.004,0.06), LINE, true); drawCube(trsModel(cx,0.012,cz+hd,0, hw*2,0.004,0.06), LINE, true);
+    drawCube(trsModel(cx-hw,0.012,cz,0, 0.06,0.004,hd*2), LINE, true); drawCube(trsModel(cx+hw,0.012,cz,0, 0.06,0.004,hd*2), LINE, true);
+    drawCube(trsModel(cx,0.012,cz,0, 0.06,0.004,hd*2), LINE, true);
+    for (var a=0;a<24;a++){ var ang=a/24*6.283; drawCube(trsModel(cx+Math.cos(ang)*2.2,0.012,cz+Math.sin(ang)*2.2,ang, 0.06,0.004,0.6), LINE, true); }
+    DRAW_MAT=3;
+    var FENCE=[0.10,0.11,0.10], POST=[0.06,0.06,0.065];
+    drawCube(trsModel(cx,1.5,cz-hd-0.6,0, hw*2+1.2, 3.0, 0.04), FENCE, false);
+    drawCube(trsModel(cx,1.5,cz+hd+0.6,0, hw*2+1.2, 3.0, 0.04), FENCE, false);
+    drawCube(trsModel(cx-hw-0.6,1.5,cz,0, 0.04, 3.0, hd*2+1.2), FENCE, false);
+    drawCube(trsModel(cx+hw+0.6,1.5,cz,0, 0.04, 3.0, hd*2+1.2), FENCE, false);
+    for (var px=-hw-0.6; px<=hw+0.61; px+=(hw*2+1.2)/6){ drawCube(trsModel(cx+px,1.55,cz-hd-0.6,0, 0.08,3.1,0.08), POST, false); drawCube(trsModel(cx+px,1.55,cz+hd+0.6,0, 0.08,3.1,0.08), POST, false); }
+    for (var pz=-hd-0.6; pz<=hd+0.61; pz+=(hd*2+1.2)/4){ drawCube(trsModel(cx-hw-0.6,1.55,cz+pz,0, 0.08,3.1,0.08), POST, false); drawCube(trsModel(cx+hw+0.6,1.55,cz+pz,0, 0.08,3.1,0.08), POST, false); }
+    // the lamp post
+    drawCube(trsModel(cx+hw+0.9,4.8,cz-hd-0.9,0, 0.14,9.6,0.14), POST, false);
+    drawCube(trsModel(cx+hw+0.2,9.5,cz-hd-0.4,0, 1.5,0.08,0.08), POST, false);
+    DRAW_MAT=2; drawCube(trsModel(cx+hw-0.3,9.4,cz-hd-0.1,0, 0.5,0.14,0.5), [1.0*flick,0.6*flick,0.15*flick], true);
+    DRAW_MAT=3;
+    for (var i=0;i<A.obst.length;i++){ var o=A.obst[i], ow=cageW(o); drawCube(trsModel(ow.x,0.48,ow.z,0.3, o.r*CAGE_S*1.6,0.96,o.r*CAGE_S*1.6), [0.10,0.22,0.14], false); drawCube(trsModel(ow.x,0.98,ow.z,0.3, o.r*CAGE_S*1.7,0.06,o.r*CAGE_S*1.7), [0.06,0.06,0.06], false); }
+    DRAW_MAT=0;
+    // the light in play
+    if (MG.kind==='scramble' && MG.spot){
+      var s=MG.spot, sw2=cageW(s), pulse=0.6+0.4*Math.sin(now/90);
+      drawCube(trsModel(sw2.x,0.02,sw2.z,now/900, 2.4,0.01,2.4), [0.95*pulse,0.80*pulse,0.45*pulse], true);
+      drawCube(trsModel(sw2.x,0.03,sw2.z,-now/700, 1.3,0.01,1.3), [1.0,0.92,0.6], true);
+      drawCube(trsModel(sw2.x,1.6,sw2.z,0, 0.05,3.2,0.05), [0.9*pulse,0.8*pulse,0.5*pulse], true);
+    }
+    // everyone in the cage: survivors as themselves, whoever is Pun as Pun
+    var ids=Object.keys(A.others).concat([myId()]);
+    for (var k=0;k<ids.length;k++){
+      var id=ids[k], p=mgArenaPos(id); if (!p) continue;
+      var isPunHere = (MG.kind==='chase' && id===MG.punId) || id==='pun';
+      var po=cagePose(id, p), wpos=cageW(p);
+      drawShadow(wpos.x, wpos.z, isPunHere?0.85:0.7);
+      if (isPunHere){
+        var saved=creature; creature={ x:wpos.x, z:wpos.z, yaw:po.yaw, animT:po.animT*1.3, jx:0, jz:0, fy:0 };
+        var savedHunt=huntMode; huntMode=true;
+        try{ drawCreature(3.5); }catch(e){}
+        huntMode=savedHunt; creature=saved;
+      } else {
+        var frozen = MG.frozen && MG.frozen[id];
+        var i2=Math.max(0, mgArenaIds().indexOf(id));
+        computePose(po);
+        drawPlayer(po, frozen ? [0.22,0.22,0.24] : (id===myId() ? null : PEER_TINTS[i2%PEER_TINTS.length]));
+      }
+      // a marker over each head in their colour, so you can tell who is who
+      var colHex=mgArenaColour(id), cr=parseInt(colHex.substr(1,2),16)/255, cg=parseInt(colHex.substr(3,2),16)/255, cb=parseInt(colHex.substr(5,2),16)/255;
+      drawCube(trsModel(wpos.x, isPunHere?3.05:2.25, wpos.z, now/600, 0.16,0.16,0.16), [cr,cg,cb], true);
+    }
+    drawRain(now, {x:cx, z:cz});
+    if (usePost) runPost(now, MG.kind==='chase'?0.25:0.08, 0, lightFade);
+  }
+
   // ---- the scoreboard at the end of a round: who did what, and the titles
   function renderBoard(el){
     var me=myId(); statFor(me, NET.on?NET.name:'you');
@@ -5175,7 +5493,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     // titles: one line each, only where earned
     var t=[];
     function top(key, label, min){ var best=null; for (var k=0;k<ids.length;k++){ var v=STATS[ids[k]][key]; if (v>=(min||1) && (best===null || v>STATS[best][key])) best=ids[k]; } if (best) t.push(STATS[best].name+' · '+label); }
-    top('ev','bagged the most'); top('mg','won Pun\'s games'); top('caught',"Pun's favourite"); top('mgLost','always last');
+    top('ev','bagged the most'); top('mg','won Pun\'s games'); top('caught',"Pun's favourite"); top('mgLost','always last'); top('lights','first to the light'); top('catches','a natural Pun');
     for (var k2=0;k2<ids.length;k2++) if (STATS[ids[k2]].escapedFirst && ids.length>1) t.push(STATS[ids[k2]].name+' · left the others');
     if (t.length) h+='<div class="board-titles">'+t.join('<br>')+'</div>';
     el.innerHTML=h;
@@ -5359,7 +5677,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   function uid(){ return Math.random().toString(36).slice(2,8); }
   function roomCode(){ var a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', c=''; for (var i=0;i<4;i++) c+=a[(Math.random()*a.length)|0]; return c; }
-  var NET_RELIABLE={ evidence:1, 'house-shift':1, start:1, dead:1, out:1, round:1, mgres:1, marked:1, trap:1, lobby:1, voice:1, rtc:1 };
+  var NET_RELIABLE={ evidence:1, 'house-shift':1, start:1, dead:1, out:1, round:1, mgres:1, marked:1, trap:1, lobby:1, voice:1, rtc:1, mgspot:1, mgclaim:1, mgwin:1, mgcatch:1 };
   function netSend(ev, payload){
     if (!NET.on || !NET.chan) return;
     payload=payload||{}; payload.from=NET.me;
@@ -5438,6 +5756,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       if (applyHouseShift(m.payload.shift)) showToast('Pun rewrote an unseen passage.', true);
     });
     ch.on('broadcast',{event:'mg'},function(m){ if (MG.active) MG.scores[m.payload.from]=m.payload.s; });
+    ch.on('broadcast',{event:'mgp'},function(m){ if (MG.active && MG.ar){ var q=MG.ar.others[m.payload.from]; if (!q) q=MG.ar.others[m.payload.from]={x:m.payload.x,y:m.payload.y}; q.tx=m.payload.x; q.ty=m.payload.y; } });
+    ch.on('broadcast',{event:'mgspot'},function(m){ if (MG.active && MG.kind==='scramble'){ var p=m.payload; if (!MG.spot || p.i>MG.spot.i){ MG.spot={ i:p.i, x:p.x, y:p.y, t:MG.t }; MG.spotIdx=p.i; } } });
+    ch.on('broadcast',{event:'mgclaim'},function(m){ if (MG.active && MG.kind==='scramble' && isHost()) mgScrambleAward(m.payload.i, m.payload.from); });
+    ch.on('broadcast',{event:'mgwin'},function(m){ if (MG.active && MG.kind==='scramble') mgScrambleApply(m.payload.i, m.payload.who); });
+    ch.on('broadcast',{event:'mgcatch'},function(m){ if (MG.active && MG.kind==='chase') mgChaseCaught(m.payload.who, m.payload.at); });
     ch.on('broadcast',{event:'mgres'},function(m){ if (MG.active){ MG.results[m.payload.from]=m.payload.s; MG.scores[m.payload.from]=m.payload.s; } });
     ch.on('broadcast',{event:'marked'},function(m){ var q=NET.peers[m.payload.from]; if (q){ q.marked=m.payload.secs; showToast('PUN IS AFTER '+q.name.toUpperCase(), true); } });
     ch.on('broadcast',{event:'rtc'},function(m){ voiceSignal(m.payload); });

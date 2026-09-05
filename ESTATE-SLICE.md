@@ -100,6 +100,27 @@ down the other, bin store and undercroft, back up, lift.
   so the floating stick cannot swallow a tap; canvas sized after layout.
 - `sw.js` cache `estate-4`; the menu shows `estate slice 4`.
 
+## Pass 5: the cage
+
+Two games that take everyone somewhere else. When one starts the picture cuts
+to the estate's football cage at night: sodium lamp, wet tarmac, chain-link,
+wheelie bins in the way, rain, and everyone's actual character in it, seen from
+a high fixed camera so the whole cage fits a phone (the cage shrinks a little
+in portrait). Steer with the stick or WASD. Positions go out ten times a
+second; anything that scores is a reliable message settled by one authority.
+
+- **Scramble**: a light comes on somewhere in the cage; first to stand in it
+  takes it, then it moves (or moves on its own after five seconds). The host
+  places the lights and awards claims. Solo, you race Pun himself, and you
+  must beat his count.
+- **Chase**: one of you is Pun for twenty seconds, chosen from the seed so
+  every phone agrees, drawn as Pun. The catcher's phone decides catches and
+  tells everyone. Survivors score seconds alive; Pun scores seven a catch.
+  Needs at least two players, otherwise Scramble runs instead.
+- Rotation is intercom, scramble, tube, chase by seed. New scoreboard titles:
+  "first to the light" and "a natural Pun".
+- `sw.js` cache `estate-5`; the menu shows `estate slice 5`.
+
 ## What the estate does
 
 All of this is either seeded, sent over the wire as an existing shift spec,
