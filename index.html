@@ -494,12 +494,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     content:""; position:absolute; left:0; right:0; top:50%; height:2px;
     background:linear-gradient(90deg, transparent, rgba(80,60,30,.28), transparent); pointer-events:none;
   }
-  .pin{
-    position:absolute; top:-9px; left:50%; width:22px; height:22px; margin-left:-11px; border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, #ffb2a8, #b3202f 55%, #5a0e16 100%);
-    box-shadow:0 6px 8px rgba(0,0,0,.6), 0 0 0 2px rgba(0,0,0,.25);
-  }
-  .pin::after{ content:""; position:absolute; left:9px; top:16px; width:4px; height:14px; background:linear-gradient(#777,#222); }
+  /* the poster is taped to the wall, not pinned: two strips of yellowed tape over the top edge */
+  .pin{ position:absolute; left:50%; top:-10px; width:70px; height:22px; margin-left:-35px; transform:rotate(-2deg);
+    background:rgba(232,218,180,.62); border:1px solid rgba(255,255,255,.35); box-shadow:0 1px 3px rgba(0,0,0,.25); pointer-events:none; }
+  .pin::after{ content:""; position:absolute; left:-190px; top:6px; width:70px; height:22px; transform:rotate(3deg);
+    background:rgba(232,218,180,.55); border:1px solid rgba(255,255,255,.3); box-shadow:0 1px 3px rgba(0,0,0,.25); }
   .stain{ position:absolute; border-radius:50%; pointer-events:none; mix-blend-mode:multiply; }
   .stain.s1{ right:-30px; top:120px; width:170px; height:150px; border:9px solid rgba(120,70,20,.16); box-shadow:inset 0 0 30px rgba(120,70,20,.12); filter:blur(1px); }
   .stain.s2{ left:30px; bottom:60px; width:90px; height:80px; background:radial-gradient(circle, rgba(90,10,14,.28), rgba(90,10,14,.05) 60%, transparent 70%); filter:blur(2px); }
@@ -971,8 +970,14 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     ];
     for (var si=0; si<EST.stairs.length; si++){ var st=EST.stairs[si]; fill(st.r0,st.r1,st.c0,st.c1,Z.STAIR); }
     EST.locked=true;
-    fences.push({ r:EST.stairs[0].botR1, c:EST.stairs[0].c1, dir:'E', door:'W' });
-    fences.push({ r:EST.stairs[1].botR1, c:EST.stairs[1].c0, dir:'W', door:'E' });
+    for (var di=0; di<EST.stairs.length; di++){
+      var ds=EST.stairs[di], dc=ds.side==='W'?ds.c1:ds.c0, ddir=ds.side==='W'?'E':'W';
+      fences.push({ r:ds.botR1, c:dc, dir:ddir, door:ds.side });
+      fences.push({ r:ds.botR1, c:dc, dir:ddir, span:[0,0.34], infill:true });
+      fences.push({ r:ds.botR1, c:dc, dir:ddir, span:[0.66,1], infill:true });
+      fences.push({ r:ds.topR0, c:dc, dir:ddir, span:[0,0.34], infill:true });
+      fences.push({ r:ds.topR0, c:dc, dir:ddir, span:[0.66,1], infill:true });
+    }
 
     // ---- the service yard under the walkway: seen, never walked
     EST.yard={ r0:3, r1:9, c0:3, c1:COLS-4 };
@@ -1025,10 +1030,17 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
   function fenceKey(r,c,dir){ return r+','+c+','+dir; }
   var fenceSet={};
-  function fenceBlocked(r,c,dir){
-    if (fenceSet[fenceKey(r,c,dir)]) return fenceSet[fenceKey(r,c,dir)];
+  // every fence record on an edge, seen from either side; the edge is closed
+  // to movement and pathing only if one of them spans the whole edge
+  function fencesAt(r,c,dir){
     var opp={N:'S',S:'N',W:'E',E:'W'}[dir], nr=r+(dir==='N'?-1:dir==='S'?1:0), nc=c+(dir==='W'?-1:dir==='E'?1:0);
-    return fenceSet[fenceKey(nr,nc,opp)]||null;
+    var a=fenceSet[fenceKey(r,c,dir)]||[], b=fenceSet[fenceKey(nr,nc,opp)]||[];
+    return a.concat(b);
+  }
+  function fenceBlocked(r,c,dir){
+    var fs=fencesAt(r,c,dir);
+    for (var i=0;i<fs.length;i++) if (!fs[i].span) return fs[i];
+    return null;
   }
   // the fob opens both stairwell doors: the block above becomes reachable, in both directions
   function unlockStairs(quiet){
@@ -1045,7 +1057,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   function buildTopology(){
     wallSegs=[]; adjacency=[]; openCells=[]; fenceSet={};
-    for (var f=0; f<(fences||[]).length; f++) fenceSet[fenceKey(fences[f].r,fences[f].c,fences[f].dir)]=fences[f];
+    for (var f=0; f<(fences||[]).length; f++){ var fk=fenceKey(fences[f].r,fences[f].c,fences[f].dir); (fenceSet[fk]=fenceSet[fk]||[]).push(fences[f]); }
     for (var r=0;r<ROWS;r++){
       var arow=[];
       for (var c=0;c<COLS;c++){
@@ -1058,6 +1070,19 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         if ((!isOpen(r+1,c) && !isExitOpening(r,c,'S')) || fS) wallSegs.push({x1:c*CELL,z1:(r+1)*CELL,x2:(c+1)*CELL,z2:(r+1)*CELL, nx:0,nz:-1, r:r,c:c, nr:r+1,nc:c, fence:fS});
         if ((!isOpen(r,c-1) && !isExitOpening(r,c,'W')) || fW) wallSegs.push({x1:c*CELL,z1:r*CELL,x2:c*CELL,z2:(r+1)*CELL, nx:1,nz:0, r:r,c:c, nr:r,nc:c-1, fence:fW});
         if ((!isOpen(r,c+1) && !isExitOpening(r,c,'E')) || fE) wallSegs.push({x1:(c+1)*CELL,z1:r*CELL,x2:(c+1)*CELL,z2:(r+1)*CELL, nx:-1,nz:0, r:r,c:c, nr:r,nc:c+1, fence:fE});
+        // partial fences (the wall either side of a doorway): collision and drawing only, never pathing
+        var dirs=['N','S','W','E'];
+        for (var pd=0; pd<4; pd++){
+          var pf=fencesAt(r,c,dirs[pd]);
+          for (var pq=0; pq<pf.length; pq++){
+            var fq=pf[pq]; if (!fq.span || !(fq.r===r && fq.c===c && fq.dir===dirs[pd])) continue;
+            var a=fq.span[0]*CELL, b=fq.span[1]*CELL;
+            if (dirs[pd]==='N') wallSegs.push({x1:c*CELL+a,z1:r*CELL,x2:c*CELL+b,z2:r*CELL, nx:0,nz:1, r:r,c:c, nr:r-1,nc:c, fence:fq});
+            if (dirs[pd]==='S') wallSegs.push({x1:c*CELL+a,z1:(r+1)*CELL,x2:c*CELL+b,z2:(r+1)*CELL, nx:0,nz:-1, r:r,c:c, nr:r+1,nc:c, fence:fq});
+            if (dirs[pd]==='W') wallSegs.push({x1:c*CELL,z1:r*CELL+a,x2:c*CELL,z2:r*CELL+b, nx:1,nz:0, r:r,c:c, nr:r,nc:c-1, fence:fq});
+            if (dirs[pd]==='E') wallSegs.push({x1:(c+1)*CELL,z1:r*CELL+a,x2:(c+1)*CELL,z2:r*CELL+b, nx:-1,nz:0, r:r,c:c, nr:r,nc:c+1, fence:fq});
+          }
+        }
 
         var nb=[];
         if (isOpen(r-1,c) && !fN) nb.push({r:r-1,c:c});
@@ -2849,6 +2874,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var tx=horiz?1:0, tz=horiz?0:1;                    // along the edge
 
       if (sg.fence && sg.fence.door) continue;          // the locked stair door is drawn with its frame, below
+      if (sg.fence && sg.fence.infill){
+        // the wall either side of a stairwell doorway: green dado, cream above, like the core
+        box(mx, fy+0.55, mz, hx, 0.55, hz, tint(PAL.green,jit), 0, 0.72, 1);
+        box(mx, fy+1.10+(WALL_H-1.10)/2, mz, hx, (WALL_H-1.10)/2, hz, tint(PAL.cream,jit), 0, 0.85, 1);
+        box(mx, fy+1.10, mz, hx+0.012, 0.03, hz+0.012, PAL.greenD, 0);
+        continue;
+      }
       if (sg.fence){
         // the football cage: posts, rails and a dark mesh panel
         box(mx, fy+1.25, mz, hx+0.02, 1.25, hz+0.02, [0.09,0.10,0.09], 3, 0.7, 1);
@@ -2961,15 +2993,15 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         boxYaw(pr.x+0.32, py+0.98, pr.z, 0.03,0.03,0.33, pr.yaw, PAL.steel, 3);
       } else if (pr.t==='commdoor'){
         // a wired-glass communal door standing open in a steel frame across the opening
-        var dx=pr.x, dz=pr.z;
-        box(dx, py+1.15, dz-CELL/2+0.12, 0.08,1.15,0.08, PAL.steelD, 3);
-        box(dx, py+1.15, dz+CELL/2-0.12, 0.08,1.15,0.08, PAL.steelD, 3);
-        box(dx, py+2.32, dz, 0.10,0.08,CELL/2, PAL.steelD, 3);
-        box(dx, py+2.36, dz, 0.05,0.28,CELL/2-0.16, PAL.glass, 5);                                        // fanlight
+        var dx=pr.x, dz=pr.z, hw=0.66;
+        box(dx, py+1.15, dz-hw, 0.10,1.15,0.10, PAL.steelD, 3);
+        box(dx, py+1.15, dz+hw, 0.10,1.15,0.10, PAL.steelD, 3);
+        box(dx, py+2.30, dz, 0.12,0.08,hw+0.1, PAL.steelD, 3);
+        box(dx, py+2.45, dz, WALL_HALF, 0.12, hw+0.1, PAL.cream, 0);                                     // lintel
         var shut = pr.bottom && EST.locked;
         var leafYaw = shut ? 0 : ((pr.side==='W') ? 1.15 : -1.15);
-        var lx = shut ? dx : dx+(pr.side==='W'?0.42:-0.42), lz = shut ? dz+0.08 : dz+CELL/2-0.16-0.9;
-        var hl = shut ? CELL/2-0.2 : 0.85;
+        var lx = shut ? dx : dx+(pr.side==='W'?0.30:-0.30), lz = shut ? dz : dz-hw+0.12+0.55*Math.cos(1.15);
+        var hl = shut ? hw-0.12 : 0.55;
         boxYaw(lx, py+1.12, lz, 0.05,1.08,hl, leafYaw, PAL.steelD, 3);
         boxYaw(lx, py+1.30, lz, 0.055,0.62,hl*0.78, leafYaw, PAL.glass, 5);
         boxYaw(lx, py+1.10, lz, 0.06,0.02,hl, leafYaw, PAL.steel, 3);
@@ -4395,7 +4427,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     box(-0.74, shY, shZ, 0.44,0.40,0.46, OAF_SKIN);
     box( 0.74, shY, shZ, 0.44,0.40,0.46, OAF_SKIN);
     var armSw = rage ? 0 : gait*0.4;
-    var reach = rage ? -1.25 - close*0.45 : 0;
+    var reach = rage ? 1.25 + close*0.45 : 0;
     var flare = rage ? 0.30 : 0.16;
     function arm(side, up){
       var sh=at(side*0.80, shZ);
@@ -4407,7 +4439,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       // a band of ink round the upper arm
       dc(m4Multiply(m4Multiply(m, m4Translate(0,-0.30,0)), m4Scale(0.39,0.14,0.41)), OAF_INK, false);
       var me=m4Multiply(m, m4Translate(0,-0.72,0));
-      me=m4Multiply(me, m4RotateX(rage ? -0.95 : -0.42));
+      me=m4Multiply(me, m4RotateX(rage ? 0.25 : -0.42));
       var mf=m4Multiply(me, m4Translate(0,-0.34,0));
       dc(m4Multiply(mf, m4Scale(0.34,0.68,0.36)), OAF_SKIN_D, false);
       var mh=m4Multiply(me, m4Translate(0,-0.78,0));
