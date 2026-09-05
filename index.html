@@ -673,6 +673,33 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   .case-card p{ margin:0; font-size:.68rem; line-height:1.3; }
   .case-card .case-number{ line-height:1.4; }
   .case-card .case-effect{ margin-top:5px; color:#7a1420; font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
+  /* Pun's games: a panel over the frozen world; the scores tick live down the side */
+  .mg{ position:absolute; inset:0; z-index:30; display:flex; align-items:center; justify-content:center; background:rgba(4,3,5,.55); }
+  .mg-card{ width:min(560px, 94vw); background:#141216; border:1px solid var(--panel-edge); border-radius:6px; padding:10px 12px 8px; box-shadow:0 18px 50px rgba(0,0,0,.7); }
+  .mg-head{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .mg-title{ font-family:'Anton', Impact, sans-serif; font-size:1.05rem; letter-spacing:.08em; color:var(--gold); }
+  .mg-hint{ font-family:'Space Mono', monospace; font-size:.58rem; letter-spacing:.06em; text-transform:uppercase; color:var(--bone-dim); }
+  .mg-timer{ height:4px; background:rgba(255,255,255,.08); margin:8px 0; }
+  .mg-timer div{ height:100%; width:100%; background:var(--gold); transition:width .1s linear; }
+  .mg-body{ display:grid; grid-template-columns:1fr 120px; gap:10px; }
+  #mg-canvas{ width:100%; height:200px; display:block; border-radius:3px; touch-action:none; }
+  .mg-scores{ font-family:'Space Mono', monospace; font-size:.62rem; letter-spacing:.06em; text-transform:uppercase; color:var(--bone-dim); }
+  .mg-scores div{ display:flex; justify-content:space-between; padding:4px 6px; border-bottom:1px dotted rgba(255,255,255,.12); }
+  .mg-scores div.me{ color:var(--bone); } .mg-scores div.pun{ color:var(--blood-bright); }
+  .mg-scores b{ font-weight:400; }
+  .mg-result{ min-height:1.2em; margin-top:8px; text-align:center; font-family:'Space Mono', monospace; font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--bone-dim); }
+  .mg-result.win{ color:var(--win); } .mg-result.lose{ color:var(--blood-bright); }
+  @media (max-width:700px){
+    .mg-body{ grid-template-columns:1fr 84px; gap:6px; }
+    #mg-canvas{ height:150px; }
+    .mg-scores{ font-size:.5rem; } .mg-title{ font-size:.85rem; } .mg-hint{ font-size:.48rem; }
+  }
+  .board{ width:min(420px, 92vw); font-family:'Space Mono', monospace; font-size:.6rem; letter-spacing:.06em; text-transform:uppercase; color:var(--bone-dim); }
+  .board-row{ display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr .6fr; gap:6px; padding:4px 6px; border-bottom:1px dotted rgba(255,255,255,.12); text-align:center; }
+  .board-row span:first-child{ text-align:left; }
+  .board-row.head{ color:var(--gold); border-bottom:1px solid rgba(224,179,84,.35); }
+  .board-row.me{ color:var(--bone); }
+  .board-titles{ margin-top:8px; color:var(--gold); line-height:1.7; text-align:center; }
   .house-shift-wash{ position:absolute; inset:0; z-index:9; pointer-events:none; opacity:0; box-shadow:inset 0 0 0 rgba(104,11,23,0); }
   .house-shifting .house-shift-wash{ animation:houseRewrite 1.45s ease-out; }
   @keyframes houseRewrite{
@@ -758,7 +785,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         </div>
         </div>
       </div>
-      <p class="wall-note">one block &middot; four floors of it move &middot; real-time 3d &middot; he is already in the stairwell <span id="build-tag">&middot; estate slice 2</span></p>
+      <p class="wall-note">one block &middot; four floors of it move &middot; real-time 3d &middot; he is already in the stairwell <span id="build-tag">&middot; estate slice 3</span></p>
     </div>
   </div>
 
@@ -812,12 +839,24 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           </div>
         </div>
       </div>
+      <div class="mg hidden" id="mg">
+        <div class="mg-card">
+          <div class="mg-head"><span class="mg-title" id="mg-title">PUN'S GAME</span><span class="mg-hint" id="mg-hint"></span></div>
+          <div class="mg-timer"><div id="mg-timer"></div></div>
+          <div class="mg-body">
+            <canvas id="mg-canvas"></canvas>
+            <div class="mg-scores" id="mg-scores"></div>
+          </div>
+          <div class="mg-result" id="mg-result"></div>
+        </div>
+      </div>
       <div class="stick" id="stick"><div class="ring"></div><div class="knob" id="knob"></div></div>
       <button class="act-btn" id="act-btn">HIDE</button>
 
       <div class="end-overlay hidden" id="lose-overlay">
         <p class="end-title lose">HE HAS YOU</p>
         <p class="end-sub" id="lose-sub">You never got to the lift.</p>
+        <div class="board" id="board-lose"></div>
         <div class="end-actions">
           <button class="cta" id="retry-btn-lose">Try Again</button>
           <button class="cta ghost" id="menu-btn-lose">Change difficulty</button>
@@ -826,6 +865,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       <div class="end-overlay win hidden" id="win-overlay">
         <p class="end-title win">You Made It Out</p>
         <p class="end-sub" id="win-sub"></p>
+        <div class="board" id="board-win"></div>
         <div class="end-actions">
           <button class="cta" id="retry-btn-win">Go Back In</button>
           <button class="cta ghost" id="menu-btn-win">Change difficulty</button>
@@ -1451,7 +1491,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     awakenStinger();
     setTimeout(function(){ voice(pick('gomad1','gomad2'),{vol:1.0,cool:0}); },350);
     flashEl.classList.remove('fire'); void flashEl.offsetWidth; flashEl.classList.add('fire');
-    if (HZ.lift){ HZ.lift.call=D.liftWait; HZ.lift.callMax=D.liftWait; HZ.lift.nextDie=6; HZ.lift.ride=0; HZ.lift.dest=null; }
+    if (HZ.lift){ HZ.lift.call=Math.max(8, D.liftWait-(HZ.liftBonus||0)); HZ.lift.callMax=D.liftWait; HZ.lift.nextDie=6; HZ.lift.ride=0; HZ.lift.dest=null; }
     showToast('The case is complete. The lift is called. Pun knows.', true);
   }
   function activeEvidence(){
@@ -1471,6 +1511,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var moved=applyHouseShift(shift);
     keyChime(); updateEvidenceHud();
     revealEvidence(item,index,moved,opts.finder||'');
+    var finderId = opts.finderId || myId();
+    statFor(finderId, opts.finder || (NET.on?NET.name:'you')).ev++;
+    if (NET.isPun){ HZ.punHold=(MG_GAMES[mgKindFor(index)].dur+9); showToast('They are playing your game. Wait.', true); }
+    else setTimeout(function(){ if (phase==='play') mgStart(index); }, 1700);
     var at=opts.at||{x:item.x,z:item.z};
     if (opts.broadcast) netSend('evidence',{i:index,shift:shift,at:at});
     if (evidenceHeld>=evidenceItems.length) evidenceEndgame(at);
@@ -3224,6 +3268,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var cs=cellCenter(spawn.r,spawn.c);
     creature={ x:cs.x, z:cs.z, cell:{r:spawn.r,c:spawn.c}, animT:0, jx:0, jz:0, yaw:0, fy:floorAt(cs.x,cs.z) };
     estateReset();
+    STATS={}; MG={ active:false }; mgEl.classList.add('hidden');
 
     huntMode=false; lastKnown=null; searchTimer=0;
     graceLeft=D.grace;
@@ -3430,6 +3475,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       return;
     }
 
+    if (NET.isPun && HZ.punHold>0){ HZ.punHold-=dt; player.moving=false; player.sprinting=false; actPressed=false; return; }
     if (NET.isPun){
       var rageBefore=punRage|0;
       punShiftCd=Math.max(0,punShiftCd-dt);
@@ -3822,14 +3868,15 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   // who it is after: alone, you; together, whichever survivor is nearest and not hidden
   function nearestSurvivor(){
     var best=null, bd=1e9;
-    function consider(x,z,hid,dead,sprinting,local){ if (dead) return; var dd=dist(x,z,creature.x,creature.z); if (hid) dd+=1e6; if (dd<bd){ bd=dd; best={x:x,z:z,hidden:!!hid,sprinting:!!sprinting,local:!!local}; } }
-    if (!NET.isPun && phase!=='dead') consider(player.x,player.z,hidden,false,player.sprinting,true);
-    if (NET.on) for (var id in NET.peers){ var q=NET.peers[id]; if (q.role!=='pun') consider(q.x,q.z,q.hidden,q.dead||q.out,q.sprinting,false); }
+    function consider(x,z,hid,dead,sprinting,local,marked){ if (dead) return; var dd=dist(x,z,creature.x,creature.z); if (marked) dd*=0.3; if (hid) dd+=1e6; if (dd<bd){ bd=dd; best={x:x,z:z,hidden:!!hid,sprinting:!!sprinting,local:!!local,marked:!!marked}; } }
+    if (!NET.isPun && phase!=='dead') consider(player.x,player.z,hidden,false,player.sprinting,true,HZ.marked>0);
+    if (NET.on) for (var id in NET.peers){ var q=NET.peers[id]; if (q.role!=='pun') consider(q.x,q.z,q.hidden,q.dead||q.out,q.sprinting,false,q.marked>0); }
     return best || {x:player.x,z:player.z,hidden:true,sprinting:false,local:true};
   }
   var punSense={ senses:false, lastSense:0 };
   function updateCreature(dt, now){
     var d=dist(player.x,player.z,creature.x,creature.z);
+    if (MG.active) return d;
     if (NET.on && NET.isPun){
       // you are it. Your body is the creature; it goes where you walk.
       creature.x=player.x; creature.z=player.z; creature.yaw=player.yaw;
@@ -3885,7 +3932,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     // hiding blinds it completely — that is the point of the wardrobes
     // Footsteps carry: sprinting makes Pun aware from roughly one extra room
     // away. The detection sting remains the warning before the chase starts.
-    var reach = endgame ? 1e9 : D.aware*(T.sprinting?1.55:1);
+    var reach = endgame ? 1e9 : D.aware*(T.sprinting?1.55:1)*(T.marked?3.0:1);
     var senses = !hiddenT && d < reach;
     if (senses){
       if (!huntMode){
@@ -4522,7 +4569,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   var HZ={};
   function estateReset(){
     HZ={ stretch:1, stretchT:0, stretchToast:false, stairArmed:{}, stairCd:20, loopCount:0,
-         lift:{ cd:0, ride:0, t:0, dest:null, refused:0, call:0, callMax:0, nextDie:0 }, renumberT:0, numToast:false, lastZone:-1, zoneT:0, taunt:12,
+         lift:{ cd:0, ride:0, t:0, dest:null, refused:0, call:0, callMax:0, nextDie:0 }, renumberT:0, numToast:false, lastZone:-1, zoneT:0, taunt:12, marked:0, punHold:0, liftBonus:0,
          buzzT:0, camYaw:{} };
     for (var i=0;i<lamps.length;i++){ lamps[i].health=1; lamps[i].dead=0; lamps[i].buzz=0; }
   }
@@ -4661,6 +4708,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     updateLamps(dt, now);
     if (!NET.isPun){ updateStretch(dt); updateStairLoop(dt); updateLift(dt); }
     updateCctv(dt);
+    if (HZ.marked>0){ HZ.marked-=dt; if (HZ.marked<=0) showToast('He has lost you.'); }
     if (EST.locked && creature && !hidden && !NET.isPun && graceLeft<=0){
       HZ.taunt-=dt;
       var dTop=dist(player.x,player.z,creature.x,creature.z);
@@ -4797,6 +4845,287 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     o.connect(g); g.connect(A.conv); o.start(t); o.stop(t+1.6);
   }
 
+  // ===================== PUN'S GAMES =====================
+  // Bagging a piece of evidence is the moment he notices you, and he makes you
+  // play for it. Everyone still alive plays the same game at the same time on
+  // their own phone, from the same seed, for twenty seconds. The winner gets a
+  // breath; the loser is marked and Pun goes for them. The world holds still
+  // while it runs. Nothing here needs a referee: results are exchanged and every
+  // client ranks the same numbers the same way.
+  var MG={ active:false };
+  var mgEl=$('mg'), mgTitle=$('mg-title'), mgHint=$('mg-hint'), mgTimer=$('mg-timer'), mgScores=$('mg-scores'), mgCanvas=$('mg-canvas'), mgResult=$('mg-result');
+  var mgCtx=mgCanvas.getContext('2d');
+  var MG_GAMES={
+    intercom:{ title:'INTERCOM', hint:'Watch the buttons. Press them back in order.', par:{easy:3,normal:4,nightmare:5}, dur:22 },
+    tube:{ title:'DEAD TUBE', hint:'Tap only while the tube is lit. Keep it alive.', par:{easy:9,normal:12,nightmare:15}, dur:20 }
+  };
+  var MG_ORDER=['intercom','tube'];
+  var STATS={};
+  function statFor(id, name){ if (!STATS[id]) STATS[id]={ name:name||'you', ev:0, mg:0, mgLost:0, caught:0, out:false, escapedFirst:false }; if (name) STATS[id].name=name; return STATS[id]; }
+  function myId(){ return NET.on ? NET.me : 'me'; }
+
+  function mgKindFor(index){
+    var seed = NET.on ? (NET.seed|0) : (Math.floor(startTime/1000)|0);
+    var pick = (seed + index*7919) % MG_ORDER.length;
+    return MG_ORDER[(pick+MG_ORDER.length)%MG_ORDER.length];
+  }
+  function mgStart(index){
+    if (MG.active || NET.isPun || phase!=='play') return;
+    var kind=mgKindFor(index), G=MG_GAMES[kind];
+    var seed = ((NET.on ? NET.seed : Math.floor(startTime/97)) + index*104729)|0;
+    MG={ active:true, kind:kind, G:G, t:0, phase:'intro', dur:G.dur, rnd:mulberry32(seed), score:0, done:false, scores:{}, results:{}, resultT:0, par:G.par[diffName]||G.par.normal, taps:0 };
+    MG.scores[myId()]=0;
+    if (kind==='intercom') mgIntercomInit(); else mgTubeInit();
+    mgTitle.textContent="PUN'S GAME · "+G.title;
+    mgHint.textContent=G.hint;
+    mgResult.textContent=''; mgResult.className='mg-result';
+    mgEl.classList.remove('hidden'); mgEl.classList.remove('over');
+    promptEl.classList.add('hidden');
+    player.moving=false; player.sprinting=false; stickReset();
+    if (A.ready){ awakenStinger(); setTimeout(function(){ voice(pick('cheeky1','cheeky2'),{vol:0.9,cool:0,minGap:0}); }, 250); }
+    sizeMgCanvas();
+    mgRenderScores();
+  }
+  function sizeMgCanvas(){
+    var r=mgCanvas.getBoundingClientRect(), dpr=Math.min(2, window.devicePixelRatio||1);
+    mgCanvas.width=Math.max(1, Math.round(r.width*dpr)); mgCanvas.height=Math.max(1, Math.round(r.height*dpr));
+    mgCtx.setTransform(dpr,0,0,dpr,0,0);
+    MG.w=r.width; MG.h=r.height;
+  }
+  function mgRenderScores(){
+    var rows=[], me=myId();
+    var ids=Object.keys(MG.scores);
+    ids.sort(function(a,b){ return (MG.scores[b]||0)-(MG.scores[a]||0); });
+    for (var i=0;i<ids.length;i++){
+      var id=ids[i], nm = id===me ? (NET.on?NET.name:'you') : (NET.peers[id]?NET.peers[id].name:'?');
+      rows.push('<div class="'+(id===me?'me':'')+'"><span>'+nm+'</span><b>'+(MG.scores[id]||0)+'</b></div>');
+    }
+    if (!NET.on) rows.push('<div class="pun"><span>Pun</span><b>'+MG.par+'</b></div>');
+    mgScores.innerHTML=rows.join('');
+  }
+  function mgUpdate(dt, now){
+    if (!MG.active) return;
+    MG.t+=dt;
+    if (MG.phase==='intro'){
+      mgTimer.style.width='100%';
+      if (MG.t>2.4){ MG.phase='play'; MG.t=0; MG.lastSend=0; if (MG.kind==='intercom') mgIntercomBegin(); }
+    } else if (MG.phase==='play'){
+      var left=Math.max(0, MG.dur-MG.t);
+      mgTimer.style.width=(left/MG.dur*100)+'%';
+      if (MG.kind==='intercom') mgIntercomUpdate(dt, now); else mgTubeUpdate(dt, now);
+      MG.scores[myId()]=MG.score;
+      if (NET.on && (MG.t-MG.lastSend)>0.5){ MG.lastSend=MG.t; netSend('mg',{ s:MG.score }); }
+      if (left<=0 || MG.done){ mgFinish(); }
+    } else if (MG.phase==='result'){
+      MG.resultT+=dt;
+      var all=true;
+      if (NET.on) for (var id in NET.peers){ var q=NET.peers[id]; if (q.role!=='pun' && !q.dead && !q.out && MG.results[id]===undefined) all=false; }
+      if (all || MG.resultT>3.5){ if (!MG.judged) mgJudge(); }
+      if (MG.judged && MG.resultT>MG.judgedAt+2.8) mgEnd();
+    }
+    mgRenderScores();
+    mgDraw(now);
+  }
+  function mgFinish(){
+    MG.phase='result'; MG.resultT=0; MG.done=true;
+    MG.results[myId()]=MG.score;
+    if (NET.on) netSend('mgres',{ s:MG.score });
+    mgResult.textContent='TIME';
+  }
+  // everyone ranks the same numbers: highest wins, lowest is marked; ties go to the earlier id
+  function mgJudge(){
+    MG.judged=true; MG.judgedAt=MG.resultT;
+    var me=myId(), ids=Object.keys(MG.results);
+    var win=null, lose=null;
+    if (NET.on && ids.length>1){
+      ids.sort(function(a,b){ return (MG.results[b]-MG.results[a]) || (a<b?-1:1); });
+      win=ids[0]; lose=ids[ids.length-1];
+      if (MG.results[win]===MG.results[lose]) lose=null;   // everyone equal: nobody marked
+    } else {
+      win = MG.score>=MG.par ? me : null;
+      lose = MG.score>=MG.par ? null : me;
+    }
+    var won = win===me, lost = lose===me;
+    var loseName = lose ? (lose===me ? (NET.on?NET.name:'you') : (NET.peers[lose]?NET.peers[lose].name:'someone')) : null;
+    if (won){ statFor(me, NET.name).mg++; mgResult.textContent = NET.on ? 'YOU WON' : 'YOU BEAT HIM'; mgResult.className='mg-result win'; mgPerk(); }
+    else if (lost){ statFor(me, NET.name).mgLost++; mgResult.textContent = NET.on ? 'LAST. HE IS COMING FOR YOU.' : 'HE WON. HE IS COMING FOR YOU.'; mgResult.className='mg-result lose'; }
+    else { mgResult.textContent = loseName ? ('PUN IS AFTER '+loseName.toUpperCase()) : 'DRAW'; mgResult.className='mg-result'; }
+    if (lose) markPlayer(lose, 30);
+    if (win && win!==me && !NET.isPun){ var wq=NET.peers[win]; if (wq) statFor(win, wq.name).mg++; }
+    if (A.ready){ if (won) keyChime(); else if (lost) { detectStinger(); setTimeout(function(){ voice(pick('getover','tosser'),{vol:1.0,cool:0,minGap:0}); },300); } }
+  }
+  // the winner's breath: dead lights come back around them, and the lift is ten seconds nearer
+  function mgPerk(){
+    for (var i=0;i<lamps.length;i++){ var l=lamps[i]; if (dist(l.x,l.z,player.x,player.z)<26){ l.dead=0; l.health=1; } }
+    HZ.liftBonus=(HZ.liftBonus||0)+10;
+    if (HZ.lift && HZ.lift.call>0) HZ.lift.call=Math.max(0.5, HZ.lift.call-10);
+    lanternHealth=1;
+  }
+  // marked: Pun knows where you are for a while, and everyone else knows who he wants
+  function markPlayer(id, secs){
+    if (id===myId()){ HZ.marked=secs; if (NET.on) netSend('marked',{ secs:secs }); }
+    else if (NET.peers[id]){ NET.peers[id].marked=secs; showToast('PUN IS AFTER '+NET.peers[id].name.toUpperCase(), true); }
+  }
+  function mgEnd(){
+    MG.active=false; mgEl.classList.add('hidden');
+    graceLeft=0;
+    if (HZ.marked>0 && !NET.isPun){ huntMode=true; searchTimer=0; lastKnown={x:player.x,z:player.z}; showToast('He knows where you are. Move.', true); }
+  }
+  function mgSkip(){ if (!MG.active) return; MG.active=false; mgEl.classList.add('hidden'); }
+
+  // ---- Intercom: the door-entry panel lights up in an order, in Pun's rhythm; press it back
+  function mgIntercomInit(){
+    MG.seq=[]; MG.pos=0; MG.showing=false; MG.showIdx=-1; MG.showT=0; MG.lit=-1; MG.flash=-1; MG.flashT=0; MG.wrong=0;
+  }
+  function mgIntercomBegin(){ mgIntercomNext(); }
+  function mgIntercomNext(){
+    MG.seq.push((MG.rnd()*8)|0); MG.pos=0; MG.showing=true; MG.showIdx=-1; MG.showT=0.45;
+  }
+  function mgIntercomUpdate(dt, now){
+    if (MG.flashT>0){ MG.flashT-=dt; if (MG.flashT<=0) MG.flash=-1; }
+    if (MG.showing){
+      MG.showT-=dt;
+      if (MG.showT<=0){
+        MG.showIdx++;
+        if (MG.showIdx>=MG.seq.length){ MG.showing=false; MG.lit=-1; MG.showIdx=-1; return; }
+        MG.lit=MG.seq[MG.showIdx]; MG.showT=Math.max(0.28, 0.55-MG.seq.length*0.03);
+        mgTone(MG.lit, 0.16);
+        MG.litOff=MG.showT*0.7;
+      } else if (MG.litOff!==undefined && MG.showT<MG.litOff*0.3) MG.lit=-1;
+    }
+  }
+  function mgIntercomPress(b){
+    if (MG.showing || MG.phase!=='play') return;
+    MG.flash=b; MG.flashT=0.18;
+    if (b===MG.seq[MG.pos]){
+      mgTone(b, 0.12); MG.pos++;
+      if (MG.pos>=MG.seq.length){ MG.score=MG.seq.length; MG.showing=true; MG.showIdx=-1; MG.showT=0.7; MG.seq.push((MG.rnd()*8)|0); MG.pos=0; }
+    } else {
+      MG.wrong++; mgBuzz();
+      MG.done=true;    // one mistake and the panel locks
+    }
+  }
+  function mgTone(b, dur){
+    if (!A.ready) return;
+    var ctx=A.ctx, t=ctx.currentTime, f=[392,440,494,523,587,659,698,784][b];
+    var o=ctx.createOscillator(); o.type='square'; o.frequency.value=f;
+    var g=ctx.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(0.09,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    var fl=ctx.createBiquadFilter(); fl.type='lowpass'; fl.frequency.value=1800;
+    o.connect(fl); fl.connect(g); g.connect(A.master); o.start(t); o.stop(t+dur+0.05);
+  }
+  function mgBuzz(){
+    if (!A.ready) return;
+    var ctx=A.ctx, t=ctx.currentTime;
+    var o=ctx.createOscillator(); o.type='sawtooth'; o.frequency.value=70;
+    var g=ctx.createGain(); g.gain.setValueAtTime(0.25,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.5);
+    o.connect(g); g.connect(A.master); o.start(t); o.stop(t+0.55);
+  }
+
+  // ---- Dead Tube: it stutters on and off; tap only while it is lit. Wrong taps cost you.
+  function mgTubeInit(){ MG.on=false; MG.next=0.6; MG.hits=0; MG.miss=0; MG.glow=0; MG.tapFx=0; MG.tapGood=false; }
+  function mgTubeUpdate(dt, now){
+    MG.next-=dt;
+    if (MG.next<=0){
+      MG.on=!MG.on;
+      var late = MG.t/MG.dur;
+      MG.next = MG.on ? (0.28+MG.rnd()*0.5)*(1-late*0.4) : (0.25+MG.rnd()*0.9)*(1-late*0.3);
+      if (MG.on && A.ready && MG.rnd()<0.5) tubeBuzz(0, 0.35);
+    }
+    MG.glow += ((MG.on?1:0)-MG.glow)*Math.min(1, dt*22);
+    if (MG.tapFx>0) MG.tapFx-=dt;
+    MG.score=Math.max(0, MG.hits-MG.miss);
+  }
+  function mgTubeTap(){
+    if (MG.phase!=='play') return;
+    MG.tapFx=0.2;
+    if (MG.on){ MG.hits++; MG.tapGood=true; mgTone(3+(MG.hits%4), 0.08); }
+    else { MG.miss++; MG.tapGood=false; mgBuzz(); }
+  }
+
+  // ---- input: taps on the panel, number keys, space
+  function mgPointer(ev){
+    if (!MG.active) return;
+    ev.preventDefault();
+    var r=mgCanvas.getBoundingClientRect(), p=ev.touches?ev.touches[0]:ev;
+    var x=p.clientX-r.left, y=p.clientY-r.top;
+    if (MG.kind==='intercom'){
+      var b=mgIntercomHit(x,y); if (b>=0) mgIntercomPress(b);
+    } else mgTubeTap();
+  }
+  mgCanvas.addEventListener('touchstart', mgPointer, {passive:false});
+  mgCanvas.addEventListener('mousedown', mgPointer);
+  mgEl.addEventListener('touchstart', function(ev){ if (MG.active && MG.kind==='tube' && ev.target!==mgCanvas){ ev.preventDefault(); mgTubeTap(); } }, {passive:false});
+  window.addEventListener('keydown', function(e){
+    if (!MG.active) return;
+    var k=e.key;
+    if (MG.kind==='intercom' && k>='1' && k<='8'){ mgIntercomPress(+k-1); e.preventDefault(); }
+    if (MG.kind==='tube' && (k===' ' || k==='Enter' || k.toLowerCase()==='e')){ mgTubeTap(); e.preventDefault(); }
+  });
+  function mgIntercomHit(x,y){
+    var L=mgIntercomLayout();
+    for (var i=0;i<8;i++){ var b=L[i]; if (x>=b.x && x<=b.x+b.w && y>=b.y && y<=b.y+b.h) return i; }
+    return -1;
+  }
+  function mgIntercomLayout(){
+    var w=MG.w, h=MG.h, cols=4, rows=2, pad=Math.min(w,h)*0.06;
+    var bw=(w-pad*(cols+1))/cols, bh=(h*0.72-pad*(rows+1))/rows, out=[];
+    for (var i=0;i<8;i++){ var c=i%4, r=(i/4)|0; out.push({ x:pad+c*(bw+pad), y:h*0.2+pad+r*(bh+pad), w:bw, h:bh }); }
+    return out;
+  }
+  function mgDraw(now){
+    var c=mgCtx, w=MG.w, h=MG.h; if (!w) return;
+    c.clearRect(0,0,w,h);
+    if (MG.kind==='intercom'){
+      // a brushed steel panel with eight buttons and a speaker grille
+      c.fillStyle='#2b2d31'; c.fillRect(0,0,w,h);
+      c.fillStyle='#1c1d20'; c.fillRect(0,0,w,h*0.17);
+      c.fillStyle='#0b0b0c';
+      for (var g=0; g<12; g++) c.fillRect(w*0.12+g*(w*0.76/12), h*0.05, w*0.03, h*0.08);
+      var L=mgIntercomLayout();
+      for (var i=0;i<8;i++){
+        var b=L[i], lit = (MG.lit===i) || (MG.flash===i);
+        c.fillStyle = lit ? '#e8d9a0' : '#3b3d42'; c.fillRect(b.x,b.y,b.w,b.h);
+        c.fillStyle = lit ? '#fff4c8' : '#26282c'; c.fillRect(b.x+2,b.y+2,b.w-4,b.h*0.35);
+        c.fillStyle = lit ? '#2a2412' : '#9a9ca2'; c.font='bold '+Math.round(b.h*0.42)+'px "Space Mono", monospace'; c.textAlign='center'; c.textBaseline='middle';
+        c.fillText(String(i+1), b.x+b.w/2, b.y+b.h*0.62);
+      }
+      c.fillStyle='#c9c4b0'; c.font=Math.round(h*0.07)+'px "Space Mono", monospace'; c.textAlign='left';
+      c.fillText(MG.phase==='intro' ? 'HE IS ABOUT TO PRESS' : (MG.showing ? 'WATCH' : 'YOUR TURN · '+(MG.pos)+'/'+MG.seq.length), w*0.04, h*0.955);
+      c.textAlign='right'; c.fillText('ROUND '+(MG.score+1), w*0.96, h*0.955);
+    } else {
+      // the tube: a long fitting across the panel, its glow spilling
+      c.fillStyle='#1a1b17'; c.fillRect(0,0,w,h);
+      var gl=MG.glow, tx=w*0.08, ty=h*0.36, tw=w*0.84, th=h*0.16;
+      var grd=c.createRadialGradient(w/2,ty+th/2,10,w/2,ty+th/2,w*0.6);
+      grd.addColorStop(0,'rgba(232,240,214,'+(0.55*gl)+')'); grd.addColorStop(1,'rgba(232,240,214,0)');
+      c.fillStyle=grd; c.fillRect(0,0,w,h);
+      c.fillStyle='#3a3c3e'; c.fillRect(tx-8,ty-6,tw+16,th+12);
+      c.fillStyle = 'rgb('+Math.round(70+170*gl)+','+Math.round(72+178*gl)+','+Math.round(60+160*gl)+')'; c.fillRect(tx,ty,tw,th);
+      if (MG.tapFx>0){ c.fillStyle = MG.tapGood ? 'rgba(120,220,140,'+(MG.tapFx*3)+')' : 'rgba(220,60,60,'+(MG.tapFx*3)+')'; c.fillRect(0,0,w,h); }
+      c.fillStyle='#c9c4b0'; c.font=Math.round(h*0.07)+'px "Space Mono", monospace'; c.textAlign='left'; c.textBaseline='middle';
+      c.fillText(MG.phase==='intro' ? 'IT IS ABOUT TO GO' : 'TAP WHILE LIT', w*0.04, h*0.9);
+      c.textAlign='right'; c.fillText('HITS '+MG.hits+' · MISSES '+MG.miss, w*0.96, h*0.9);
+    }
+  }
+
+  // ---- the scoreboard at the end of a round: who did what, and the titles
+  function renderBoard(el){
+    var me=myId(); statFor(me, NET.on?NET.name:'you');
+    if (NET.on) for (var id in NET.peers){ var q=NET.peers[id]; if (q.role!=='pun') statFor(id, q.name); }
+    var ids=Object.keys(STATS);
+    if (ids.length<=1 && !NET.on){ var s0=STATS[me]; el.innerHTML='<div class="board-row head"><span>CASE FILE</span><span>EVIDENCE</span><span>GAMES</span><span>CAUGHT</span></div><div class="board-row"><span>you</span><span>'+s0.ev+'</span><span>'+s0.mg+'</span><span>'+s0.caught+'</span></div>'; return; }
+    ids.sort(function(a,b){ var A=STATS[a],B=STATS[b]; return ((B.out?1:0)-(A.out?1:0)) || (B.ev+B.mg*2-A.ev-A.mg*2) || (A.caught-B.caught); });
+    var h='<div class="board-row head"><span>NAME</span><span>EVIDENCE</span><span>GAMES</span><span>CAUGHT</span><span>OUT</span></div>';
+    for (var i=0;i<ids.length;i++){ var s=STATS[ids[i]]; h+='<div class="board-row'+(ids[i]===me?' me':'')+'"><span>'+s.name+'</span><span>'+s.ev+'</span><span>'+s.mg+'</span><span>'+s.caught+'</span><span>'+(s.out?'✓':'')+'</span></div>'; }
+    // titles: one line each, only where earned
+    var t=[];
+    function top(key, label, min){ var best=null; for (var k=0;k<ids.length;k++){ var v=STATS[ids[k]][key]; if (v>=(min||1) && (best===null || v>STATS[best][key])) best=ids[k]; } if (best) t.push(STATS[best].name+' · '+label); }
+    top('ev','bagged the most'); top('mg','won Pun\'s games'); top('caught',"Pun's favourite"); top('mgLost','always last');
+    for (var k2=0;k2<ids.length;k2++) if (STATS[ids[k2]].escapedFirst && ids.length>1) t.push(STATS[ids[k2]].name+' · left the others');
+    if (t.length) h+='<div class="board-titles">'+t.join('<br>')+'</div>';
+    el.innerHTML=h;
+  }
+
   // ===================== LOOP =====================
   var lastT=null;
   function loop(t){
@@ -4806,7 +5135,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     lastT=t;
 
     var d;
-    if (phase==='play'){
+    if (phase==='play' && MG.active){
+      mgUpdate(dt, t);
+      d=dist(player.x,player.z,creature.x,creature.z);
+      if (toastTimer>0){ toastTimer-=dt; if (toastTimer<=0) toastEl.classList.remove('show'); }
+      updateAudio(0.35, false, d, false, t, 0, 0);
+    } else if (phase==='play'){
       if (graceLeft>0) graceLeft=Math.max(0, graceLeft-dt);
       updatePlayer(dt);
       updateGirl(dt,t);
@@ -4871,6 +5205,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           if (toastTimer<=0) showToast('Still on its way — '+Math.ceil(HZ.lift.call)+'s', true);
         } else if (evidenceHeld>=evidenceItems.length){
           netSend('out',{}); NET.out=true;
+          var sme=statFor(myId(), NET.on?NET.name:'you'); sme.out=true; if (!STATS.__first){ STATS.__first=1; sme.escapedFirst=true; }
+          renderBoard($('board-win'));
           phase='over'; running=false;
           winSub.textContent='The lift came. You got out of the block with Pun\'s case file in '+timerEl.textContent+' on '+diffName+'.';
           winOverlay.classList.remove('hidden');
@@ -4902,11 +5238,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       creature.jz=(Math.random()*2-1)*0.10;
       d=dist(player.x,player.z,creature.x,creature.z);
       if (scareT>1.05 && NET.on){
-        phase='dead'; NET.dead=true; netSend('dead',{});
+        phase='dead'; NET.dead=true; netSend('dead',{}); statFor(myId(), NET.name).caught++;
         frame.classList.remove('scaring'); dreadWash.style.opacity=0; flashEl.classList.remove('fire');
         dreadLabel.className='status calm'; dreadLabel.textContent='HE HAS YOU — WATCHING THE OTHERS';
       } else if (scareT>1.05){
-        phase='over'; running=false;
+        phase='over'; running=false; statFor(myId(),'you').caught++;
+        renderBoard($('board-lose'));
         frame.classList.remove('scaring');
         loseSub.textContent = evidenceHeld>0
           ? 'You recovered '+evidenceHeld+' of '+evidenceItems.length+' pieces of evidence.'
@@ -4922,6 +5259,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
 
   // the canvas follows the window; capped DPR keeps big screens playable
+  window.addEventListener('resize', function(){ if (MG.active) sizeMgCanvas(); });
   function sizeCanvas(){
     var r=frame.getBoundingClientRect();
     var w=Math.max(320, Math.round(r.width));
@@ -5013,24 +5351,27 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     });
     ch.on('broadcast',{event:'start'},function(m){ if (isHost()) return; if (m.payload.late && NET.started) return; netStart(m.payload); });
     ch.on('broadcast',{event:'state'},function(m){ var q=NET.peers[m.payload.from]; if (!q) return; var pl=m.payload;
-      q.tx=pl.x; q.tz=pl.z; q.tyaw=pl.yaw; q.moving=pl.m; q.sprinting=pl.s; q.hidden=pl.h; q.role=pl.r;
+      q.tx=pl.x; q.tz=pl.z; q.tyaw=pl.yaw; q.moving=pl.m; q.sprinting=pl.s; q.hidden=pl.h; q.role=pl.r; if (pl.mk && !(q.marked>0)) q.marked=5;
       if (!q.seenAt || Math.abs(q.x-q.tx)>6 || Math.abs(q.z-q.tz)>6){ q.x=q.tx; q.z=q.tz; q.yaw=q.tyaw; }
       q.seenAt=performance.now();
       if (pl.r==='pun') NET.remoteCreature={ x:pl.x, z:pl.z, yaw:pl.yaw, animT:pl.a, hunt:pl.hu }; });
     ch.on('broadcast',{event:'pun'},function(m){ if (!NET.isPun && !isHost()) NET.remoteCreature=m.payload; else if (!NET.isPun && isHost() && NET.mode==='vs') NET.remoteCreature=m.payload; });
     ch.on('broadcast',{event:'evidence'},function(m){
       var who=NET.peers[m.payload.from];
-      collectEvidence(m.payload.i,{ shift:m.payload.shift||null, at:m.payload.at, finder:who?who.name:'someone' });
+      collectEvidence(m.payload.i,{ shift:m.payload.shift||null, at:m.payload.at, finder:who?who.name:'someone', finderId:m.payload.from });
     });
     ch.on('broadcast',{event:'house-shift'},function(m){
       if (applyHouseShift(m.payload.shift)) showToast('Pun rewrote an unseen passage.', true);
     });
+    ch.on('broadcast',{event:'mg'},function(m){ if (MG.active) MG.scores[m.payload.from]=m.payload.s; });
+    ch.on('broadcast',{event:'mgres'},function(m){ if (MG.active){ MG.results[m.payload.from]=m.payload.s; MG.scores[m.payload.from]=m.payload.s; } });
+    ch.on('broadcast',{event:'marked'},function(m){ var q=NET.peers[m.payload.from]; if (q){ q.marked=m.payload.secs; showToast('PUN IS AFTER '+q.name.toUpperCase(), true); } });
     ch.on('broadcast',{event:'rtc'},function(m){ voiceSignal(m.payload); });
     ch.on('broadcast',{event:'round'},function(m){ netRoundEnd(m.payload); });
     ch.on('broadcast',{event:'lobby'},function(m){ if (!isHost()) backToLobby(); });
     ch.on('broadcast',{event:'voice'},function(m){ voice(m.payload.k,{vol:1.0,minGap:0,cool:0,local:true}); });
-    ch.on('broadcast',{event:'dead'},function(m){ var q=NET.peers[m.payload.from]; if (q){ q.dead=true; showToast('He got '+q.name, true); } });
-    ch.on('broadcast',{event:'out'},function(m){ var q=NET.peers[m.payload.from]; if (q){ q.out=true; showToast(q.name+' made it out'); } });
+    ch.on('broadcast',{event:'dead'},function(m){ var q=NET.peers[m.payload.from]; if (q){ q.dead=true; showToast('He got '+q.name, true); if (!m.payload.quit) statFor(m.payload.from,q.name).caught++; } });
+    ch.on('broadcast',{event:'out'},function(m){ var q=NET.peers[m.payload.from]; if (q){ q.out=true; showToast(q.name+' made it out'); var so=statFor(m.payload.from,q.name); so.out=true; if (!STATS.__first){ STATS.__first=1; so.escapedFirst=true; } } });
     ch.on('broadcast',{event:'trap'},function(m){ var q=NET.peers[m.payload.from]; if (q) showToast((q.name)+' went through a grate', true); if (typeof m.payload.i==='number' && traps[m.payload.i]) traps[m.payload.i].sprung=true; if (isHost() && !NET.isPun){ huntMode=true; searchTimer=0; lastKnown={x:m.payload.x,z:m.payload.z}; } });
     ch.subscribe(function(status){
       if (status==='SUBSCRIBED'){ lbStatus.textContent=asHost?'you are the host':'in'; ch.track({ name:NET.name, host:asHost }); }
@@ -5128,12 +5469,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (!NET.on) return;
     // ease everyone else toward where they said they were
     for (var k in NET.peers){ var q=NET.peers[k]; var kk=0.35;
+      if (q.marked>0) q.marked-=0.016;
       q.x+=(q.tx-q.x)*kk; q.z+=(q.tz-q.z)*kk;
       var dy=q.tyaw-q.yaw; while(dy>Math.PI)dy-=Math.PI*2; while(dy<-Math.PI)dy+=Math.PI*2; q.yaw+=dy*kk;
       q.animT += (q.moving?(q.sprinting?12.5:8.0):0)*0.016; }
     if (now-NET.lastSend<66) return;
     NET.lastSend=now;
-    var pl={ x:+player.x.toFixed(2), z:+player.z.toFixed(2), yaw:+player.yaw.toFixed(2), m:player.moving, s:player.sprinting, h:hidden, r:myRole() };
+    var pl={ x:+player.x.toFixed(2), z:+player.z.toFixed(2), yaw:+player.yaw.toFixed(2), m:player.moving, s:player.sprinting, h:hidden, r:myRole(), mk:HZ.marked>0?1:0 };
     if (VOICE.stream) VOICE.stream.getAudioTracks().forEach(function(t){ t.enabled=!voiceMuted && !NET.isPun; });
     if (NET.isPun){ pl.a=+creature.animT.toFixed(2); pl.hu=huntMode; }
     netSend('state', pl);
@@ -5166,6 +5508,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     frame.classList.remove('shaking','scaring'); dreadWash.style.opacity=0; flashEl.classList.remove('fire'); promptEl.classList.add('hidden');
     var outs=m.outs||0, who=(m.names&&m.names.length)?m.names.join(', '):'';
     loseOverlay.classList.add('hidden'); winOverlay.classList.add('hidden');
+    renderBoard($('board-win')); renderBoard($('board-lose'));
+    if (MG.active) mgSkip();
     if (NET.isPun){
       if (outs===0){ winOverlay.querySelector('.end-title').textContent='YOU GOT THEM ALL'; winSub.textContent='Nobody got out. Pun go mad.'; winOverlay.classList.remove('hidden'); }
       else { loseOverlay.querySelector('.end-title').textContent='THEY GOT OUT'; loseSub.textContent=who+' got past you.'; loseOverlay.classList.remove('hidden'); }

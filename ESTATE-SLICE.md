@@ -51,6 +51,28 @@ down the other, bin store and undercroft, back up, lift.
 - Sound: distant sirens, a dog, a television through a wall on the walkway,
   hollow deck footsteps and clattering stair footsteps for Pun, a lift ding.
 
+## Pass 3: Pun's games
+
+- **Every piece bagged starts a minigame** for everyone still alive, on their
+  own phone, at the same time, from the same seed. The world holds still while
+  it runs (Pun included; a human Pun is told to wait).
+- **Intercom**: the door-entry panel lights buttons in Pun's order and you press
+  them back; one mistake locks the panel. Score is rounds completed in 22 s.
+- **Dead Tube**: the tube stutters; tap only while it is lit. Hits minus misses
+  in 20 s, so spamming scores nothing.
+- **Stakes**: highest score wins and gets a breath (dead lights come back near
+  them, lanterns full, ten seconds off the lift when it is called). Lowest
+  score is marked for thirty seconds: Pun reads them as three times nearer,
+  sees them from three times further, and everyone's HUD says PUN IS AFTER
+  [name]. All equal means nobody is marked. Solo, you play against Pun's par
+  (3 / 4 / 5 rounds, 9 / 12 / 15 hits by difficulty).
+- **Scoreboard** on both ending screens: evidence bagged, games won, times
+  caught, who got out, with titles (bagged the most, won Pun's games, Pun's
+  favourite, always last, left the others).
+- Results are exchanged as plain numbers and every client ranks them the same
+  way, so there is no referee to disagree with. Live scores tick during play.
+- `sw.js` cache `estate-3`; the menu shows `estate slice 3`.
+
 ## What the estate does
 
 All of this is either seeded, sent over the wire as an existing shift spec,
@@ -97,8 +119,8 @@ settings, the ending overlays and the service worker.
   shader does brick, plaster, wet concrete, glass, metal, terrazzo and water
   procedurally, with a `uWet` uniform for specular outdoors.
 - Fog colour and range, ambient and rain follow the player's zone.
-- `sw.js` VERSION is `missing-pun-preview-estate-2`; the menu shows
-  `estate slice 2`.
+- `sw.js` VERSION is `missing-pun-preview-estate-3`; the menu shows
+  `estate slice 3`.
 
 ## Testing performed (Playwright, headless Chromium, swiftshader)
 
@@ -111,6 +133,10 @@ settings, the ending overlays and the service worker.
 - Determinism: the same seed builds the same evidence layout twice; a
   different seed differs.
 - Shift planner: eight consecutive shifts, connectivity held every time.
+- Minigames: intercom played well beats par and grants the perk; played badly
+  marks the player; tube likewise; a bagged piece starts a game on its own;
+  two tabs play the same game, exchange results, the winner is announced and
+  the loser marked on both screens; the board renders with titles.
 - Multiplayer (mock Supabase over BroadcastChannel, two tabs): both tabs build
   the same grid and zones from the host's seed; evidence pickup and its shift
   replicate; positions replicate. No page errors.
