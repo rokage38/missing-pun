@@ -601,6 +601,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   .settings-title{ font-family:'Pirata One', serif; font-size:1.5rem; margin:0 0 12px; letter-spacing:.04em; }
   .settings-card label{ display:block; margin:0 0 12px; font-family:'Space Mono', monospace; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--bone-dim); }
   .settings-card input[type=range]{ width:100%; margin-top:4px; accent-color:#b3202f; }
+  .settings-card select{ font-family:'Space Mono', monospace; font-size:.7rem; background:#1b1512; color:var(--bone); border:1px solid var(--bone-dim); padding:4px 6px; margin:4px 0; }
   .settings-card label.row{ display:flex; align-items:center; gap:8px; text-transform:none; letter-spacing:.04em; font-size:.74rem; }
   .settings-card .hint{ opacity:.55; }
   .settings-card .set-voice-line{ font-size:.72rem; letter-spacing:.06em; opacity:.7; margin:6px 0 0; white-space:pre-line; min-height:1em; }
@@ -809,7 +810,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         </div>
         </div>
       </div>
-      <p class="wall-note">one block &middot; four floors of it move &middot; real-time 3d &middot; he is already in the stairwell <span id="build-tag">&middot; estate slice 7</span></p>
+      <p class="wall-note">one block &middot; four floors of it move &middot; real-time 3d &middot; he is already in the stairwell <span id="build-tag">&middot; estate slice 8</span></p>
     </div>
   </div>
 
@@ -858,6 +859,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           <label class="row"><input type="checkbox" id="set-shake" checked> Screen shake</label>
           <label class="row"><input type="checkbox" id="set-flash" checked> Flashes <span class="hint">(off is kinder on the eyes)</span></label>
           <label class="row"><input type="checkbox" id="set-lowq"> Low quality <span class="hint">(smoother on weak phones)</span></label>
+          <label>Camera <select id="set-cam"><option value="over">Overhead</option><option value="shoulder">Over the shoulder</option><option value="first">First person</option></select> <span class="hint">(riding cameras steer: left and right turn, up walks · C to switch)</span></label>
           <p class="set-voice-line" id="set-voice-line"></p>
           <div class="settings-actions">
             <button class="cta" id="settings-close">Keep playing</button>
@@ -1042,10 +1044,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     for (var di=0; di<EST.stairs.length; di++){
       var ds=EST.stairs[di], dc=ds.side==='W'?ds.c1:ds.c0, ddir=ds.side==='W'?'E':'W';
       fences.push({ r:ds.botR1, c:dc, dir:ddir, door:ds.side });
-      fences.push({ r:ds.botR1, c:dc, dir:ddir, span:[0,0.34], infill:true });
-      fences.push({ r:ds.botR1, c:dc, dir:ddir, span:[0.66,1], infill:true });
-      fences.push({ r:ds.topR0, c:dc, dir:ddir, span:[0,0.34], infill:true });
-      fences.push({ r:ds.topR0, c:dc, dir:ddir, span:[0.66,1], infill:true });
+      fences.push({ r:ds.botR1, c:dc, dir:ddir, span:[0,0.24], infill:true });
+      fences.push({ r:ds.botR1, c:dc, dir:ddir, span:[0.76,1], infill:true });
+      fences.push({ r:ds.topR0, c:dc, dir:ddir, span:[0,0.24], infill:true });
+      fences.push({ r:ds.topR0, c:dc, dir:ddir, span:[0.76,1], infill:true });
     }
 
     // ---- the service yard under the walkway: seen, never walked
@@ -1585,7 +1587,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var dx=s.x2-s.x1, dz=s.z2-s.z1, l2=dx*dx+dz*dz;
       var t=l2>0 ? ((x-s.x1)*dx+(z-s.z1)*dz)/l2 : 0;
       if(t<0)t=0; if(t>1)t=1;
-      var ex=x-(s.x1+t*dx), ez=z-(s.z1+t*dz), rr=rad+WALL_HALF;
+      var ex=x-(s.x1+t*dx), ez=z-(s.z1+t*dz), rr=rad+((s.fence&&s.fence.infill)?0.08:WALL_HALF);   // doorway walls are forgiving
       if (ex*ex+ez*ez < rr*rr) return true;
     }
     return false;
@@ -1607,7 +1609,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return d;
   }
 
-  function punZoneOK(r,c){ if (lastMode()) return true; var zn=zoneAt(r,c); return zn!==Z.COURT && zn!==Z.BINS; }
+  // while the stair doors are locked he is shut in the block; once they open he can follow you out
+  function punZoneOK(r,c){ if (lastMode() || !EST.locked) return true; var zn=zoneAt(r,c); return zn!==Z.COURT && zn!==Z.BINS; }
   // the nearest cell Pun may stand on to a point he may not reach
   function punNearestAllowed(r,c){
     if (punZoneOK(r,c) && isOpen(r,c)) return {r:r,c:c};
@@ -3077,15 +3080,20 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         boxYaw(pr.x+0.32, py+0.98, pr.z, 0.03,0.03,0.33, pr.yaw, PAL.steel, 3);
       } else if (pr.t==='commdoor'){
         // a wired-glass communal door standing open in a steel frame across the opening
-        var dx=pr.x, dz=pr.z, hw=0.66;
+        var dx=pr.x, dz=pr.z, hw=1.04;
         box(dx, py+1.15, dz-hw, 0.10,1.15,0.10, PAL.steelD, 3);
         box(dx, py+1.15, dz+hw, 0.10,1.15,0.10, PAL.steelD, 3);
         box(dx, py+2.30, dz, 0.12,0.08,hw+0.1, PAL.steelD, 3);
         box(dx, py+2.45, dz, WALL_HALF, 0.12, hw+0.1, PAL.cream, 0);                                     // lintel
+        // a fixed wired-glass side panel beside the leaf, so the wide opening still reads as one door
+        var pw=0.30;
+        box(dx, py+1.15, dz+hw-pw, 0.05,1.15,pw, PAL.steelD, 3);
+        box(dx, py+1.30, dz+hw-pw, 0.055,0.62,pw*0.75, PAL.glass, 5);
+        box(dx, py+1.15, dz+hw-2*pw, 0.06,1.15,0.04, PAL.steelD, 3);
         var shut = pr.bottom && EST.locked;
         var leafYaw = shut ? 0 : ((pr.side==='W') ? 1.15 : -1.15);
-        var lx = shut ? dx : dx+(pr.side==='W'?0.30:-0.30), lz = shut ? dz : dz-hw+0.12+0.55*Math.cos(1.15);
-        var hl = shut ? hw-0.12 : 0.55;
+        var hl = shut ? hw-pw-0.06 : 0.55;
+        var lx = shut ? dx : dx+(pr.side==='W'?0.30:-0.30), lz = shut ? dz-pw : dz-hw+0.12+0.55*Math.cos(1.15);
         boxYaw(lx, py+1.12, lz, 0.05,1.08,hl, leafYaw, PAL.steelD, 3);
         boxYaw(lx, py+1.30, lz, 0.055,0.62,hl*0.78, leafYaw, PAL.glass, 5);
         boxYaw(lx, py+1.10, lz, 0.06,0.02,hl, leafYaw, PAL.steel, 3);
@@ -3333,6 +3341,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   // Lower and closer than before, so the walls loom instead of being looked
   // down on. Still obeys WALL_H < 2*CAM_HEIGHT/CAM_BACK (2.5 < 2.70).
   var CAM_BACK=4.0, CAM_HEIGHT=5.4, CAM_LOOK=0.5, FOV=42;
+  // 'over' is the fixed high camera the game was built around; 'shoulder' and 'first' ride with you and
+  // steer like an old survival-horror game: left and right turn, up and down walk
+  var CAM_MODES=['over','shoulder','first'], CAM_NAMES={ over:'Overhead', shoulder:'Over the shoulder', first:'First person' };
+  function camMode(){ var m=(typeof SET!=='undefined' && SET.cam)||'over'; return CAM_MODES.indexOf(m)<0?'over':m; }
 
   var realRandom=Math.random;
   function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; var t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
@@ -3470,6 +3482,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var k=e.key.toLowerCase(); keys[k]=true;
     if (k==='shift') sprintHeld=true;
     if (k==='e'){ if (phase==='dead') cycleSpectate(); else actPressed=true; }
+    if (k==='c' && !e.repeat && document.body.classList.contains('playing') && !MG.active) cycleCam();
     if (['arrowup','arrowdown','arrowleft','arrowright',' '].indexOf(k)!==-1) e.preventDefault();
   });
   window.addEventListener('keyup',function(e){
@@ -3593,6 +3606,15 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       keyLen=1;
     }
     var moving=(mx!==0||mz!==0);
+    // riding cameras: the stick's sideways throw turns you, its forward throw walks you
+    var tank = camMode()!=='over' && !hidden;
+    if (tank){
+      var turn=mx, fwd=-mz;
+      if (Math.abs(fwd)<0.3 && Math.abs(turn)>0.05) fwd=0;      // a sideways push is a turn on the spot
+      player.yaw -= turn*dt*2.5;
+      var fx=-Math.sin(player.yaw), fz=-Math.cos(player.yaw);
+      mx=fx*fwd; mz=fz*fwd; moving=Math.abs(fwd)>0.05;
+    }
 
     // hiding
     var near=NET.isPun ? null : nearestHideSpot();
@@ -3645,13 +3667,20 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     staminaFill.style.width=stamina+'%';
 
     if (moving){
-      var tgt=Math.atan2(-mx,-mz), d=tgt-player.yaw;
-      while (d>Math.PI) d-=Math.PI*2;
-      while (d<-Math.PI) d+=Math.PI*2;
-      player.yaw += d*Math.min(1, dt*14);
+      if (!tank){
+        var tgt=Math.atan2(-mx,-mz), d=tgt-player.yaw;
+        while (d>Math.PI) d-=Math.PI*2;
+        while (d<-Math.PI) d+=Math.PI*2;
+        player.yaw += d*Math.min(1, dt*14);
+      }
       player.animT += dt*(sprinting?12.5:8.0);
     }
 
+    // the doorways funnel you: heading for a stair door, you drift onto its centre line
+    if (moving && Math.abs(mx)>0.3 && !hidden){
+      for (var dp=0; dp<props.length; dp++){ var dr=props[dp]; if (dr.t!=='commdoor') continue;
+        if (Math.abs(dr.x-player.x)<1.8 && Math.abs(dr.z-player.z)<1.4 && Math.abs(floorAt(dr.x,dr.z)-player.fy)<1.5){ var dzf=dr.z-player.z; player.z += Math.max(-dt*2.4, Math.min(dt*2.4, dzf)); break; } }
+    }
     var nx=player.x+mx*speed*dt;
     var PR=NET.isPun?0.55:PLAYER_R;
     if (!collides(nx,player.z,PR)) player.x=nx;
@@ -3975,6 +4004,30 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return best || {x:player.x,z:player.z,hidden:true,sprinting:false,local:true};
   }
   var punSense={ senses:false, lastSense:0 };
+  function beginScare(){
+    if (phase!=='play') return;
+    phase='scare'; scareT=0;
+    jumpStinger(); voice('gotyou',{vol:1.15,minGap:0,cool:0});
+    flashEl.classList.add('fire');
+    frame.classList.remove('shaking');
+    frame.classList.add('scaring');
+    promptEl.classList.add('hidden');
+    dreadWash.style.opacity=1;
+  }
+  // whoever runs Pun (the host, or the human Pun) decides catches on the others: their screens see
+  // him half a second behind where he really is, so left to themselves he could never lay a hand
+  // on anyone who kept running
+  function netCatchCheck(now){
+    if (!NET.on || phase!=='play' || MG.active) return;
+    if ((now-startTime)/1000 < (lastMode()?10:(D.grace||0))) return;
+    for (var k in NET.peers){
+      var q=NET.peers[k];
+      if (q.role==='pun' || q.dead || q.out || q.hidden) continue;
+      if (now-(q.seenAt||0)>2500) continue;                       // stale position: not fair
+      var cc=cellOf(q.tx,q.tz); if (!punZoneOK(cc.r,cc.c)) continue;
+      if (dist(q.tx,q.tz,creature.x,creature.z)<CATCH_DIST+0.55 && now-(q.caughtAt||0)>4000){ q.caughtAt=now; netSend('caught',{ to:k }); }
+    }
+  }
   function updateCreature(dt, now){
     var d=dist(player.x,player.z,creature.x,creature.z);
     if (MG.active) return d;
@@ -3990,6 +4043,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       if (sees) punSense.lastSense=now;
       punSense.senses = sees || (now-punSense.lastSense<4000);
       huntMode=punSense.senses;
+      netCatchCheck(now);
       return 99;
     }
     if (NET.on && !NET.isPun && (NET.role!=='host' || NET.mode==='vs')){
@@ -4088,6 +4142,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var closeness=1-Math.min(1, d/D.aware);
     creature.jx=(Math.random()*2-1)*closeness*0.05;
     creature.jz=(Math.random()*2-1)*closeness*0.05;
+    if (NET.on && isHost()) netCatchCheck(now);
     return NET.on ? dist(player.x,player.z,creature.x,creature.z) : d;
   }
 
@@ -4116,7 +4171,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var handY=shY-0.50*Math.cos(rArmPitch);
     var lanternY=handY-0.21;
     var p=rotY(0.335, handLZ-0.03, pl.yaw);
-    if (pl===player){ playerLantern[0]=pl.x+p[0]; playerLantern[1]=lanternY+0.06+(pl.fy||0); playerLantern[2]=pl.z+p[1]; }
+    if (pl===player){ playerLantern[0]=pl.x+p[0]; playerLantern[1]=lanternY+0.06+(pl.fy||0); playerLantern[2]=pl.z+p[1];
+      // riding cameras: the torch is thrown ahead of you, so the way you are looking is the way that is lit
+      if (camMode()!=='over' && phase==='play' && !hidden){ var lf=camMode()==='first'?2.2:1.6; playerLantern[0]+=-Math.sin(pl.yaw)*lf; playerLantern[2]+=-Math.cos(pl.yaw)*lf; playerLantern[1]+=0.25; } }
     pl.pose={ swing:swing, bob:bob, shY:shY,
       lean: pl.sprinting?0.16:(pl.moving?0.07:0),
       rArmPitch:rArmPitch, handLZ:handLZ, handY:handY, lanternY:lanternY };
@@ -4127,7 +4184,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var asp=canvas.width/canvas.height;
       var halfH=Math.tan(28.3*Math.PI/180);
       var v=2*Math.atan(halfH/Math.max(asp,0.05))*180/Math.PI;
-      projMat=m4Perspective(Math.max(FOV, Math.min(70, v))*Math.PI/180, asp, 0.1, 70);
+      var baseFov = (camMode()==='over' || phase!=='play' || hidden) ? FOV : 58;
+      projMat=m4Perspective(Math.max(baseFov, Math.min(70, v))*Math.PI/180, asp, 0.1, 70);
     }
     computePose(player);
     if (MG.active && MG.G && MG.G.arena){ renderCage(now); return; }
@@ -4155,6 +4213,23 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       } else {
         eye=[hideSpot.x + ix*0.55, 1.62+hfy, hideSpot.z + iz*0.55];
         target=[hideSpot.x + ix*8, 1.15+hfy, hideSpot.z + iz*8];
+      }
+    } else if (camMode()!=='over' && phase==='play'){
+      var cfx=-Math.sin(player.yaw), cfz=-Math.cos(player.yaw);
+      var bob = player.moving ? Math.sin(now/(player.sprinting?85:130))*(player.sprinting?0.045:0.025) : Math.sin(now/1400)*0.012;
+      if (camMode()==='first'){
+        eye=[player.x+cfx*0.22, 1.58+player.fy+bob, player.z+cfz*0.22];
+        target=[player.x+cfx*6, 1.40+player.fy+bob, player.z+cfz*6];
+      } else {
+        // behind the shoulder, pulled in when a wall or a bin is in the way
+        var back=3.6, tp=1;
+        for (var cs=1; cs<=12; cs++){ var ct=cs/12; if (collides(player.x-cfx*back*ct, player.z-cfz*back*ct, 0.12)){ tp=Math.max(0.3,(cs-1)/12); break; } }
+        player.camBack = player.camBack===undefined ? tp : player.camBack+(tp-player.camBack)*Math.min(1, (now-(player.camT||now))/1000*8);
+        player.camT=now;
+        var cb=back*player.camBack;
+        // the nearer the wall pushes the camera, the higher it climbs, so it looks over your head rather than into your back
+        eye=[player.x-cfx*cb, 1.6+1.0*player.camBack+(1-player.camBack)*1.4+player.fy+bob, player.z-cfz*cb];
+        target=[player.x+cfx*3.0, 0.9+player.fy, player.z+cfz*3.0];
       }
     } else {
       // a slow handheld drift, so the frame is never perfectly still
@@ -4245,7 +4320,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (!NET.isPun && phase!=='dead') drawShadow(player.x,player.z,0.75);
     drawPeers(now);
     drawShadow(creature.x,creature.z,0.85);
-    if ((!hidden || phase==='scare') && !NET.isPun && phase!=='dead') drawPlayer(player);
+    if ((!hidden || phase==='scare') && !NET.isPun && phase!=='dead' && !(camMode()==='first' && phase==='play')) drawPlayer(player);
     drawCreature(d);
     if (isOutdoors(playerZone())) drawRain(now); else drawMotes(now);
 
@@ -4998,7 +5073,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return kind;
   }
   function mgStart(index){
-    if (MG.active || NET.isPun || phase!=='play' || lastMode()) return;
+    if (NET.isPun || lastMode()) return;
+    if (MG.active){ MG.queued=index; return; }                    // still on the last one: play this one straight after
+    if (phase!=='play') return;
     var kind=mgKindFor(index), G=MG_GAMES[kind];
     var seed = ((NET.on ? NET.seed : Math.floor(startTime/97)) + index*104729)|0;
     MG={ active:true, kind:kind, G:Object.assign({},G), index:index, t:0, phase:'intro', dur:G.dur, rnd:mulberry32(seed), score:0, done:false, scores:{}, results:{}, resultT:0, par:G.par[diffName]||G.par.normal, taps:0 };
@@ -5106,6 +5183,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     MG.active=false; mgEl.classList.add('hidden'); mgEl.classList.remove('arena');
     graceLeft=0;
     if (HZ.marked>0 && !NET.isPun){ huntMode=true; searchTimer=0; lastKnown={x:player.x,z:player.z}; showToast('He knows where you are. Move.', true); }
+    var q=MG.queued; if (q!==undefined && q!==null){ MG.queued=null; setTimeout(function(){ if (phase==='play') mgStart(q); }, 1200); }
   }
   function mgSkip(){ if (!MG.active) return; MG.active=false; mgEl.classList.add('hidden'); }
 
@@ -5696,17 +5774,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
       // caught
       var outside = !punZoneOK(cellOf(player.x,player.z).r, cellOf(player.x,player.z).c) && !(NET.mode==='vs' && NET.remoteCreature);
-      if (!hidden && graceLeft<=0 && d<CATCH_DIST && !NET.isPun && !outside){
-        phase='scare'; scareT=0;
-        jumpStinger(); voice('gotyou',{vol:1.15,minGap:0,cool:0});
-        flashEl.classList.add('fire');
-        frame.classList.remove('shaking');
-        frame.classList.add('scaring');
-        promptEl.classList.add('hidden');
-        dreadWash.style.opacity=1;
-      }
+      var remotePun = NET.on && !NET.isPun && (NET.role!=='host' || NET.mode==='vs');
+      if (!hidden && graceLeft<=0 && d<(remotePun?CATCH_DIST*1.5:CATCH_DIST) && !NET.isPun && !outside) beginScare();
     } else if (phase==='scare'){
       scareT+=dt;
+      if (NET.on && !NET.isPun && (NET.role!=='host' || NET.mode==='vs')) NET.remoteCreature=null;   // he is on you now; stop gliding him about
       // it keeps coming right up to the lens
       stepToward(player.x,player.z, 1.1, dt);
       creature.animT += dt*18;
@@ -5788,7 +5860,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   function uid(){ return Math.random().toString(36).slice(2,8); }
   function roomCode(){ var a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', c=''; for (var i=0;i<4;i++) c+=a[(Math.random()*a.length)|0]; return c; }
-  var NET_RELIABLE={ evidence:1, 'house-shift':1, start:1, dead:1, out:1, round:1, mgres:1, marked:1, trap:1, lobby:1, voice:1, rtc:1, mgspot:1, mgclaim:1, mgwin:1, mgcatch:1 };
+  var NET_RELIABLE={ caught:1, evidence:1, 'house-shift':1, start:1, dead:1, out:1, round:1, mgres:1, marked:1, trap:1, lobby:1, voice:1, rtc:1, mgspot:1, mgclaim:1, mgwin:1, mgcatch:1 };
   function netSend(ev, payload){
     if (!NET.on || !NET.chan) return;
     payload=payload||{}; payload.from=NET.me;
@@ -5878,6 +5950,14 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     ch.on('broadcast',{event:'round'},function(m){ netRoundEnd(m.payload); });
     ch.on('broadcast',{event:'lobby'},function(m){ if (!isHost()) backToLobby(); });
     ch.on('broadcast',{event:'voice'},function(m){ voice(m.payload.k,{vol:1.0,minGap:0,cool:0,local:true}); });
+    ch.on('broadcast',{event:'caught'},function(m){
+      if (m.payload.to!==NET.me || phase!=='play' || hidden || NET.isPun || NET.dead || NET.out || MG.active || graceLeft>0) return;
+      // he is on you: put him at your back so the scare plays out from where you are
+      var cx=creature.x-player.x, cz=creature.z-player.z, cd=Math.hypot(cx,cz)||1;
+      if (cd>0.7){ creature.x=player.x+cx/cd*0.7; creature.z=player.z+cz/cd*0.7; }
+      creature.fy=player.fy; creature.cell=cellOf(creature.x,creature.z);
+      beginScare();
+    });
     ch.on('broadcast',{event:'dead'},function(m){ var q=NET.peers[m.payload.from]; if (q){ q.dead=true; showToast('He got '+q.name, true); if (!m.payload.quit){ var sd=statFor(m.payload.from,q.name); sd.caught++; if (m.payload.t) sd.lasted=m.payload.t; } if (lastMode()){ updateEvidenceHud(); if (survivorsLeft()===1 && !NET.dead && !NET.out){ showToast('Just you now.', true); voice('getover',{vol:1.0,minGap:0,cool:0}); } } } });
     ch.on('broadcast',{event:'out'},function(m){ var q=NET.peers[m.payload.from]; if (q){ q.out=true; showToast(q.name+' made it out'); var so=statFor(m.payload.from,q.name); so.out=true; if (!STATS.__first){ STATS.__first=1; so.escapedFirst=true; } } });
     ch.on('broadcast',{event:'trap'},function(m){ var q=NET.peers[m.payload.from]; if (q) showToast((q.name)+' went through a grate', true); if (typeof m.payload.i==='number' && traps[m.payload.i]) traps[m.payload.i].sprung=true; if (isHost() && !NET.isPun){ huntMode=true; searchTimer=0; lastKnown={x:m.payload.x,z:m.payload.z}; } });
@@ -6281,7 +6361,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   window.addEventListener('load', function(){ fitPoster(); setTimeout(fitPoster, 400); setTimeout(fitPoster, 1500); });
   new MutationObserver(function(){ requestAnimationFrame(fitPoster); }).observe($('lobby'), { childList:true, subtree:true, attributes:true });
   // ===================== SETTINGS =====================
-  var SET={ master:1, voice:1, brightness:1.12, shake:true, flash:true, lowq:false };
+  var SET={ master:1, voice:1, brightness:1.12, shake:true, flash:true, lowq:false, cam:'over' };
   try{ var sv=JSON.parse(localStorage.getItem('eth-settings')||'{}'); for (var sk in sv) SET[sk]=sv[sk]; }catch(e){}
   SET.brightness=Math.max(0.75,Math.min(1.6,+SET.brightness||1.12));
   var settingsEl=$('settings'), gearBtn=$('gear-btn'), pausedBySettings=false;
@@ -6290,7 +6370,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     document.body.classList.toggle('noshake', !SET.shake);
     document.body.classList.toggle('noflash', !SET.flash);
     $('set-master').value=Math.round(SET.master*100); $('set-voice').value=Math.round(SET.voice*100); $('set-brightness').value=Math.round(SET.brightness*100);
-    $('set-shake').checked=SET.shake; $('set-flash').checked=SET.flash; $('set-lowq').checked=SET.lowq;
+    $('set-shake').checked=SET.shake; $('set-flash').checked=SET.flash; $('set-lowq').checked=SET.lowq; $('set-cam').value=camMode();
   }
   applySet();
   $('set-master').addEventListener('input', function(){ SET.master=this.value/100; saveSet(); });
@@ -6299,6 +6379,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   $('set-shake').addEventListener('change', function(){ SET.shake=this.checked; saveSet(); applySet(); });
   $('set-flash').addEventListener('change', function(){ SET.flash=this.checked; saveSet(); applySet(); });
   $('set-lowq').addEventListener('change', function(){ SET.lowq=this.checked; saveSet(); sizeCanvas(); });
+  $('set-cam').addEventListener('change', function(){ SET.cam=this.value; saveSet(); });
+  function cycleCam(){ SET.cam=CAM_MODES[(CAM_MODES.indexOf(camMode())+1)%CAM_MODES.length]; saveSet(); $('set-cam').value=SET.cam; showToast('Camera: '+CAM_NAMES[SET.cam], true); }
   function voiceDiag(){
     if (!NET.on) return '';
     if (!VOICE.on) return 'voice: off — ' + (lbMicNote.textContent||'');

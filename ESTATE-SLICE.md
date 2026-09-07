@@ -158,6 +158,32 @@ second; anything that scores is a reliable message settled by one authority.
   last voice event, so a phone that cannot hear can say why.
 - `sw.js` cache `estate-7`; the menu shows `estate slice 7`.
 
+## Pass 8: doorways, catches, cameras
+
+- **Doorways.** The stair doors were a 1.3 m gap for a player who needs 1.16 m
+  of clearance, which is why they were so hard to walk through. The opening is
+  now 2.1 m (a leaf plus a fixed wired-glass side panel), the door-side walls
+  are forgiving, and heading for a door drifts you onto its centre line, so
+  you can hit it at an angle and still go through.
+- **Pun catches the others.** Every phone used to decide its own catches from
+  where it saw Pun, and it sees him half a second behind where he really is;
+  anyone who kept running could never be caught. Now whoever runs Pun (the
+  host, or the human Pun) sends a reliable `caught` message when he is on a
+  friend, and that friend's phone plays the scare from where they stand. The
+  local check stays for the host's own player and as a wider fallback.
+- **Pun follows you out.** He is shut in the block only while the stair doors
+  are locked; once the fob or the fifty-second buzz opens them he can come into
+  the courtyard and the bin store after you and catch you there.
+- **Minigames queue.** A piece bagged while someone is still on the last game
+  starts on their phone straight after it, instead of being dropped.
+- **Camera modes** in settings and on C: overhead (as before), over the
+  shoulder, and first person. The riding cameras steer like an old
+  survival-horror game: sideways on the stick turns, forward walks; the torch
+  is thrown ahead of you and the shoulder camera climbs over your head when a
+  wall pushes it in. The player is not drawn in first person. Hiding, the scare
+  and spectating keep their own cameras.
+- `sw.js` cache `estate-8`; the menu shows `estate slice 8`.
+
 ## What the estate does
 
 All of this is either seeded, sent over the wire as an existing shift spec,
@@ -228,6 +254,11 @@ settings, the ending overlays and the service worker.
   the case; case mode auto-unlocks at 50 s; three tabs in last mode agree on
   the mode, the HUD drops to STANDING 2 on the first death, the round ends on
   the second with the survivor named on all three screens and ranked first.
+- Pass 8: all four stair doorways passed from five offsets up to 0.8 m off
+  centre; shoulder and first-person cameras walk along the facing and turn;
+  after unlocking, Pun closes from 7 m to 0.1 m in the courtyard; a host whose
+  Pun stands next to a peer's reported position sends `caught` and the peer
+  enters the scare; a game started during another is queued.
 - Multiplayer (mock Supabase over BroadcastChannel, two tabs): both tabs build
   the same grid and zones from the host's seed; evidence pickup and its shift
   replicate; positions replicate. No page errors.
